@@ -10,6 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Appointment = () => {
   const [formData, setFormData] = useState({
@@ -53,27 +54,50 @@ const Appointment = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      // Prepare appointment data for database
+      const appointmentData = {
+        name: `${formData.firstName} ${formData.lastName}`.trim(),
+        phone: formData.phone,
+        appointment_type: `${formData.serviceType} - ${formData.sessionType} - ${formData.preferredDate} ${formData.preferredTime}`,
+        message: formData.message || null
+      };
 
-    toast({
-      title: "درخواست شما ثبت شد",
-      description: "در کمتر از ۲۴ ساعت با شما تماس خواهیم گرفت",
-    });
+      const { error } = await supabase
+        .from('appointments')
+        .insert([appointmentData]);
 
-    setIsSubmitting(false);
-    // Reset form
-    setFormData({
-      firstName: "",
-      lastName: "",
-      phone: "",
-      email: "",
-      serviceType: "",
-      sessionType: "",
-      preferredTime: "",
-      preferredDate: "",
-      message: ""
-    });
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "درخواست شما ثبت شد",
+        description: "در کمتر از ۲۴ ساعت با شما تماس خواهیم گرفت",
+      });
+
+      // Reset form
+      setFormData({
+        firstName: "",
+        lastName: "",
+        phone: "",
+        email: "",
+        serviceType: "",
+        sessionType: "",
+        preferredTime: "",
+        preferredDate: "",
+        message: ""
+      });
+    } catch (error) {
+      console.error('Error submitting appointment:', error);
+      toast({
+        title: "خطا در ثبت درخواست",
+        description: "لطفاً دوباره تلاش کنید یا با ما تماس بگیرید",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
