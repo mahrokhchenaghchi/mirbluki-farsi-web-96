@@ -55,17 +55,13 @@ const Appointment = () => {
     setIsSubmitting(true);
 
     try {
-      // Prepare appointment data for database
-      const appointmentData = {
-        name: `${formData.firstName} ${formData.lastName}`.trim(),
-        phone: formData.phone,
-        appointment_type: `${formData.serviceType} - ${formData.sessionType} - ${formData.preferredDate} ${formData.preferredTime}`,
+      // Call the secure PostgreSQL function for appointment submission
+      const { data: appointmentId, error } = await supabase.rpc('submit_appointment', {
+        full_name: `${formData.firstName} ${formData.lastName}`.trim(),
+        phone_number: formData.phone,
+        preferred_date: `${formData.preferredDate} ${formData.preferredTime} - ${formData.serviceType} (${formData.sessionType})`,
         message: formData.message || null
-      };
-
-      const { error } = await supabase
-        .from('appointments')
-        .insert([appointmentData]);
+      });
 
       if (error) {
         throw error;

@@ -52,7 +52,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      submit_appointment: {
+        Args: {
+          full_name: string
+          phone_number: string
+          preferred_date: string
+          message?: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
