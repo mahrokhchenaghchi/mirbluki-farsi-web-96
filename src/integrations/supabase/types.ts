@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -16,34 +16,55 @@ export type Database = {
     Tables: {
       appointments: {
         Row: {
-          appointment_type: string
           created_at: string
+          date: string
           id: string
-          message: string | null
-          name: string
-          phone: string
+          notes: string | null
+          service: string
           status: string
-          updated_at: string
+          user_id: string
         }
         Insert: {
-          appointment_type: string
           created_at?: string
+          date: string
           id?: string
-          message?: string | null
-          name: string
-          phone: string
+          notes?: string | null
+          service: string
           status?: string
-          updated_at?: string
+          user_id: string
         }
         Update: {
-          appointment_type?: string
           created_at?: string
+          date?: string
           id?: string
-          message?: string | null
-          name?: string
-          phone?: string
+          notes?: string | null
+          service?: string
           status?: string
-          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          role: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          role?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          role?: string | null
         }
         Relationships: []
       }
@@ -52,12 +73,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      is_admin: {
+        Args: { uid: string }
+        Returns: boolean
+      }
       submit_appointment: {
         Args: {
           full_name: string
+          message?: string
           phone_number: string
           preferred_date: string
-          message?: string
         }
         Returns: string
       }
