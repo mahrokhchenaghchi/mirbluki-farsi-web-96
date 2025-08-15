@@ -11,6 +11,7 @@ import Services from "./pages/Services";
 import Blog from "./pages/Blog";
 import Contact from "./pages/Contact";
 import Appointment from "./pages/Appointment";
+import Appointments from "./pages/Appointments";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -61,7 +62,7 @@ const App = () => (
             } />
             <Route path="/appointments" element={
               <ProtectedRoute>
-                <Appointment />
+                <Appointments />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
