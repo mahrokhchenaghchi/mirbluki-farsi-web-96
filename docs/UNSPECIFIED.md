@@ -1,10 +1,10 @@
-# موارد تعریف‌نشده و موارد موقت
+# موارد تعریف‌نشده
 
-## قطعی در این نسخه
+## قطعی
 
-- پنج شاخص Mood: انرژی، حال عمومی، تمرکز، کیفیت خواب، استرس
-- نام ACT001 تا ACT045
-- دسته‌ها، DataTypeها، Frequencyها، Sticker و Color palettes
+- نام و مشخصات ACT001 تا ACT045 از جدول رسمی مالک محصول
+- پنج شاخص Mood
+- دسته‌ها، DataType، Frequency
 
 ## UNSPECIFIED
 
@@ -13,13 +13,7 @@
 | فرمول Achievement | UNSPECIFIED |
 | فرمول Overall Success | UNSPECIFIED |
 | اطلاعات تماس پشتیبانی | UNSPECIFIED |
-| اعلان SMS / Email / Push | UNSPECIFIED |
-| پنل ادمین | UNSPECIFIED |
+| ارسال واقعی SMS/OTP | UNSPECIFIED — فقط ساختار آماده است |
+| پنل ادمین کامل | UNSPECIFIED |
 
-## Seed موقت Frequency / Target / Weight
-
-فایل PDF کتابخانه در محیط ساخت خوانده نشد.
-
-برای اینکه کتابخانه قابل استفاده باشد، مقدار Frequency، DataType، Target و Weight اولیه به‌صورت seed موقت و کاملاً قابل ویرایش در UI گذاشته شده است.
-
-این مقادیر فرمول امتیازدهی نیستند. بعد از دریافت جدول رسمی Library جایگزین می‌شوند.
+Seed موقت قبلی دیگر مبنای کتابخانه نیست.
