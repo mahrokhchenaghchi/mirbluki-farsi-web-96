@@ -1,53 +1,68 @@
 <?php
 if (current_user()) joma_redirect('index.php?p=dashboard');
 $err = '';
+$old = array('first_name'=>'','last_name'=>'','username'=>'','email'=>'','phone'=>'','job'=>'سایر');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
     $in = array(
-        'first_name' => trim($_POST['first_name']),
-        'last_name' => trim($_POST['last_name']),
-        'username' => strtolower(trim($_POST['username'])),
-        'email' => strtolower(trim($_POST['email'])),
-        'phone' => trim($_POST['phone']),
-        'job' => trim($_POST['job']),
-        'password' => $_POST['password'],
-        'confirm' => $_POST['confirm'],
+        'first_name' => trim(isset($_POST['first_name']) ? $_POST['first_name'] : ''),
+        'last_name' => trim(isset($_POST['last_name']) ? $_POST['last_name'] : ''),
+        'username' => strtolower(trim(isset($_POST['username']) ? $_POST['username'] : '')),
+        'email' => strtolower(trim(isset($_POST['email']) ? $_POST['email'] : '')),
+        'phone' => trim(isset($_POST['phone']) ? $_POST['phone'] : ''),
+        'job' => trim(isset($_POST['job']) ? $_POST['job'] : ''),
+        'password' => isset($_POST['password']) ? $_POST['password'] : '',
+        'confirm' => isset($_POST['confirm']) ? $_POST['confirm'] : '',
+        'accept' => !empty($_POST['accept']),
     );
-    if ($in['first_name'] === '' || $in['last_name'] === '') $err = 'نام و نام خانوادگی را وارد کنید.';
-    elseif (!preg_match('/^[a-zA-Z][a-zA-Z0-9._]{2,19}$/', $in['username'])) $err = 'نام کاربری معتبر نیست.';
-    elseif (username_taken($in['username'])) $err = 'این نام کاربری قبلاً استفاده شده است.';
-    elseif (!filter_var($in['email'], FILTER_VALIDATE_EMAIL)) $err = 'ایمیل معتبر نیست.';
-    elseif (email_taken($in['email'])) $err = 'این ایمیل قبلاً ثبت شده است.';
-    elseif (!preg_match('/^09[0-9]{9}$/', $in['phone'])) $err = 'شماره موبایل معتبر نیست.';
-    elseif (!in_array($in['job'], jobs_list(), true)) $err = 'شغل را از فهرست انتخاب کنید.';
-    elseif (strlen($in['password']) < 6) $err = 'رمز عبور باید حداقل ۶ نویسه باشد.';
-    elseif ($in['password'] !== $in['confirm']) $err = 'رمز عبور و تکرار آن یکسان نیستند.';
-    else {
+    $old = $in;
+    $err = validate_registration($in);
+    if ($err === '') {
         $u = create_user($in);
         $_SESSION['user'] = session_user_array($u);
         joma_redirect('index.php?p=mood');
     }
 }
-joma_header('ثبت‌نام');
+joma_header('ثبت‌نام', array(), array('public' => 1));
 ?>
-<div class="card">
-  <a href="<?php echo e(joma_url('index.php?p=home')); ?>">بازگشت</a>
+<div class="card auth-card">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <?php echo joma_logo(56); ?>
+    <a href="<?php echo e(joma_url('index.php?p=home')); ?>">بازگشت به معرفی</a>
+  </div>
   <h1>ساخت حساب جوما</h1>
+  <p class="lede">با پذیرش قوانین، حساب محلی خود را می‌سازید.</p>
+  <div class="mode-tabs">
+    <a href="<?php echo e(joma_url('index.php?p=login')); ?>">ورود</a>
+    <a class="on" href="<?php echo e(joma_url('index.php?p=register')); ?>">ثبت‌نام</a>
+    <a href="<?php echo e(joma_url('index.php?p=forgot')); ?>">فراموشی</a>
+  </div>
   <form method="post">
     <?php echo csrf_field(); ?>
-    <label>نام</label><input name="first_name" required>
-    <label>نام خانوادگی</label><input name="last_name" required>
-    <label>نام کاربری</label><input name="username" data-live-username required>
+    <div class="field-row">
+      <div><label>نام</label><input name="first_name" value="<?php echo e($old['first_name']); ?>" required></div>
+      <div><label>نام خانوادگی</label><input name="last_name" value="<?php echo e($old['last_name']); ?>" required></div>
+    </div>
+    <label>نام کاربری</label>
+    <input name="username" data-live-username dir="ltr" value="<?php echo e($old['username']); ?>" required>
     <div id="user-hints" class="hint"></div>
-    <label>ایمیل</label><input type="email" name="email" required>
-    <label>شماره موبایل</label><input name="phone" placeholder="09123456789" required>
+    <label>شماره موبایل</label>
+    <input name="phone" data-live-phone dir="ltr" placeholder="09123456789" value="<?php echo e($old['phone']); ?>" required>
+    <div id="phone-hints" class="hint"></div>
+    <label>ایمیل</label>
+    <input type="email" name="email" data-live-email dir="ltr" value="<?php echo e($old['email']); ?>" required>
+    <div id="email-hints" class="hint"></div>
     <label>شغل</label>
-    <select name="job"><?php foreach (jobs_list() as $j) echo '<option>'.e($j).'</option>'; ?></select>
+    <select name="job"><?php foreach (jobs_list() as $j) echo '<option'.($old['job']===$j?' selected':'').'>'.e($j).'</option>'; ?></select>
     <label>رمز عبور</label><input type="password" name="password" required>
     <label>تکرار رمز عبور</label><input type="password" name="confirm" required>
     <div id="pass-hints" class="hint"></div>
+    <label class="check">
+      <input type="checkbox" name="accept" value="1" required>
+      <span>قوانین و فلسفه جوما را می‌پذیرم. جوما محصول خودمدیریتی است: برنامه‌ریزی → اجرا → اندازه‌گیری → فهمیدن → بهبود. <a href="<?php echo e(joma_url('index.php?p=about')); ?>">درباره جوما</a></span>
+    </label>
     <?php if ($err) echo '<p class="bad">'.e($err).'</p>'; ?>
-    <p><button class="btn" type="submit">ساخت حساب</button></p>
+    <p><button class="btn btn-block" type="submit">ساخت حساب</button></p>
   </form>
 </div>
 <?php joma_footer(); ?>

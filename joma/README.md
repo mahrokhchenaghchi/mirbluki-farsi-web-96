@@ -17,3 +17,8 @@
 - `database/joma.sql` — ساخت جداول + Seed رسمی
 - `database/library_official.json` — منبع کتابخانه
 - `config/config.example.php` — نمونه تنظیمات
+- `assets/css/joma.css` — ظاهر لوکس، پاستلی، RTL و Responsive
+- `tests/run.mjs` — تست سناریوها (Node)
+- `tests/run.php` — تست CLI اگر PHP روی سیستم باشد
+
+ظاهر برنامه کارت‌محور و پاستلی است و منوی کامل + بازگشت + Breadcrumb دارد. Achievement جعلی نشان داده نمی‌شود.

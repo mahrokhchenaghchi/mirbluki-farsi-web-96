@@ -140,6 +140,30 @@ function jalali_period_label($key) {
     return jalali_month_name($p[1]) . ' ' . $p[0];
 }
 
+function jalali_weekday_index($date) {
+    $p = explode('-', $date);
+    $g = jalali_to_gregorian((int) $p[0], (int) $p[1], (int) $p[2]);
+    $ts = mktime(0, 0, 0, $g[1], $g[2], $g[0]);
+    $w = (int) date('w', $ts);
+    return ($w + 1) % 7;
+}
+
+function jalali_weekday_name($date) {
+    $names = array('شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه');
+    return $names[jalali_weekday_index($date)];
+}
+
+function jalali_is_valid($date) {
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) return false;
+    $p = explode('-', $date);
+    $y = (int) $p[0];
+    $m = (int) $p[1];
+    $d = (int) $p[2];
+    if ($m < 1 || $m > 12) return false;
+    if ($d < 1 || $d > jalali_month_length($y, $m)) return false;
+    return true;
+}
+
 function fa_num($v) {
     return strtr((string) $v, array('0'=>'۰','1'=>'۱','2'=>'۲','3'=>'۳','4'=>'۴','5'=>'۵','6'=>'۶','7'=>'۷','8'=>'۸','9'=>'۹'));
 }

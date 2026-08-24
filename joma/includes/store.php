@@ -4,37 +4,39 @@ function store_mode() {
 }
 
 function store_path() {
+    if (!empty($GLOBALS['JOMA_STORE_PATH'])) return $GLOBALS['JOMA_STORE_PATH'];
     return dirname(__FILE__) . '/../data/store.json';
+}
+
+function store_empty() {
+    return array(
+        'users' => array(),
+        'preferences' => array(),
+        'activities' => array(),
+        'periods' => array(),
+        'plans' => array(),
+        'plan_activities' => array(),
+        'events' => array(),
+        'moods' => array(),
+        'projections' => array(),
+        'seq' => 1,
+    );
 }
 
 function store_load() {
     $path = store_path();
     if (!file_exists($path)) {
-        $init = array(
-            'users' => array(),
-            'preferences' => array(),
-            'activities' => array(),
-            'periods' => array(),
-            'plans' => array(),
-            'plan_activities' => array(),
-            'events' => array(),
-            'moods' => array(),
-            'projections' => array(),
-            'seq' => 1,
-        );
-        $seed = json_decode(file_get_contents(dirname(__FILE__) . '/../database/library_official.json'), true);
-        foreach ($seed as $row) {
-            $row['id'] = $init['seq']++;
-            $row['user_id'] = null;
-            $row['is_seed'] = 1;
-            $row['created_at'] = date('c');
-            $row['updated_at'] = date('c');
-            $init['activities'][] = $row;
-        }
+        $init = store_empty();
         store_save($init);
         return $init;
     }
-    return json_decode(file_get_contents($path), true);
+    $data = json_decode(file_get_contents($path), true);
+    if (!is_array($data)) return store_empty();
+    $base = store_empty();
+    foreach ($base as $k => $v) {
+        if (!isset($data[$k])) $data[$k] = $v;
+    }
+    return $data;
 }
 
 function store_save($data) {
@@ -63,10 +65,79 @@ function db() {
 }
 
 function store_role_permissions($role) {
-    $base = array('VIEW_DASHBOARD','CREATE_PLAN','EDIT_PLAN','RECORD_PERFORMANCE','VIEW_REPORT','VIEW_HISTORY','MANAGE_ACTIVITY_LIBRARY');
+    $base = array('VIEW_DASHBOARD', 'CREATE_PLAN', 'EDIT_PLAN', 'RECORD_PERFORMANCE', 'VIEW_REPORT', 'VIEW_HISTORY', 'MANAGE_ACTIVITY_LIBRARY');
     if ($role === 'admin') {
         $base[] = 'MANAGE_USERS';
         $base[] = 'ADMIN_ACCESS';
     }
     return $base;
+}
+
+function joma_stmt_bind($stmt, $types, $values) {
+    if (!$stmt) return false;
+    if ($types === '') return true;
+    $refs = array();
+    $args = array($stmt, $types);
+    $n = count($values);
+    for ($i = 0; $i < $n; $i++) {
+        $refs[$i] = $values[$i];
+        $args[] = &$refs[$i];
+    }
+    return call_user_func_array('mysqli_stmt_bind_param', $args);
+}
+
+function joma_stmt_fetch_all($stmt) {
+    if (function_exists('mysqli_stmt_get_result')) {
+        $res = @mysqli_stmt_get_result($stmt);
+        if ($res) {
+            $out = array();
+            while ($row = mysqli_fetch_assoc($res)) $out[] = $row;
+            return $out;
+        }
+    }
+    $meta = mysqli_stmt_result_metadata($stmt);
+    if (!$meta) return array();
+    $fields = array();
+    $row = array();
+    $bind = array($stmt);
+    while ($field = mysqli_fetch_field($meta)) {
+        $fields[] = $field->name;
+        $row[$field->name] = null;
+    }
+    mysqli_free_result($meta);
+    foreach ($fields as $name) {
+        $bind[] = &$row[$name];
+    }
+    call_user_func_array('mysqli_stmt_bind_result', $bind);
+    $out = array();
+    while (mysqli_stmt_fetch($stmt)) {
+        $copy = array();
+        foreach ($fields as $name) $copy[$name] = $row[$name];
+        $out[] = $copy;
+    }
+    return $out;
+}
+
+function joma_query($sql, $types, $values) {
+    $stmt = mysqli_prepare(db(), $sql);
+    if (!$stmt) return array();
+    joma_stmt_bind($stmt, $types, $values);
+    mysqli_stmt_execute($stmt);
+    $rows = joma_stmt_fetch_all($stmt);
+    mysqli_stmt_close($stmt);
+    return $rows;
+}
+
+function joma_query_one($sql, $types, $values) {
+    $rows = joma_query($sql, $types, $values);
+    return $rows ? $rows[0] : null;
+}
+
+function joma_exec($sql, $types, $values) {
+    $stmt = mysqli_prepare(db(), $sql);
+    if (!$stmt) return false;
+    joma_stmt_bind($stmt, $types, $values);
+    $ok = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    return $ok;
 }
