@@ -7,6 +7,19 @@ function joma_now() {
     return date('Y-m-d H:i:s');
 }
 
+function joma_compute_base() {
+    if (!empty($_SERVER['SCRIPT_NAME'])) {
+        $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
+        $dir = rtrim(dirname($script), '/');
+        if ($dir === '' || $dir === '.' || $dir === '/') return '';
+        return $dir;
+    }
+    if (!empty($GLOBALS['JOMA_CONFIG']['base_url'])) {
+        return rtrim($GLOBALS['JOMA_CONFIG']['base_url'], '/');
+    }
+    return '';
+}
+
 function joma_redirect($path) {
     $base = $GLOBALS['JOMA_BASE'];
     header('Location: ' . $base . '/' . ltrim($path, '/'));

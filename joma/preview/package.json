@@ -1,0 +1,13 @@
+{
+  "name": "joma-php-preview",
+  "private": true,
+  "type": "module",
+  "description": "Local/Arena preview runner that executes the real JOMA PHP files. Not required on cPanel.",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "@php-wasm/node": "3.1.51",
+    "@php-wasm/universal": "3.1.51"
+  }
+}
