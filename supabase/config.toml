@@ -1,1 +1,2 @@
-project_id = "tdxvcjdtadvglwltxwbp"
+# JOMA — configure project_id after creating the Supabase project.
+# project_id = "your-supabase-project-id"

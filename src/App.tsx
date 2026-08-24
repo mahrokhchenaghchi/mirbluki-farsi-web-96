@@ -1,76 +1,51 @@
-import { Toaster } from "@/components/ui/toaster";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import Index from "./pages/Index";
-import About from "./pages/About";
-import Services from "./pages/Services";
-import Blog from "./pages/Blog";
-import Contact from "./pages/Contact";
-import Appointment from "./pages/Appointment";
-import Appointments from "./pages/Appointments";
-import Auth from "./pages/Auth";
-import NotFound from "./pages/NotFound";
+import { AppLayout } from "@/layouts/AppLayout";
+import { ProtectedLayout } from "@/layouts/ProtectedLayout";
+import Landing from "@/pages/Landing";
+import AuthPage from "@/pages/Auth";
+import MoodPage from "@/pages/Mood";
+import Dashboard from "@/pages/Dashboard";
+import TodayPage from "@/pages/Today";
+import PlanPage from "@/pages/Plan";
+import LibraryPage from "@/pages/Library";
+import ReportsPage from "@/pages/Reports";
+import PeriodsPage from "@/pages/Periods";
+import PeriodDetailPage from "@/pages/PeriodDetail";
+import AboutPage from "@/pages/About";
+import SupportPage from "@/pages/Support";
+import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/auth" element={
-              <ProtectedRoute>
-                <Auth />
-              </ProtectedRoute>
-            } />
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Index />
-              </ProtectedRoute>
-            } />
-            <Route path="/about" element={
-              <ProtectedRoute>
-                <About />
-              </ProtectedRoute>
-            } />
-            <Route path="/services" element={
-              <ProtectedRoute>
-                <Services />
-              </ProtectedRoute>
-            } />
-            <Route path="/blog" element={
-              <ProtectedRoute>
-                <Blog />
-              </ProtectedRoute>
-            } />
-            <Route path="/contact" element={
-              <ProtectedRoute>
-                <Contact />
-              </ProtectedRoute>
-            } />
-            <Route path="/appointment" element={
-              <ProtectedRoute>
-                <Appointment />
-              </ProtectedRoute>
-            } />
-            <Route path="/appointments" element={
-              <ProtectedRoute>
-                <Appointments />
-              </ProtectedRoute>
-            } />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={
-              <ProtectedRoute>
-                <NotFound />
-              </ProtectedRoute>
-            } />
+            <Route path="/" element={<Landing />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route element={<ProtectedLayout />}>
+              <Route path="/mood" element={<MoodPage />} />
+              <Route path="/app" element={<AppLayout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="today" element={<TodayPage />} />
+                <Route path="plan" element={<PlanPage />} />
+                <Route path="library" element={<LibraryPage />} />
+                <Route path="reports" element={<ReportsPage />} />
+                <Route path="periods" element={<PeriodsPage />} />
+                <Route path="periods/:periodKey" element={<PeriodDetailPage />} />
+                <Route path="about" element={<AboutPage />} />
+                <Route path="support" element={<SupportPage />} />
+              </Route>
+            </Route>
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>

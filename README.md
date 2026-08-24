@@ -1,73 +1,61 @@
-# Welcome to your Lovable project
+# جوما | JOMA
 
-## Project info
+جوما یک Web Application فارسی و راست‌چین است برای:
 
-**URL**: https://lovable.dev/projects/949e9607-0a67-4899-bb44-121a8dcdd847
+**برنامه‌ریزی → اجرا → اندازه‌گیری → فهمیدن → بهبود**
 
-## How can I edit this code?
+کاربر برای هر دوره ماهانه شمسی یک برنامه مستقل دارد، عملکرد واقعی و خلق را ثبت می‌کند، و گزارش همان دوره را بر اساس داده واقعی می‌بیند. تاریخچه دوره‌های قبل با تغییر کتابخانه فعالیت عوض نمی‌شود.
 
-There are several ways of editing your application.
+جوما برنامه Windows نیست و به نصب EXE نیاز ندارد.
 
-**Use Lovable**
+## معماری
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/949e9607-0a67-4899-bb44-121a8dcdd847) and start prompting.
+```text
+UI → Services → Domain / Business Rules → Reporting Engine → Supabase / PostgreSQL
+```
 
-Changes made via Lovable will be committed automatically to this repo.
+جزئیات در:
 
-**Use your preferred IDE**
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- [docs/DATABASE.md](docs/DATABASE.md)
+- [docs/BUSINESS_RULES.md](docs/BUSINESS_RULES.md)
+- [docs/REPORTING_ENGINE.md](docs/REPORTING_ENGINE.md)
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
+- [docs/UNSPECIFIED.md](docs/UNSPECIFIED.md)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## اجرای محلی
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+نیازمندی: Node.js 18+
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+npm install
+cp .env.example .env
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+مقادیر `VITE_SUPABASE_URL` و `VITE_SUPABASE_ANON_KEY` را از پروژه Supabase بگذارید.
 
-# Step 3: Install the necessary dependencies.
-npm i
+سپس مهاجرت را در SQL Editor سوپابیس اجرا کنید:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+`supabase/migrations/20260824120000_joma_core.sql`
+
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+آدرس پیش‌فرض توسعه: `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## ساخت و تست
 
-**Use GitHub Codespaces**
+```sh
+npm test
+npm run build
+npm run preview
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## استقرار
 
-## What technologies are used for this project?
+پروژه یک SPA است و برای Vercel و Netlify آماده است. راهنما: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 
-This project is built with:
+## مالکیت کد
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/949e9607-0a67-4899-bb44-121a8dcdd847) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+تمام سورس‌کد، مهاجرت‌ها، قوانین کسب‌وکار، موتور گزارش و مستندات در همین مخزن است و برای اجرا به Agent وابسته نیست.

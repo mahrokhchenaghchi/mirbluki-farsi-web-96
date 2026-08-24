@@ -1,0 +1,11 @@
+{
+  "name": "جوما",
+  "short_name": "JOMA",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f9fb",
+  "theme_color": "#0077e6",
+  "description": "برنامه‌ریزی دوره‌ای و ثبت عملکرد واقعی"
+}
