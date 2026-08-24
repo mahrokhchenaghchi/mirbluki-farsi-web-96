@@ -85,6 +85,7 @@ export function buildSeedActivities(userId: string, now = new Date().toISOString
     weight: row.weight,
     sticker: row.sticker,
     color: CATEGORY_COLOR[row.category],
+    status: "ACTIVE",
     isSeed: true,
     createdAt: now,
     updatedAt: now,

@@ -18,7 +18,8 @@ describe("local persistence v2", () => {
   it("registers users uniquely and isolates daily performance", async () => {
     const db = await import("./db");
     await db.localSignUp({
-      fullName: "کاربر آزمایشی",
+      firstName: "کاربر",
+      lastName: "آزمایشی",
       username: "tester",
       phone: "09123456789",
       email: "a@test.com",

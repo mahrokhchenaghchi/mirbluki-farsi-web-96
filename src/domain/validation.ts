@@ -1,3 +1,5 @@
+import { JOBS } from "./catalog";
+
 export function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
@@ -10,8 +12,26 @@ export function isValidUsername(value: string): boolean {
   return /^[a-zA-Z][a-zA-Z0-9._]{2,19}$/.test(value.trim());
 }
 
+export function usernameHints(value: string): Array<{ ok: boolean; text: string }> {
+  const trimmed = value.trim();
+  return [
+    { ok: trimmed.length >= 3, text: "حداقل ۳ نویسه" },
+    { ok: trimmed.length <= 20, text: "حداکثر ۲۰ نویسه" },
+    { ok: /^[a-zA-Z]/.test(trimmed), text: "با حرف انگلیسی شروع شود" },
+    { ok: /^[a-zA-Z0-9._]*$/.test(trimmed), text: "فقط حروف، عدد، نقطه و زیرخط" },
+  ];
+}
+
+export function passwordHints(password: string, confirm: string): Array<{ ok: boolean; text: string }> {
+  return [
+    { ok: password.length >= 6, text: "حداقل ۶ نویسه" },
+    { ok: confirm.length === 0 || password === confirm, text: "تکرار رمز با رمز یکسان است" },
+  ];
+}
+
 export function validateRegistration(input: {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   username: string;
   phone: string;
   email: string;
@@ -19,13 +39,14 @@ export function validateRegistration(input: {
   password: string;
   confirmPassword: string;
 }): string | null {
-  if (!input.fullName.trim()) return "نام و نام خانوادگی را وارد کنید.";
+  if (!input.firstName.trim()) return "نام را وارد کنید.";
+  if (!input.lastName.trim()) return "نام خانوادگی را وارد کنید.";
   if (!isValidUsername(input.username)) {
     return "نام کاربری باید با حرف انگلیسی شروع شود و ۳ تا ۲۰ نویسه باشد.";
   }
-  if (!isValidIranMobile(input.phone)) return "شماره موبایل باید مانند ۰۹۱۲۳۴۵۶۷۸۹ باشد.";
+  if (!isValidIranMobile(input.phone)) return "شماره موبایل باید مانند 09123456789 باشد.";
   if (!isValidEmail(input.email)) return "ایمیل معتبر نیست.";
-  if (!input.job.trim()) return "شغل را وارد کنید.";
+  if (!JOBS.includes(input.job as (typeof JOBS)[number])) return "شغل را از فهرست انتخاب کنید.";
   if (input.password.length < 6) return "رمز عبور باید حداقل ۶ نویسه باشد.";
   if (input.password !== input.confirmPassword) return "رمز عبور و تکرار آن یکسان نیستند.";
   return null;

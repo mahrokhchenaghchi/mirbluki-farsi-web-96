@@ -5,6 +5,7 @@ import type { PerformanceEvent, Plan, PlanActivity } from "@/domain/types";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { EmptyState } from "@/components/joma/EmptyState";
+import { PageHeader } from "@/components/joma/PageHeader";
 import { LoadingState } from "@/components/joma/LoadingState";
 import { RegisterPerformanceForm } from "@/features/performance/RegisterPerformanceForm";
 import { toUserMessage } from "@/lib/errors";

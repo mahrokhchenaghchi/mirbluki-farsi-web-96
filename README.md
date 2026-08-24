@@ -36,4 +36,7 @@ VITE_BASE=/joma/ npm run build
 - [docs/REPORTING_ENGINE.md](docs/REPORTING_ENGINE.md)
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 - [docs/LOCAL_TESTING.md](docs/LOCAL_TESTING.md)
+- [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md)
+- [docs/AUTHENTICATION.md](docs/AUTHENTICATION.md)
+- [docs/PERMISSIONS.md](docs/PERMISSIONS.md)
 - [docs/UNSPECIFIED.md](docs/UNSPECIFIED.md)

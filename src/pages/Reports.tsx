@@ -13,13 +13,14 @@ import { FREQUENCY_LABEL, MOOD_METRICS, formatValue } from "@/domain/catalog";
 import type { Plan } from "@/domain/types";
 import type { ReportProjection } from "@/reporting/types";
 import { LoadingState } from "@/components/joma/LoadingState";
+import { PageHeader } from "@/components/joma/PageHeader";
 import { UnspecifiedNotice } from "@/components/joma/UnspecifiedNotice";
 import { toUserMessage } from "@/lib/errors";
 import { cn } from "@/lib/utils";
 import { ensureWorkingPeriod, listPeriods } from "@/services/periodService";
 import { loadReport } from "@/services/reportService";
 
-const TABS = ["خلاصه", "فعالیت‌ها", "تقویم", "روند", "خلق", "جزئیات"] as const;
+const TABS = ["خلاصه", "فعالیت‌ها", "وزن", "تقویم", "روند", "خلق", "مقایسه", "جزئیات"] as const;
 
 export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
@@ -53,10 +54,7 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black">گزارش‌ها</h1>
-          <p className="mt-2 text-sm text-muted-foreground">فقط دادهٔ همان دوره انتخاب‌شده.</p>
-        </div>
+        <PageHeader title="گزارش‌ها" description="فقط دادهٔ همان دوره انتخاب‌شده." crumbs={[{ label: "داشبورد", to: "/app" }, { label: "گزارش‌ها" }]} />
         <select className="h-10 rounded-md border bg-background px-3 text-sm" value={selectedPlanId} onChange={async (e) => {
           setSelectedPlanId(e.target.value);
           setReport(await loadReport(e.target.value));
@@ -76,9 +74,11 @@ export default function ReportsPage() {
           </div>
           {tab === "خلاصه" && <Summary report={report} />}
           {tab === "فعالیت‌ها" && <Activities report={report} />}
+          {tab === "وزن" && <Weights report={report} />}
           {tab === "تقویم" && <Calendar report={report} />}
           {tab === "روند" && <Trend report={report} />}
           {tab === "خلق" && <MoodCharts report={report} />}
+          {tab === "مقایسه" && <Comparison current={report} plans={plans} />}
           {tab === "جزئیات" && <Details report={report} />}
         </>
       )}
@@ -185,6 +185,55 @@ function MoodCharts({ report }: { report: ReportProjection }) {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+function Weights({ report }: { report: ReportProjection }) {
+  if (report.activities.length === 0) return <p className="text-sm text-muted-foreground">وزنی برای نمایش نیست.</p>;
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-muted-foreground">وزن ذخیره‌شدهٔ همین دوره — فرمول موفقیت کلی محاسبه نمی‌شود.</p>
+      {report.activities.map((row) => (
+        <div key={row.planActivityId} className="joma-card p-4">
+          <div className="flex items-center justify-between">
+            <span>{row.sticker} {row.name}</span>
+            <span>وزن {row.weight}</span>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+            <div className="h-full rounded-full bg-primary/60" style={{ width: `${Math.min(100, (row.weight / Math.max(report.weightSum, 1)) * 100)}%` }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Comparison({ current, plans }: { current: ReportProjection; plans: Plan[] }) {
+  const [otherId, setOtherId] = useState(plans.find((item) => item.id !== current.planId)?.id ?? "");
+  const [other, setOther] = useState<ReportProjection | null>(null);
+  useEffect(() => {
+    if (!otherId) return;
+    loadReport(otherId).then(setOther).catch(() => setOther(null));
+  }, [otherId]);
+  if (plans.length < 2) return <p className="text-sm text-muted-foreground">برای مقایسه حداقل دو دوره لازم است.</p>;
+  return (
+    <div className="space-y-4">
+      <select className="h-10 rounded-md border bg-background px-3 text-sm" value={otherId} onChange={(e) => setOtherId(e.target.value)}>
+        {plans.filter((item) => item.id !== current.planId).map((plan) => (
+          <option key={plan.id} value={plan.id}>{JomaCalendarService.formatPeriodLabel(plan.periodKey)}</option>
+        ))}
+      </select>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="joma-card p-4">
+          <div className="font-bold">{JomaCalendarService.formatPeriodLabel(current.periodKey)}</div>
+          <div className="mt-2 text-sm">رویداد {current.sourceEventCount} · فعالیت {current.activities.length}</div>
+        </div>
+        <div className="joma-card p-4">
+          <div className="font-bold">{other ? JomaCalendarService.formatPeriodLabel(other.periodKey) : "—"}</div>
+          <div className="mt-2 text-sm">{other ? `رویداد ${other.sourceEventCount} · فعالیت ${other.activities.length}` : "دوره انتخاب کنید"}</div>
+        </div>
+      </div>
     </div>
   );
 }

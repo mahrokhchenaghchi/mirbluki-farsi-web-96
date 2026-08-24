@@ -54,6 +54,20 @@ function emptyState(): LocalState {
   };
 }
 
+function migrateUser(user: JomaUser & { fullName?: string }): JomaUser {
+  const firstName = user.firstName || (user.fullName ? user.fullName.split(" ")[0] : "");
+  const lastName = user.lastName || (user.fullName ? user.fullName.split(" ").slice(1).join(" ") : "");
+  return {
+    ...user,
+    firstName,
+    lastName,
+    fullName: `${firstName} ${lastName}`.trim() || user.fullName || user.username,
+    role: user.role || "member",
+    accessLevel: user.accessLevel || 1,
+    preferences: user.preferences || { compactCards: false, notificationsEnabled: false },
+  };
+}
+
 function load(): LocalState {
   if (typeof window === "undefined") return emptyState();
   try {
@@ -63,7 +77,14 @@ function load(): LocalState {
       save(initial);
       return initial;
     }
-    return JSON.parse(raw) as LocalState;
+    const parsed = JSON.parse(raw) as LocalState;
+    parsed.users = (parsed.users ?? []).map((user) => migrateUser(user));
+    parsed.activities = (parsed.activities ?? []).map((item) => ({ ...item, status: item.status || "ACTIVE" }));
+    parsed.planActivities = (parsed.planActivities ?? []).map((item, index) => ({
+      ...item,
+      sortOrder: item.sortOrder ?? index,
+    }));
+    return parsed;
   } catch {
     const initial = emptyState();
     save(initial);
@@ -99,8 +120,15 @@ function ensureLibrary(state: LocalState, userId: string) {
   }
 }
 
+export function localUsernameAvailable(username: string): boolean {
+  const state = load();
+  const key = username.trim().toLowerCase();
+  return !state.users.some((user) => user.username === key);
+}
+
 export async function localSignUp(input: {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   username: string;
   phone: string;
   email: string;
@@ -116,15 +144,22 @@ export async function localSignUp(input: {
   if (state.users.some((user) => user.username === username)) {
     throw new JomaError("USERNAME_EXISTS", "این نام کاربری قبلاً گرفته شده است.");
   }
+  const firstName = input.firstName.trim();
+  const lastName = input.lastName.trim();
   const user: JomaUser = {
     id: id("user"),
-    fullName: input.fullName.trim(),
+    firstName,
+    lastName,
+    fullName: `${firstName} ${lastName}`.trim(),
     username,
     phone: input.phone.trim(),
     email,
     job: input.job.trim(),
+    role: "member",
+    accessLevel: 1,
     passwordHash: await hashPassword(input.password),
     createdAt: new Date().toISOString(),
+    preferences: { compactCards: false, notificationsEnabled: false },
   };
   state.users.push(user);
   state.session = { userId: user.id };
@@ -165,7 +200,19 @@ export function localSignOut() {
 export function localGetSessionUser(): JomaUser | null {
   const state = load();
   if (!state.session) return null;
-  return state.users.find((item) => item.id === state.session?.userId) ?? null;
+  const user = state.users.find((item) => item.id === state.session?.userId);
+  return user ? migrateUser(user) : null;
+}
+
+export function localUpdateProfile(patch: Partial<Pick<JomaUser, "firstName" | "lastName" | "phone" | "job" | "preferences">>): JomaUser {
+  const state = load();
+  const userId = requireUser(state);
+  const user = state.users.find((item) => item.id === userId);
+  if (!user) throw new JomaError("NOT_FOUND", "کاربر پیدا نشد.");
+  Object.assign(user, patch);
+  user.fullName = `${user.firstName} ${user.lastName}`.trim();
+  save(state);
+  return migrateUser(user);
 }
 
 export function localListActivities(): ActivityDefinition[] {
@@ -189,6 +236,7 @@ export function localCreateActivity(input: Omit<ActivityDefinition, "id" | "user
     id: id("activity"),
     userId,
     code: `ACT${String(next).padStart(3, "0")}`,
+    status: input.status ?? "ACTIVE",
     isSeed: false,
     createdAt: now,
     updatedAt: now,
@@ -290,10 +338,14 @@ export function localListPlanActivities(planId: string): PlanActivity[] {
   const userId = requireUser(state);
   return state.planActivities
     .filter((item) => item.planId === planId && item.userId === userId)
-    .sort((a, b) => a.snapshotAt.localeCompare(b.snapshotAt));
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.snapshotAt.localeCompare(b.snapshotAt));
 }
 
-export function localAddPlanActivity(plan: Plan, activity: ActivityDefinition): PlanActivity {
+export function localAddPlanActivity(
+  plan: Plan,
+  activity: ActivityDefinition,
+  overrides?: { frequency?: Frequency; targetValue?: number; weight?: number },
+): PlanActivity {
   const state = load();
   const userId = requireUser(state);
   const current = state.plans.find((item) => item.id === plan.id && item.userId === userId);
@@ -304,6 +356,8 @@ export function localAddPlanActivity(plan: Plan, activity: ActivityDefinition): 
     throw new JomaError("DUPLICATE_ACTIVITY", "این فعالیت قبلاً به برنامه اضافه شده است.");
   }
   const now = new Date().toISOString();
+  const frequency = overrides?.frequency ?? activity.frequency;
+  const siblings = state.planActivities.filter((item) => item.planId === current.id);
   const row: PlanActivity = {
     id: id("pa"),
     userId,
@@ -313,18 +367,37 @@ export function localAddPlanActivity(plan: Plan, activity: ActivityDefinition): 
     activityCode: activity.code,
     name: activity.name,
     category: activity.category,
-    frequency: activity.frequency,
+    frequency,
     dataType: activity.dataType,
     dailyTarget: activity.dailyTarget,
     weeklyTarget: activity.weeklyTarget,
     monthlyTarget: activity.monthlyTarget,
-    targetValue: targetOf(activity),
-    weight: activity.weight,
+    targetValue: overrides?.targetValue ?? targetOf({ ...activity, frequency }),
+    weight: overrides?.weight ?? activity.weight,
     sticker: activity.sticker,
     color: activity.color,
+    sortOrder: siblings.length,
     snapshotAt: now,
   };
   state.planActivities.push(row);
+  save(state);
+  return row;
+}
+
+export function localUpdatePlanActivity(
+  plan: Plan,
+  planActivityId: string,
+  patch: Partial<Pick<PlanActivity, "frequency" | "targetValue" | "weight" | "sortOrder">>,
+): PlanActivity {
+  const state = load();
+  const userId = requireUser(state);
+  const current = state.plans.find((item) => item.id === plan.id && item.userId === userId);
+  if (!current) throw new JomaError("MISSING_PLAN", "برنامه پیدا نشد.");
+  const editable = canEditPlan(current.status);
+  if (!editable.ok) throw new JomaError(editable.code, editable.message);
+  const row = state.planActivities.find((item) => item.id === planActivityId && item.userId === userId);
+  if (!row) throw new JomaError("NOT_FOUND", "فعالیت برنامه پیدا نشد.");
+  Object.assign(row, patch);
   save(state);
   return row;
 }

@@ -5,7 +5,8 @@ describe("registration validation", () => {
   it("accepts a complete valid form", () => {
     expect(
       validateRegistration({
-        fullName: "سارا محمدی",
+        firstName: "سارا",
+        lastName: "محمدی",
         username: "sara.m",
         phone: "09121234567",
         email: "sara@test.com",
@@ -21,7 +22,8 @@ describe("registration validation", () => {
     expect(isValidUsername("ab")).toBe(false);
     expect(
       validateRegistration({
-        fullName: "سارا",
+        firstName: "سارا",
+        lastName: "محمدی",
         username: "sara.m",
         phone: "09121234567",
         email: "sara@test.com",

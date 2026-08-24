@@ -6,6 +6,7 @@ import { calculateActual, hasDailyRegistration } from "@/domain/rules/performanc
 import type { MoodRecord, PerformanceEvent, Period, Plan, PlanActivity } from "@/domain/types";
 import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/joma/LoadingState";
+import { PageHeader } from "@/components/joma/PageHeader";
 import { StatusBadge } from "@/components/joma/StatusBadge";
 import { useAuth } from "@/hooks/useAuth";
 import { toUserMessage } from "@/lib/errors";
@@ -52,6 +53,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="داشبورد" crumbs={[{ label: "داشبورد" }]} />
       <section className="joma-card bg-gradient-to-l from-violet-100 via-white to-orange-100 p-6">
         <p className="text-sm text-muted-foreground">{JomaCalendarService.formatJalaliDisplay(today)}</p>
         <h1 className="mt-1 text-3xl font-black">سلام {user?.fullName || user?.username}</h1>

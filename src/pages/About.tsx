@@ -1,11 +1,16 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/joma/Logo";
 
 export default function AboutPage() {
+  const navigate = useNavigate();
   return (
     <article className="mx-auto max-w-3xl space-y-6 px-4 py-10 persian-text">
       <Logo size={88} />
-      <Link to="/" className="text-sm text-primary">بازگشت</Link>
+      <div className="flex gap-3 text-sm">
+        <Button variant="ghost" onClick={() => navigate(-1)}>بازگشت</Button>
+        <Link to="/" className="self-center text-primary">صفحه معرفی</Link>
+      </div>
       <h1 className="text-4xl font-black">درباره جوما</h1>
       <p className="leading-9 text-muted-foreground">
         جوما یک محصول مستقل برای خودمدیریتی است: برنامه‌ریزی فعالیت‌ها در دوره‌های شمسی، ثبت عملکرد واقعی، ثبت حال روزانه و فهمیدن روند از روی داده.

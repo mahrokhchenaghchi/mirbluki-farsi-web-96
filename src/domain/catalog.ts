@@ -119,6 +119,31 @@ export function targetOf(activity: {
   return activity.monthlyTarget;
 }
 
+export const JOBS = [
+  "دانش‌آموز",
+  "دانشجو",
+  "کارمند",
+  "مدیر",
+  "کارآفرین",
+  "پزشک",
+  "روانشناس",
+  "مهندس",
+  "معلم",
+  "وکیل",
+  "حسابدار",
+  "فروشنده",
+  "فریلنسر",
+  "خانه‌دار",
+  "بازنشسته",
+  "پژوهشگر",
+  "مشاغل آزاد",
+  "سایر",
+] as const;
+
+export type JobTitle = (typeof JOBS)[number];
+
+export const ACTIVITY_STATUSES = ["ACTIVE", "INACTIVE"] as const;
+
 export function formatValue(dataType: DataType, value: number): string {
   if (dataType === "BOOLEAN") return value >= 1 ? "انجام شد" : "انجام نشد";
   if (dataType === "DURATION") return `${value} دقیقه`;

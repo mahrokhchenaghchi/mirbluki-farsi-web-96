@@ -16,7 +16,9 @@ import NotFound from "@/pages/NotFound";
 import PeriodDetailPage from "@/pages/PeriodDetail";
 import PeriodsPage from "@/pages/Periods";
 import PlanPage from "@/pages/Plan";
+import ProfilePage from "@/pages/Profile";
 import ReportsPage from "@/pages/Reports";
+import SettingsPage from "@/pages/Settings";
 import SupportPage from "@/pages/Support";
 import TodayPage from "@/pages/Today";
 
@@ -42,6 +44,9 @@ const App = () => (
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="periods" element={<PeriodsPage />} />
                 <Route path="periods/:periodKey" element={<PeriodDetailPage />} />
+                <Route path="mood" element={<MoodPage />} />
+                <Route path="profile" element={<ProfilePage />} />
+                <Route path="settings" element={<SettingsPage />} />
                 <Route path="about" element={<AboutPage />} />
                 <Route path="support" element={<SupportPage />} />
               </Route>

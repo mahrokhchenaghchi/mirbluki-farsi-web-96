@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ColorPicker } from "@/components/joma/ColorPicker";
 import { LoadingState } from "@/components/joma/LoadingState";
+import { PageHeader } from "@/components/joma/PageHeader";
 import { StickerPicker } from "@/components/joma/StickerPicker";
 import { toUserMessage } from "@/lib/errors";
 import {
@@ -36,6 +37,7 @@ const emptyForm = {
   weight: 1,
   sticker: STICKERS[0],
   color: COLORS[0].value,
+  status: "ACTIVE" as const,
 };
 
 export default function LibraryPage() {
@@ -86,6 +88,7 @@ export default function LibraryPage() {
       weight: item.weight,
       sticker: item.sticker,
       color: item.color,
+      status: item.status || "ACTIVE",
     });
   };
 
@@ -113,13 +116,12 @@ export default function LibraryPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-black">کتابخانه فعالیت</h1>
-          <p className="mt-2 text-sm text-muted-foreground">۴۵ فعالیت اولیه جوما، قابل جستجو و ویرایش.</p>
-        </div>
-        <Button onClick={openCreate}>+ فعالیت جدید</Button>
-      </div>
+      <PageHeader
+        title="کتابخانه فعالیت‌ها"
+        description="۴۵ فعالیت اولیه جوما؛ قابل جستجو، ویرایش و غیرفعال‌سازی."
+        crumbs={[{ label: "داشبورد", to: "/app" }, { label: "کتابخانه" }]}
+        action={<Button onClick={openCreate}>+ فعالیت جدید</Button>}
+      />
 
       <div className="grid gap-3 md:grid-cols-3">
         <Input placeholder="جستجو نام یا ACT..." value={query} onChange={(e) => setQuery(e.target.value)} />
@@ -186,7 +188,8 @@ export default function LibraryPage() {
             </div>
             <div className="flex gap-2 px-4 pb-4">
               <Button size="sm" variant="outline" onClick={() => openEdit(item)}>ویرایش</Button>
-              <Button size="sm" variant="ghost" onClick={async () => { await deleteLibraryActivity(item.id); await reload(); }}>حذف</Button>
+              <Button size="sm" variant="outline" onClick={async () => { await updateLibraryActivity(item.id, { status: item.status === "INACTIVE" ? "ACTIVE" : "INACTIVE" }); await reload(); }}>{item.status === "INACTIVE" ? "فعال‌سازی" : "غیرفعال"}</Button>
+              <Button size="sm" variant="ghost" onClick={async () => { if (!window.confirm("حذف این فعالیت از کتابخانه؟ تصویر دوره‌های قبلی باقی می‌ماند.")) return; await deleteLibraryActivity(item.id); await reload(); }}>حذف</Button>
             </div>
           </article>
         ))}

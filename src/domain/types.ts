@@ -1,6 +1,7 @@
 export type Frequency = "DAILY" | "WEEKLY" | "MONTHLY";
 export type PlanStatus = "DRAFT" | "PLANNING" | "RUNNING" | "ARCHIVED";
 export type EventType = "PERFORMANCE_REGISTERED";
+export type ActivityStatus = "ACTIVE" | "INACTIVE";
 export type DataType = "DURATION" | "NUMERIC" | "BOOLEAN" | "RATING";
 export type PeriodKey = string;
 
@@ -44,6 +45,7 @@ export interface ActivityDefinition {
   weight: number;
   sticker: string;
   color: string;
+  status: ActivityStatus;
   isSeed: boolean;
   createdAt: string;
   updatedAt: string;
@@ -90,6 +92,7 @@ export interface PlanActivity {
   weight: number;
   sticker: string;
   color: string;
+  sortOrder: number;
   snapshotAt: string;
 }
 
