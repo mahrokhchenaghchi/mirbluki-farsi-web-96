@@ -1,19 +1,51 @@
 <?php
 $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+$https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strpos($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') !== false)
+    || (strpos($host, 'e2b.app') !== false);
 $preview = (getenv('JOMA_PREVIEW') === '1') || (strpos($host, 'e2b.app') !== false);
 $sessionDir = dirname(__FILE__) . '/../data/sessions';
 if (!is_dir($sessionDir)) {
     @mkdir($sessionDir, 0775, true);
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($_POST)) {
+    $raw = file_get_contents('php://input');
+    if ($raw) {
+        $parsed = array();
+        parse_str($raw, $parsed);
+        if ($parsed) $_POST = $parsed;
+    }
+}
+
 if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.use_cookies', 1);
+    ini_set('session.use_only_cookies', 0);
     ini_set('session.cookie_httponly', 1);
+    ini_set('session.cookie_path', '/');
     ini_set('session.save_path', $sessionDir);
-    if ($preview) {
-        ini_set('session.cookie_secure', '1');
+    if ($preview || $https) {
+        ini_set('session.cookie_secure', $https ? '1' : '0');
         ini_set('session.cookie_samesite', 'None');
-        ini_set('session.cookie_path', '/');
+    }
+    $sid = '';
+    $name = session_name();
+    if (!empty($_COOKIE[$name])) {
+        $sid = $_COOKIE[$name];
+    } elseif (!empty($_POST['joma_sid'])) {
+        $sid = $_POST['joma_sid'];
+    } elseif (!empty($_GET['joma_sid'])) {
+        $sid = $_GET['joma_sid'];
+    }
+    if ($sid !== '' && preg_match('/^[A-Za-z0-9,-]{16,128}$/', $sid)) {
+        session_id($sid);
     }
     session_start();
+    if ($preview || $https) {
+        $cookie = $name . '=' . session_id() . '; Path=/; HttpOnly; SameSite=None';
+        if ($https) $cookie .= '; Secure; Partitioned';
+        header('Set-Cookie: ' . $cookie, false);
+    }
 }
 $configFile = dirname(__FILE__) . '/../config/config.php';
 if (file_exists($configFile)) {

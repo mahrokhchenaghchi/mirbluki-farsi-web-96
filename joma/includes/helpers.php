@@ -43,7 +43,8 @@ function csrf_token() {
 }
 
 function csrf_field() {
-    return '<input type="hidden" name="csrf" value="' . e(csrf_token()) . '">';
+    return '<input type="hidden" name="csrf" value="' . e(csrf_token()) . '">'
+        . '<input type="hidden" name="joma_sid" value="' . e(session_id()) . '">';
 }
 
 function csrf_check() {

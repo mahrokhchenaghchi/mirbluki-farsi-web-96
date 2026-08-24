@@ -37,7 +37,7 @@ joma_header('ثبت‌نام', array(), array('public' => 1));
     <a class="on" href="<?php echo e(joma_url('index.php?p=register')); ?>">ثبت‌نام</a>
     <a href="<?php echo e(joma_url('index.php?p=forgot')); ?>">فراموشی</a>
   </div>
-  <form method="post">
+  <form method="post" action="<?php echo e(joma_url('index.php?p=register')); ?>">
     <?php echo csrf_field(); ?>
     <div class="field-row">
       <div><label>نام</label><input name="first_name" value="<?php echo e($old['first_name']); ?>" required></div>

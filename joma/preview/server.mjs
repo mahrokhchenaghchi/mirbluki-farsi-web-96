@@ -56,11 +56,18 @@ function sendStatic(res, file) {
 
 function flattenHeaders(headers) {
   const out = {};
+  const cookies = [];
   for (const [key, value] of Object.entries(headers || {})) {
     const lower = key.toLowerCase();
     if (lower === "x-frame-options" || lower === "content-security-policy") continue;
+    if (lower === "set-cookie") {
+      if (Array.isArray(value)) cookies.push(...value);
+      else if (value) cookies.push(String(value));
+      continue;
+    }
     out[key] = Array.isArray(value) ? value.join(", ") : String(value);
   }
+  if (cookies.length) out["Set-Cookie"] = cookies;
   return out;
 }
 

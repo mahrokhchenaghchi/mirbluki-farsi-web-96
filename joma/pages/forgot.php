@@ -27,7 +27,7 @@ joma_header('بازیابی رمز', array(), array('public' => 1));
     <a href="<?php echo e(joma_url('index.php?p=register')); ?>">ثبت‌نام</a>
     <a class="on" href="<?php echo e(joma_url('index.php?p=forgot')); ?>">فراموشی</a>
   </div>
-  <form method="post">
+  <form method="post" action="<?php echo e(joma_url('index.php?p=forgot')); ?>">
     <?php echo csrf_field(); ?>
     <label>نام کاربری یا ایمیل</label>
     <input name="identifier" dir="ltr" required>
