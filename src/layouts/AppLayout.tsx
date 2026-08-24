@@ -8,6 +8,7 @@ import JomaCalendarService from "@/calendar/JomaCalendarService";
 import { getMoodForDate } from "@/services/moodService";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { LocalModeBanner } from "@/components/joma/LocalModeBanner";
 
 const NAV = [
   { to: "/app", label: "خانه", icon: Home, end: true },
@@ -52,6 +53,7 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen bg-background">
+      <LocalModeBanner />
       <aside className="fixed inset-y-0 right-0 z-30 hidden w-64 border-l bg-white/90 px-5 py-6 backdrop-blur lg:flex lg:flex-col">
         <Logo />
         <nav className="mt-10 flex flex-1 flex-col gap-1">
@@ -118,7 +120,14 @@ export function AppLayout() {
         </nav>
         <div className="mt-auto space-y-3 border-t pt-4">
           <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
-          <Button variant="outline" className="w-full" onClick={() => signOut()}>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={async () => {
+              await signOut();
+              navigate("/auth");
+            }}
+          >
             خروج
           </Button>
         </div>
@@ -155,7 +164,10 @@ export function AppLayout() {
               <button
                 type="button"
                 className="col-span-2 rounded-xl bg-destructive/10 px-3 py-2 text-destructive"
-                onClick={() => signOut()}
+                onClick={async () => {
+                  await signOut();
+                  navigate("/auth");
+                }}
               >
                 خروج از حساب
               </button>

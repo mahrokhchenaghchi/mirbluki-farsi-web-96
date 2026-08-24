@@ -23,26 +23,27 @@ UI → Services → Domain / Business Rules → Reporting Engine → Supabase / 
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 - [docs/UNSPECIFIED.md](docs/UNSPECIFIED.md)
 
-## اجرای محلی
+## اجرای محلی / آزمایشی
 
 نیازمندی: Node.js 18+
 
+بدون Supabase و بدون اطلاعات تولید:
+
 ```sh
 npm install
-cp .env.example .env
-```
-
-مقادیر `VITE_SUPABASE_URL` و `VITE_SUPABASE_ANON_KEY` را از پروژه Supabase بگذارید.
-
-سپس مهاجرت را در SQL Editor سوپابیس اجرا کنید:
-
-`supabase/migrations/20260824120000_joma_core.sql`
-
-```sh
 npm run dev
 ```
 
+اگر `VITE_SUPABASE_URL` خالی باشد، جوما به‌صورت خودکار در **حالت local** اجرا می‌شود.
+
+- داده در `localStorage` همین مرورگر ذخیره می‌شود
+- ثبت‌نام، ورود، خروج، دوره، عملکرد، خلق و گزارش واقعاً کار می‌کنند
+- Refresh و ورود مجدد داده را نگه می‌دارد
+- به پایگاه تولید وصل نمی‌شود
+
 آدرس پیش‌فرض توسعه: `http://localhost:8080`
+
+حساب آزمایشی از پیش ساخته نمی‌شود. از صفحه ثبت‌نام یک ایمیل و رمز بسازید.
 
 ## ساخت و تست
 

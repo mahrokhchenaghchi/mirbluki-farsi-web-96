@@ -5,7 +5,7 @@ import { Logo } from "@/components/joma/Logo";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Landing() {
-  const { user, configured } = useAuth();
+  const { user, configured, localMode } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
@@ -48,7 +48,12 @@ export default function Landing() {
                 <Link to="/app/about">درباره جوما</Link>
               </Button>
             </div>
-            {!configured && (
+            {localMode && (
+              <p className="mt-6 text-sm text-yellow-100">
+                نسخه آزمایشی محلی آماده است. ثبت‌نام کنید و بدون اتصال پایگاه تولید تست کنید.
+              </p>
+            )}
+            {!configured && !localMode && (
               <p className="mt-6 text-sm text-yellow-100">
                 برای اجرای کامل، متغیرهای محیطی Supabase باید تنظیم شوند.
               </p>

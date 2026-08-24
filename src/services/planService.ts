@@ -1,12 +1,20 @@
 import { canEditPlan, canTransition, validatePlanActivityInput } from "@/domain/rules/planRules";
-import type { Frequency, Plan, PlanActivity, PlanStatus } from "@/domain/types";
+import type { ActivityDefinition, Frequency, Plan, PlanActivity, PlanStatus } from "@/domain/types";
 import { JomaError } from "@/lib/errors";
+import { isLocalMode } from "@/lib/mode";
 import { getSupabase } from "@/lib/supabase";
-import { mapPlan, mapPlanActivity } from "./mappers";
+import {
+  localAddPlanActivity,
+  localGetPlan,
+  localListPlanActivities,
+  localRemovePlanActivity,
+  localTransitionPlan,
+} from "@/persistence/local/db";
 import { activityLabel } from "./activityService";
-import type { ActivityDefinition } from "@/domain/types";
+import { mapPlan, mapPlanActivity } from "./mappers";
 
 export async function getPlan(planId: string): Promise<Plan> {
+  if (isLocalMode()) return localGetPlan(planId);
   const supabase = getSupabase();
   const { data, error } = await supabase.from("joma_plans").select("*").eq("id", planId).single();
   if (error) throw error;
@@ -14,6 +22,7 @@ export async function getPlan(planId: string): Promise<Plan> {
 }
 
 export async function listPlanActivities(planId: string): Promise<PlanActivity[]> {
+  if (isLocalMode()) return localListPlanActivities(planId);
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("joma_plan_activities")
@@ -31,9 +40,10 @@ export async function addPlanActivity(input: {
   targetValue: number;
   weight: number;
 }): Promise<PlanActivity> {
+  if (isLocalMode()) return localAddPlanActivity(input);
+
   const editable = canEditPlan(input.plan.status);
   if (!editable.ok) throw new JomaError(editable.code, editable.message);
-
   const valid = validatePlanActivityInput(input);
   if (!valid.ok) throw new JomaError(valid.code, valid.message);
 
@@ -63,6 +73,10 @@ export async function addPlanActivity(input: {
 }
 
 export async function removePlanActivity(plan: Plan, planActivityId: string): Promise<void> {
+  if (isLocalMode()) {
+    localRemovePlanActivity(plan, planActivityId);
+    return;
+  }
   const editable = canEditPlan(plan.status);
   if (!editable.ok) throw new JomaError(editable.code, editable.message);
   const supabase = getSupabase();
@@ -70,26 +84,8 @@ export async function removePlanActivity(plan: Plan, planActivityId: string): Pr
   if (error) throw error;
 }
 
-export async function updatePlanActivity(
-  plan: Plan,
-  planActivityId: string,
-  patch: { frequency?: Frequency; targetValue?: number; weight?: number },
-): Promise<void> {
-  const editable = canEditPlan(plan.status);
-  if (!editable.ok) throw new JomaError(editable.code, editable.message);
-  const supabase = getSupabase();
-  const { error } = await supabase
-    .from("joma_plan_activities")
-    .update({
-      frequency: patch.frequency,
-      target_value: patch.targetValue,
-      weight: patch.weight,
-    })
-    .eq("id", planActivityId);
-  if (error) throw error;
-}
-
 export async function transitionPlan(plan: Plan, next: PlanStatus): Promise<Plan> {
+  if (isLocalMode()) return localTransitionPlan(plan, next);
   const allowed = canTransition(plan.status, next);
   if (!allowed.ok) throw new JomaError(allowed.code, allowed.message);
 

@@ -76,7 +76,7 @@ export function RegisterPerformanceForm({
       </p>
       {dailyLocked ? (
         <p className="mt-4 rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-          ثبت امروز انجام شده است. ثبت مجدد روزانه ممکن نیست.
+          برای این فعالیت روزانه، در این تاریخ قبلاً عملکرد ثبت شده است.
         </p>
       ) : (
         <form className="mt-4 flex flex-col gap-3 sm:flex-row" onSubmit={submit}>

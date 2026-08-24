@@ -1,13 +1,20 @@
 import JomaCalendarService from "@/calendar/JomaCalendarService";
 import type { Period, Plan } from "@/domain/types";
+import { isLocalMode } from "@/lib/mode";
+import { getSelectedPeriodKey, setSelectedPeriodKey } from "@/lib/selectedPeriod";
 import { getSupabase } from "@/lib/supabase";
+import { localEnsurePeriod, localGetPeriodByKey, localListPeriods } from "@/persistence/local/db";
 import { mapPeriod, mapPlan } from "./mappers";
 
-export async function ensureCurrentPeriod(now: Date = new Date()): Promise<{ period: Period; plan: Plan }> {
-  const supabase = getSupabase();
-  const periodKey = JomaCalendarService.currentPeriodKey(now);
-  const bounds = JomaCalendarService.periodBounds(periodKey);
+export async function ensurePeriod(periodKey: string): Promise<{ period: Period; plan: Plan }> {
+  if (isLocalMode()) {
+    const result = localEnsurePeriod(periodKey);
+    setSelectedPeriodKey(periodKey);
+    return result;
+  }
 
+  const supabase = getSupabase();
+  const bounds = JomaCalendarService.periodBounds(periodKey);
   const { error: rpcError } = await supabase.rpc("joma_ensure_period", {
     p_period_key: periodKey,
     p_year: bounds.year,
@@ -16,8 +23,6 @@ export async function ensureCurrentPeriod(now: Date = new Date()): Promise<{ per
     p_end_date: bounds.endDate,
   });
   if (rpcError) throw rpcError;
-
-  await archiveEndedPlans(periodKey);
 
   const { data: periodRow, error: periodError } = await supabase
     .from("joma_periods")
@@ -33,29 +38,22 @@ export async function ensureCurrentPeriod(now: Date = new Date()): Promise<{ per
     .single();
   if (planError) throw planError;
 
+  setSelectedPeriodKey(periodKey);
   return { period: mapPeriod(periodRow), plan: mapPlan(planRow) };
 }
 
-export async function archiveEndedPlans(currentPeriodKey: string): Promise<void> {
-  const supabase = getSupabase();
-  const { data, error } = await supabase
-    .from("joma_plans")
-    .select("*")
-    .neq("period_key", currentPeriodKey)
-    .neq("status", "ARCHIVED");
-  if (error) throw error;
+export async function ensureCurrentPeriod(now: Date = new Date()): Promise<{ period: Period; plan: Plan }> {
+  return ensurePeriod(JomaCalendarService.currentPeriodKey(now));
+}
 
-  const stale = data ?? [];
-  if (stale.length === 0) return;
-
-  const { error: updateError } = await supabase
-    .from("joma_plans")
-    .update({ status: "ARCHIVED", archived_at: new Date().toISOString() })
-    .in("id", stale.map((row) => row.id));
-  if (updateError) throw updateError;
+export async function ensureWorkingPeriod(periodKey?: string): Promise<{ period: Period; plan: Plan }> {
+  const key = periodKey || getSelectedPeriodKey() || JomaCalendarService.currentPeriodKey();
+  return ensurePeriod(key);
 }
 
 export async function listPeriods(): Promise<Array<{ period: Period; plan: Plan }>> {
+  if (isLocalMode()) return localListPeriods();
+
   const supabase = getSupabase();
   const { data: periods, error } = await supabase
     .from("joma_periods")
@@ -76,6 +74,8 @@ export async function listPeriods(): Promise<Array<{ period: Period; plan: Plan 
 }
 
 export async function getPeriodByKey(periodKey: string): Promise<{ period: Period; plan: Plan } | null> {
+  if (isLocalMode()) return localGetPeriodByKey(periodKey);
+
   const supabase = getSupabase();
   const { data: period, error } = await supabase
     .from("joma_periods")

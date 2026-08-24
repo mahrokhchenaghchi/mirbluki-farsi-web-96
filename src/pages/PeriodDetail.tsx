@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import JomaCalendarService from "@/calendar/JomaCalendarService";
 import type { Plan, PlanActivity } from "@/domain/types";
 import type { ReportProjection } from "@/reporting/types";
@@ -7,12 +7,15 @@ import { LoadingState } from "@/components/joma/LoadingState";
 import { StatusBadge } from "@/components/joma/StatusBadge";
 import { ReportView } from "@/features/reports/ReportView";
 import { getPeriodByKey } from "@/services/periodService";
-import { listPlanActivities } from "@/services/planService";
+import { listPlanActivities, transitionPlan } from "@/services/planService";
 import { loadReport } from "@/services/reportService";
+import { setSelectedPeriodKey } from "@/lib/selectedPeriod";
 import { toUserMessage } from "@/lib/errors";
+import { Button } from "@/components/ui/button";
 
 export default function PeriodDetailPage() {
   const { periodKey } = useParams();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [plan, setPlan] = useState<Plan | null>(null);
@@ -52,6 +55,33 @@ export default function PeriodDetailPage() {
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <h1 className="text-3xl font-black">{JomaCalendarService.formatPeriodLabel(periodKey)}</h1>
           <StatusBadge status={plan.status} />
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setSelectedPeriodKey(periodKey);
+              navigate("/app");
+            }}
+          >
+            کار روی این دوره
+          </Button>
+          {plan.status === "RUNNING" && (
+            <Button
+              variant="secondary"
+              onClick={async () => {
+                try {
+                  const archived = await transitionPlan(plan, "ARCHIVED");
+                  setPlan(archived);
+                  setReport(await loadReport(archived.id));
+                } catch (err) {
+                  setError(toUserMessage(err));
+                }
+              }}
+            >
+              بایگانی دوره
+            </Button>
+          )}
         </div>
       </div>
 

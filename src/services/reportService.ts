@@ -1,11 +1,15 @@
 import JomaCalendarService from "@/calendar/JomaCalendarService";
 import { buildReportProjection } from "@/reporting/engine";
 import type { ReportProjection } from "@/reporting/types";
+import { isLocalMode } from "@/lib/mode";
 import { getSupabase } from "@/lib/supabase";
+import { localRebuildProjection } from "@/persistence/local/db";
 import { mapEvent, mapPlan, mapPlanActivity } from "./mappers";
 import { listMoodDates } from "./moodService";
 
 export async function rebuildAndStoreProjection(planId: string): Promise<ReportProjection> {
+  if (isLocalMode()) return localRebuildProjection(planId);
+
   const supabase = getSupabase();
   const { data: planRow, error } = await supabase.from("joma_plans").select("*").eq("id", planId).single();
   if (error) throw error;

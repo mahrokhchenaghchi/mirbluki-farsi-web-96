@@ -18,7 +18,7 @@ export default function ReportsPage() {
   useEffect(() => {
     (async () => {
       try {
-        await ensureCurrentPeriod();
+        await ensureWorkingPeriod();
         const items = await listPeriods();
         setPlans(items.map((item) => item.plan));
         const current = items[0]?.plan;

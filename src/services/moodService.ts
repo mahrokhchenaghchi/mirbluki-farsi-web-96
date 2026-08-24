@@ -1,9 +1,12 @@
 import { UNSPECIFIED } from "@/domain/unspecified";
 import type { MoodRecord } from "@/domain/types";
+import { isLocalMode } from "@/lib/mode";
 import { getSupabase } from "@/lib/supabase";
+import { localGetMood, localListMoodDates, localRecordMood } from "@/persistence/local/db";
 import { mapMood } from "./mappers";
 
 export async function getMoodForDate(jalaliDate: string): Promise<MoodRecord | null> {
+  if (isLocalMode()) return localGetMood(jalaliDate);
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("joma_mood_records")
@@ -15,6 +18,7 @@ export async function getMoodForDate(jalaliDate: string): Promise<MoodRecord | n
 }
 
 export async function listMoodDates(periodStart: string, periodEnd: string): Promise<string[]> {
+  if (isLocalMode()) return localListMoodDates(periodStart, periodEnd);
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("joma_mood_records")
@@ -26,6 +30,7 @@ export async function listMoodDates(periodStart: string, periodEnd: string): Pro
 }
 
 export async function listMoodMetricDefinitions() {
+  if (isLocalMode()) return [];
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("joma_mood_metric_definitions")
@@ -35,11 +40,9 @@ export async function listMoodMetricDefinitions() {
   return data ?? [];
 }
 
-/**
- * Records today's mood check-in.
- * Metrics stay UNSPECIFIED until the product specification names the five indicators.
- */
 export async function recordUnspecifiedMoodCheckIn(jalaliDate: string): Promise<MoodRecord> {
+  if (isLocalMode()) return localRecordMood(jalaliDate);
+
   const supabase = getSupabase();
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError) throw userError;

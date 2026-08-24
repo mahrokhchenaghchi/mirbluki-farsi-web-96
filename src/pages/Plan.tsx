@@ -10,7 +10,7 @@ import { LoadingState } from "@/components/joma/LoadingState";
 import { FrequencyBadge, StatusBadge } from "@/components/joma/StatusBadge";
 import { activityLabel, listLibraryActivities } from "@/services/activityService";
 import { addPlanActivity, listPlanActivities, removePlanActivity, transitionPlan } from "@/services/planService";
-import { ensureCurrentPeriod } from "@/services/periodService";
+import { ensureWorkingPeriod } from "@/services/periodService";
 import { toUserMessage } from "@/lib/errors";
 
 export default function PlanPage() {
@@ -26,7 +26,7 @@ export default function PlanPage() {
   const [busy, setBusy] = useState(false);
 
   const reload = async () => {
-    const [{ plan: nextPlan }, nextLibrary] = await Promise.all([ensureCurrentPeriod(), listLibraryActivities()]);
+    const [{ plan: nextPlan }, nextLibrary] = await Promise.all([ensureWorkingPeriod(), listLibraryActivities()]);
     const nextActivities = await listPlanActivities(nextPlan.id);
     setPlan(nextPlan);
     setLibrary(nextLibrary);

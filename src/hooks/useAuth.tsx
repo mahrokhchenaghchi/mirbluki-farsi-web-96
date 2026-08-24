@@ -1,14 +1,19 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import type { Session, User } from "@supabase/supabase-js";
-import { getJomaEnv } from "@/lib/env";
+import { isAppReady, isLocalMode } from "@/lib/mode";
 import { getSupabase } from "@/lib/supabase";
 import { toUserMessage } from "@/lib/errors";
+import { localGetSession, localSignIn, localSignOut, localSignUp } from "@/persistence/local/db";
+
+export interface AuthUser {
+  id: string;
+  email: string;
+}
 
 interface AuthContextValue {
-  user: User | null;
-  session: Session | null;
+  user: AuthUser | null;
   loading: boolean;
   configured: boolean;
+  localMode: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string) => Promise<{ error: string | null; needsConfirmation: boolean }>;
   signOut: () => Promise<void>;
@@ -17,10 +22,10 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const configured = getJomaEnv().configured;
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(configured);
+  const configured = isAppReady();
+  const localMode = isLocalMode();
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!configured) {
@@ -28,30 +33,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    if (localMode) {
+      const session = localGetSession();
+      setUser(session ? { id: session.userId, email: session.email } : null);
+      setLoading(false);
+      return;
+    }
+
     const supabase = getSupabase();
     const { data } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
-      setUser(nextSession?.user ?? null);
+      setUser(nextSession?.user?.email ? { id: nextSession.user.id, email: nextSession.user.email } : null);
       setLoading(false);
     });
 
     supabase.auth.getSession().then(({ data: sessionData }) => {
-      setSession(sessionData.session);
-      setUser(sessionData.session?.user ?? null);
+      const next = sessionData.session?.user;
+      setUser(next?.email ? { id: next.id, email: next.email } : null);
       setLoading(false);
     });
 
     return () => data.subscription.unsubscribe();
-  }, [configured]);
+  }, [configured, localMode]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
-      session,
       loading,
       configured,
+      localMode,
       async signIn(email, password) {
         try {
+          if (isLocalMode()) {
+            const localUser = await localSignIn(email, password);
+            setUser({ id: localUser.id, email: localUser.email });
+            return { error: null };
+          }
           const { error } = await getSupabase().auth.signInWithPassword({ email, password });
           return { error: error ? toUserMessage(error) : null };
         } catch (error) {
@@ -60,6 +76,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       async signUp(email, password) {
         try {
+          if (isLocalMode()) {
+            const localUser = await localSignUp(email, password);
+            setUser({ id: localUser.id, email: localUser.email });
+            return { error: null, needsConfirmation: false };
+          }
           const { data, error } = await getSupabase().auth.signUp({
             email,
             password,
@@ -72,10 +93,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       },
       async signOut() {
+        if (isLocalMode()) {
+          localSignOut();
+          setUser(null);
+          return;
+        }
         await getSupabase().auth.signOut();
+        setUser(null);
       },
     }),
-    [configured, loading, session, user],
+    [configured, loading, localMode, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

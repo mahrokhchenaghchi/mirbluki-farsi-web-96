@@ -1,15 +1,16 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import JomaCalendarService from "@/calendar/JomaCalendarService";
 import type { PerformanceEvent, Plan, PlanActivity } from "@/domain/types";
 import { EmptyState } from "@/components/joma/EmptyState";
 import { LoadingState } from "@/components/joma/LoadingState";
 import { RegisterPerformanceForm } from "@/features/performance/RegisterPerformanceForm";
-import { ensureCurrentPeriod } from "@/services/periodService";
+import { ensureWorkingPeriod } from "@/services/periodService";
 import { listPlanActivities } from "@/services/planService";
 import { listEventsForPlan } from "@/services/performanceService";
 import { toUserMessage } from "@/lib/errors";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 export default function TodayPage() {
   const [loading, setLoading] = useState(true);
@@ -18,23 +19,30 @@ export default function TodayPage() {
   const [activities, setActivities] = useState<PlanActivity[]>([]);
   const [events, setEvents] = useState<PerformanceEvent[]>([]);
   const today = JomaCalendarService.todayJalaliString();
+  const [performanceDate, setPerformanceDate] = useState(today);
 
   const refresh = useCallback(async () => {
-    const current = await ensureCurrentPeriod();
+    const current = await ensureWorkingPeriod();
     setPlan(current.plan);
+    const defaultDate = JomaCalendarService.isDateInPeriod(today, current.plan.periodKey)
+      ? today
+      : current.period.startDate;
+    setPerformanceDate((prev) => (JomaCalendarService.isDateInPeriod(prev, current.plan.periodKey) ? prev : defaultDate));
     const [nextActivities, nextEvents] = await Promise.all([
       listPlanActivities(current.plan.id),
       listEventsForPlan(current.plan.id),
     ]);
     setActivities(nextActivities);
     setEvents(nextEvents);
-  }, []);
+  }, [today]);
 
   useEffect(() => {
     refresh()
       .catch((err) => setError(toUserMessage(err)))
       .finally(() => setLoading(false));
   }, [refresh]);
+
+  const days = useMemo(() => (plan ? JomaCalendarService.iteratePeriodDays(plan.periodKey) : []), [plan]);
 
   if (loading) return <LoadingState />;
   if (error) return <p className="text-destructive">{error}</p>;
@@ -49,10 +57,25 @@ export default function TodayPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-black">فعالیت‌های امروز</h1>
+        <h1 className="text-3xl font-black">ثبت عملکرد</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {JomaCalendarService.weekdayName(today)} {JomaCalendarService.formatJalaliDisplay(today)}
+          دوره {JomaCalendarService.formatPeriodLabel(plan.periodKey)} · تاریخ ثبت را انتخاب کنید
         </p>
+      </div>
+
+      <div className="max-w-xs space-y-2">
+        <Label>تاریخ عملکرد</Label>
+        <select
+          className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+          value={performanceDate}
+          onChange={(e) => setPerformanceDate(e.target.value)}
+        >
+          {days.map((day) => (
+            <option key={day} value={day}>
+              {JomaCalendarService.weekdayName(day)} {JomaCalendarService.formatJalaliDisplay(day)}
+            </option>
+          ))}
+        </select>
       </div>
 
       {plan.status !== "RUNNING" && (
@@ -89,11 +112,11 @@ export default function TodayPage() {
           ) : (
             groups[frequency].map((activity) => (
               <RegisterPerformanceForm
-                key={activity.id}
+                key={`${activity.id}-${performanceDate}`}
                 plan={plan}
                 activity={activity}
                 events={events}
-                performanceDate={today}
+                performanceDate={performanceDate}
                 onRegistered={refresh}
               />
             ))

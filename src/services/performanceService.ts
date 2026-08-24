@@ -1,11 +1,14 @@
 import { canRegisterPerformance } from "@/domain/rules/performanceRules";
 import type { PerformanceEvent, Plan, PlanActivity } from "@/domain/types";
 import { JomaError } from "@/lib/errors";
+import { isLocalMode } from "@/lib/mode";
 import { getSupabase } from "@/lib/supabase";
+import { localListEventsForActivity, localListEventsForPlan, localRegisterPerformance } from "@/persistence/local/db";
 import { mapEvent } from "./mappers";
 import { rebuildAndStoreProjection } from "./reportService";
 
 export async function listEventsForPlan(planId: string): Promise<PerformanceEvent[]> {
+  if (isLocalMode()) return localListEventsForPlan(planId);
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("joma_performance_events")
@@ -18,6 +21,7 @@ export async function listEventsForPlan(planId: string): Promise<PerformanceEven
 }
 
 export async function listEventsForActivity(planActivityId: string): Promise<PerformanceEvent[]> {
+  if (isLocalMode()) return localListEventsForActivity(planActivityId);
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("joma_performance_events")
@@ -35,6 +39,8 @@ export async function registerPerformance(input: {
   performanceDate: string;
   actualValue: number;
 }): Promise<string> {
+  if (isLocalMode()) return localRegisterPerformance(input);
+
   const existing = await listEventsForActivity(input.planActivity.id);
   const decision = canRegisterPerformance({
     plan: input.plan,

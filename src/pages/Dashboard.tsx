@@ -6,7 +6,7 @@ import type { PerformanceEvent, Period, Plan, PlanActivity } from "@/domain/type
 import { Button } from "@/components/ui/button";
 import { LoadingState } from "@/components/joma/LoadingState";
 import { StatusBadge } from "@/components/joma/StatusBadge";
-import { ensureCurrentPeriod } from "@/services/periodService";
+import { ensureWorkingPeriod } from "@/services/periodService";
 import { listPlanActivities } from "@/services/planService";
 import { listEventsForPlan } from "@/services/performanceService";
 import { toUserMessage } from "@/lib/errors";
@@ -20,7 +20,7 @@ export default function Dashboard() {
   const [events, setEvents] = useState<PerformanceEvent[]>([]);
 
   useEffect(() => {
-    ensureCurrentPeriod()
+    ensureWorkingPeriod()
       .then(async ({ period: nextPeriod, plan: nextPlan }) => {
         setPeriod(nextPeriod);
         setPlan(nextPlan);
@@ -48,7 +48,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm text-muted-foreground">دوره جاری</p>
+        <p className="text-sm text-muted-foreground">دوره انتخاب‌شده</p>
         <div className="mt-1 flex flex-wrap items-center gap-3">
           <h1 className="text-3xl font-black">{JomaCalendarService.formatPeriodLabel(period.periodKey)}</h1>
           <StatusBadge status={plan.status} />
@@ -75,7 +75,7 @@ export default function Dashboard() {
 
       <div className="grid gap-3 md:grid-cols-2">
         <Button asChild size="lg">
-          <Link to="/app/today">ثبت عملکرد امروز</Link>
+          <Link to="/app/today">ثبت عملکرد</Link>
         </Button>
         <Button asChild size="lg" variant="outline">
           <Link to="/app/plan">مشاهده یا تنظیم برنامه</Link>

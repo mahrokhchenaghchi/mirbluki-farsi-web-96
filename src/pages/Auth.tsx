@@ -7,7 +7,7 @@ import { Logo } from "@/components/joma/Logo";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function AuthPage() {
-  const { user, signIn, signUp, configured } = useAuth();
+  const { user, signIn, signUp, configured, localMode } = useAuth();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [mode, setMode] = useState<"signin" | "signup">(params.get("mode") === "signup" ? "signup" : "signin");
@@ -50,9 +50,9 @@ export default function AuthPage() {
           نشست شما در این مرورگر ذخیره می‌شود تا با بستن پنجره از حساب خارج نشوید.
         </p>
 
-        {!configured && (
-          <p className="mt-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">
-            Supabase هنوز پیکربندی نشده است. فایل <span dir="ltr">.env.example</span> را ببینید.
+        {localMode && (
+          <p className="mt-4 rounded-xl bg-sky-50 p-3 text-sm text-sky-900">
+            حالت آزمایشی محلی فعال است. حساب را همین‌جا بسازید؛ داده فقط در این مرورگر می‌ماند.
           </p>
         )}
 
