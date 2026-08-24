@@ -20,15 +20,33 @@ function joma_compute_base() {
     return '';
 }
 
+function joma_needs_sid() {
+    $name = session_name();
+    return empty($_COOKIE[$name]);
+}
+
+function joma_append_sid($url) {
+    if ($url === '' || strpos($url, 'joma_sid=') !== false) return $url;
+    if (strpos($url, 'javascript:') === 0) return $url;
+    $sid = session_id();
+    if ($sid === '' || !joma_needs_sid()) return $url;
+    $sep = (strpos($url, '?') !== false) ? '&' : '?';
+    return $url . $sep . 'joma_sid=' . rawurlencode($sid);
+}
+
 function joma_redirect($path) {
-    $base = $GLOBALS['JOMA_BASE'];
-    header('Location: ' . $base . '/' . ltrim($path, '/'));
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+    header('Location: ' . joma_url($path));
     exit;
 }
 
 function joma_url($path) {
     $base = $GLOBALS['JOMA_BASE'];
-    return rtrim($base, '/') . '/' . ltrim($path, '/');
+    $url = rtrim($base, '/') . '/' . ltrim($path, '/');
+    if (strpos($path, 'assets/') === 0) return $url;
+    return joma_append_sid($url);
 }
 
 function joma_asset($path) {

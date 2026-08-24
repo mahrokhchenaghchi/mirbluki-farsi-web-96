@@ -1,17 +1,24 @@
 <?php
 if (current_user()) joma_redirect('index.php?p=dashboard');
 $err = '';
+$identifier = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
-    $id = strtolower(trim(isset($_POST['identifier']) ? $_POST['identifier'] : ''));
+    $identifier = strtolower(trim(isset($_POST['identifier']) ? $_POST['identifier'] : ''));
     $pass = isset($_POST['password']) ? $_POST['password'] : '';
-    $u = user_by_username($id);
-    if (!$u || !password_verify($pass, $u['password_hash'])) {
-        $err = 'نام کاربری/ایمیل یا رمز عبور نادرست است.';
+    if ($identifier === '' || $pass === '') {
+        $err = 'نام کاربری و رمز عبور را وارد کنید.';
     } else {
-        $_SESSION['user'] = session_user_array($u);
-        copy_seed_to_user($u['id']);
-        joma_redirect('index.php?p=mood');
+        $u = user_by_username($identifier);
+        if (!$u) {
+            $err = 'حسابی با این نام کاربری یا ایمیل پیدا نشد.';
+        } elseif (!password_verify($pass, $u['password_hash'])) {
+            $err = 'نام کاربری/ایمیل یا رمز عبور نادرست است.';
+        } else {
+            $_SESSION['user'] = session_user_array($u);
+            copy_seed_to_user($u['id']);
+            joma_redirect('index.php?p=mood');
+        }
     }
 }
 joma_header('ورود', array(), array('public' => 1));
@@ -31,7 +38,7 @@ joma_header('ورود', array(), array('public' => 1));
   <form method="post" action="<?php echo e(joma_url('index.php?p=login')); ?>">
     <?php echo csrf_field(); ?>
     <label>نام کاربری یا ایمیل</label>
-    <input name="identifier" dir="ltr" required>
+    <input name="identifier" dir="ltr" value="<?php echo e($identifier); ?>" required>
     <label>رمز عبور</label>
     <input type="password" name="password" required>
     <?php if ($err) echo '<p class="bad">'.e($err).'</p>'; ?>
