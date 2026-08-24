@@ -1,45 +1,54 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import JomaCalendarService from "@/calendar/JomaCalendarService";
+import { MOOD_METRICS, type MoodMetricKey } from "@/domain/catalog";
+import type { MoodScores } from "@/domain/types";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Logo } from "@/components/joma/Logo";
 import { LoadingState } from "@/components/joma/LoadingState";
-import { UnspecifiedNotice } from "@/components/joma/UnspecifiedNotice";
-import { getMoodForDate, listMoodMetricDefinitions, recordUnspecifiedMoodCheckIn } from "@/services/moodService";
+import { getMoodForDate, recordMood } from "@/services/moodService";
 import { toUserMessage } from "@/lib/errors";
 import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
+
+const EMPTY: MoodScores = { energy: 0, general: 0, focus: 0, sleep: 0, stress: 0 };
 
 export default function MoodPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const today = JomaCalendarService.todayJalaliString();
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
+  const [scores, setScores] = useState<MoodScores>(EMPTY);
+  const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [definedMetrics, setDefinedMetrics] = useState(0);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    Promise.all([getMoodForDate(today), listMoodMetricDefinitions()])
-      .then(([record, definitions]) => {
-        setDefinedMetrics(definitions.filter((item) => item.specified).length);
-        if (record) navigate("/app", { replace: true });
+    getMoodForDate(today)
+      .then((record) => {
+        if (record) {
+          setScores(record.scores);
+          setNote(record.note);
+        }
       })
       .catch((err) => setError(toUserMessage(err)))
       .finally(() => setLoading(false));
-  }, [navigate, today]);
+  }, [today]);
 
-  const greeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "صبح بخیر";
-    if (hour < 18) return "وقت بخیر";
-    return "عصر بخیر";
-  };
+  const hour = new Date().getHours();
+  const hello = hour < 12 ? "صبح بخیر" : hour < 18 ? "وقت بخیر" : "عصر بخیر";
+  const complete = MOOD_METRICS.every((metric) => scores[metric.key] >= 1);
 
-  const continueToApp = async () => {
+  const save = async () => {
+    if (!complete) {
+      setError("هر پنج شاخص را انتخاب کنید.");
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
-      await recordUnspecifiedMoodCheckIn(today);
+      await recordMood(today, scores, note);
       navigate("/app", { replace: true });
     } catch (err) {
       setError(toUserMessage(err));
@@ -48,34 +57,51 @@ export default function MoodPage() {
     }
   };
 
-  if (loading) return <LoadingState label="آماده‌سازی ورود روزانه..." />;
+  if (loading) return <LoadingState label="آماده‌سازی حال امروز..." />;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-secondary px-4">
-      <div className="w-full max-w-lg rounded-3xl border bg-card p-8">
-        <Logo />
-        <h1 className="mt-8 text-3xl font-black">{greeting()}</h1>
-        <p className="mt-3 text-lg text-muted-foreground">امروز چطوری؟</p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {user?.email} · {JomaCalendarService.formatJalaliDisplay(today)}
-        </p>
-
-        <div className="mt-6">
-          {definedMetrics === 0 ? (
-            <UnspecifiedNotice>
-              پنج شاخص خلق در مشخصات فعلی محصول تعریف نشده‌اند
-              (<span dir="ltr">MOOD_METRICS = UNSPECIFIED</span>).
-              ساختار ذخیرهٔ خلق آماده است و بعداً بدون بازنویسی معماری اضافه می‌شود.
-            </UnspecifiedNotice>
-          ) : (
-            <p>شاخص‌های تعریف‌شده آماده ثبت هستند.</p>
-          )}
+    <div className="min-h-screen px-4 py-8">
+      <div className="mx-auto max-w-2xl space-y-6">
+        <Logo size={72} />
+        <div>
+          <h1 className="text-4xl font-black">{hello}{user?.fullName ? ` ${user.fullName.split(" ")[0]}` : ""}</h1>
+          <p className="mt-2 text-lg text-muted-foreground">امروز چطوری؟</p>
+          <p className="text-sm text-muted-foreground">{JomaCalendarService.formatJalaliDisplay(today)}</p>
         </div>
 
-        {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
+        {MOOD_METRICS.map((metric) => (
+          <section key={metric.key} className="joma-card p-5">
+            <h2 className="mb-4 font-bold">{metric.title}</h2>
+            <div className="grid grid-cols-5 gap-2">
+              {metric.stickers.map((sticker, index) => {
+                const score = index + 1;
+                const selected = scores[metric.key] === score;
+                return (
+                  <button
+                    key={sticker}
+                    type="button"
+                    className={cn(
+                      "flex h-16 flex-col items-center justify-center rounded-2xl text-2xl transition",
+                      selected ? "scale-105 bg-primary text-white shadow-lg" : "bg-muted hover:bg-white",
+                    )}
+                    onClick={() => setScores((current) => ({ ...current, [metric.key]: score } as MoodScores))}
+                  >
+                    <span>{sticker}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        ))}
 
-        <Button className="mt-8 w-full" size="lg" onClick={continueToApp} disabled={busy}>
-          {busy ? "در حال ثبت..." : "ادامه به داشبورد"}
+        <section className="joma-card p-5">
+          <h2 className="mb-3 font-bold">یادداشت امروز (اختیاری)</h2>
+          <Textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} placeholder="اگر چیزی روی دلت است بنویس..." />
+        </section>
+
+        {error && <p className="text-sm text-destructive">{error}</p>}
+        <Button size="lg" className="w-full" onClick={save} disabled={busy}>
+          {busy ? "در حال ذخیره..." : "ادامه به داشبورد"}
         </Button>
       </div>
     </div>

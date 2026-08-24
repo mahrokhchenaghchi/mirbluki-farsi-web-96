@@ -7,12 +7,25 @@ export function isAllowedFrequency(value: string): value is Frequency {
 
 export function canRegisterPerformance(input: {
   plan: Pick<Plan, "status" | "periodKey">;
-  planActivity: Pick<PlanActivity, "id" | "frequency" | "periodKey">;
+  planActivity: Pick<PlanActivity, "id" | "frequency" | "periodKey"> & { dataType?: string };
   performanceDate: string;
   actualValue: number;
   existingEvents: Array<Pick<PerformanceEvent, "planActivityId" | "performanceDate" | "frequency">>;
 }): RuleDecision {
-  if (!Number.isFinite(input.actualValue) || input.actualValue < 0) {
+  if (!Number.isFinite(input.actualValue)) {
+    return {
+      ok: false,
+      code: "INVALID_VALUE",
+      message: "مقدار عملکرد معتبر نیست.",
+    };
+  }
+  if (input.planActivity.dataType === "RATING" && (input.actualValue < 1 || input.actualValue > 5)) {
+    return { ok: false, code: "INVALID_VALUE", message: "امتیاز باید بین ۱ و ۵ باشد." };
+  }
+  if (input.planActivity.dataType === "BOOLEAN" && input.actualValue !== 0 && input.actualValue !== 1) {
+    return { ok: false, code: "INVALID_VALUE", message: "وضعیت انجام نامعتبر است." };
+  }
+  if (input.actualValue < 0) {
     return {
       ok: false,
       code: "INVALID_VALUE",

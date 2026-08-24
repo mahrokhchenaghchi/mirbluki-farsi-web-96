@@ -90,7 +90,7 @@ export default function PeriodDetailPage() {
         <ul className="mt-4 space-y-2 text-sm">
           {activities.map((item) => (
             <li key={item.id} className="rounded-xl bg-muted/40 px-4 py-3">
-              {item.title} · هدف {JomaCalendarService.toPersianDigits(item.targetValue)} · وزن{" "}
+              {item.sticker} {item.name} · هدف {JomaCalendarService.toPersianDigits(item.targetValue)} · وزن{" "}
               {JomaCalendarService.toPersianDigits(item.weight)}
             </li>
           ))}

@@ -3,11 +3,6 @@ import { calculateActual } from "@/domain/rules/performanceRules";
 import { unspecifiedResult } from "@/domain/unspecified";
 import type { BuildReportInput, ReportProjection } from "./types";
 
-/**
- * Reporting Engine
- * Source of truth remains events + plan snapshots.
- * Achievement / overall success stay UNSPECIFIED — no invented formula.
- */
 export function buildReportProjection(input: BuildReportInput): ReportProjection {
   const activities = input.activities.map((activity) => {
     const events = input.events
@@ -18,9 +13,14 @@ export function buildReportProjection(input: BuildReportInput): ReportProjection
       planActivityId: activity.id,
       activityCode: activity.activityCode,
       title: activity.title,
+      name: activity.name ?? activity.title,
+      category: activity.category ?? "",
       frequency: activity.frequency,
+      dataType: activity.dataType ?? "NUMERIC",
       targetValue: Number(activity.targetValue),
       weight: Number(activity.weight),
+      sticker: activity.sticker ?? "⭐",
+      color: activity.color ?? "#B8D4F0",
       actual: calculateActual(events),
       eventCount: events.length,
       events: events.map((event) => ({
@@ -42,15 +42,20 @@ export function buildReportProjection(input: BuildReportInput): ReportProjection
     eventsByDate.set(event.performanceDate, current);
   }
 
-  const moodSet = new Set(input.moodDates ?? []);
+  const moodSeries = (input.moods ?? []).slice().sort((a, b) => a.jalaliDate.localeCompare(b.jalaliDate));
+  const moodMap = new Map(moodSeries.map((item) => [item.jalaliDate, item]));
+  const moodDates = [...new Set([...(input.moodDates ?? []), ...moodSeries.map((item) => item.jalaliDate)])].sort();
+
   const calendarDays = JomaCalendarService.iteratePeriodDays(input.periodKey).map((date) => {
     const dayEvents = eventsByDate.get(date);
+    const mood = moodMap.get(date);
     return {
       date,
       weekday: JomaCalendarService.weekdayName(date),
       eventCount: dayEvents?.count ?? 0,
       actualTotal: dayEvents?.actual ?? 0,
-      hasMood: moodSet.has(date),
+      hasMood: Boolean(mood) || moodDates.includes(date),
+      mood: mood?.scores,
     };
   });
 
@@ -63,7 +68,8 @@ export function buildReportProjection(input: BuildReportInput): ReportProjection
     activities,
     overallSuccess: unspecifiedResult("overallSuccessFormula"),
     calendarDays,
-    moodDates: [...moodSet].sort(),
+    moodDates,
+    moodSeries: moodSeries.map((item) => ({ date: item.jalaliDate, scores: item.scores, note: item.note })),
     weightSum: activities.reduce((sum, row) => sum + row.weight, 0),
   };
 }
@@ -75,6 +81,6 @@ export function emptyReport(periodKey: string, planId: string, planStatus: strin
     planStatus,
     activities: [],
     events: [],
-    moodDates: [],
+    moods: [],
   });
 }

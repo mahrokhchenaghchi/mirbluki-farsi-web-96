@@ -1,10 +1,28 @@
-import type { Unspecified } from "./unspecified";
-
 export type Frequency = "DAILY" | "WEEKLY" | "MONTHLY";
 export type PlanStatus = "DRAFT" | "PLANNING" | "RUNNING" | "ARCHIVED";
 export type EventType = "PERFORMANCE_REGISTERED";
-
+export type DataType = "DURATION" | "NUMERIC" | "BOOLEAN" | "RATING";
 export type PeriodKey = string;
+
+export type ActivityCategory =
+  | "سلامت جسم"
+  | "خواب و استراحت"
+  | "سلامت روان"
+  | "تمرکز و ذهن"
+  | "یادگیری"
+  | "رشد فردی"
+  | "روابط"
+  | "خانواده"
+  | "ذهن‌آگاهی"
+  | "مراقبت از خود"
+  | "بهره‌وری"
+  | "سبک زندگی";
+
+export interface ActivityColor {
+  id: string;
+  label: string;
+  value: string;
+}
 
 export interface JalaliDateParts {
   year: number;
@@ -14,10 +32,21 @@ export interface JalaliDateParts {
 
 export interface ActivityDefinition {
   id: string;
+  userId: string;
   code: string;
-  title: string;
-  description: string | null;
-  titleSpecified: boolean;
+  name: string;
+  category: ActivityCategory;
+  frequency: Frequency;
+  dataType: DataType;
+  dailyTarget: number;
+  weeklyTarget: number;
+  monthlyTarget: number;
+  weight: number;
+  sticker: string;
+  color: string;
+  isSeed: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Period {
@@ -50,11 +79,17 @@ export interface PlanActivity {
   periodKey: PeriodKey;
   activityId: string;
   activityCode: string;
-  title: string;
-  description: string | null;
+  name: string;
+  category: ActivityCategory;
   frequency: Frequency;
+  dataType: DataType;
+  dailyTarget: number;
+  weeklyTarget: number;
+  monthlyTarget: number;
   targetValue: number;
   weight: number;
+  sticker: string;
+  color: string;
   snapshotAt: string;
 }
 
@@ -65,18 +100,38 @@ export interface PerformanceEvent {
   planActivityId: string;
   periodKey: PeriodKey;
   frequency: Frequency;
+  dataType: DataType;
   eventType: EventType;
   performanceDate: string;
   actualValue: number;
   createdAt: string;
 }
 
+export interface MoodScores {
+  energy: number;
+  general: number;
+  focus: number;
+  sleep: number;
+  stress: number;
+}
+
 export interface MoodRecord {
   id: string;
   userId: string;
   jalaliDate: string;
-  metrics: Record<string, unknown>;
-  metricsStatus: Unspecified | "DEFINED";
+  scores: MoodScores;
+  note: string;
+  createdAt: string;
+}
+
+export interface JomaUser {
+  id: string;
+  fullName: string;
+  username: string;
+  phone: string;
+  email: string;
+  job: string;
+  passwordHash: string;
   createdAt: string;
 }
 
@@ -93,4 +148,5 @@ export type RuleErrorCode =
   | "MISSING_PLAN_ACTIVITY"
   | "PLAN_NOT_EDITABLE"
   | "WEIGHT_INVALID"
-  | "FREQUENCY_INVALID";
+  | "FREQUENCY_INVALID"
+  | "DATATYPE_INVALID";

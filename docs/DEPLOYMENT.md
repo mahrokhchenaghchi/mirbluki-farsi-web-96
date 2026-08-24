@@ -28,6 +28,16 @@ cp .env.example .env
 npm run dev
 ```
 
+## زیرمسیر /joma
+
+برای استقرار روی `mirbolouki.com/joma`:
+
+```sh
+VITE_BASE=/joma/ npm run build
+```
+
+Routing و مسیر دارایی‌ها از `import.meta.env.BASE_URL` خوانده می‌شوند.
+
 ## Build
 
 ```sh

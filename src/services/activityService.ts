@@ -1,18 +1,30 @@
-import { displayActivityTitle } from "@/domain/seed/activityCodes";
 import type { ActivityDefinition } from "@/domain/types";
 import { isLocalMode } from "@/lib/mode";
-import { getSupabase } from "@/lib/supabase";
-import { localListActivities } from "@/persistence/local/db";
-import { mapActivity } from "./mappers";
+import {
+  localCreateActivity,
+  localDeleteActivity,
+  localListActivities,
+  localUpdateActivity,
+} from "@/persistence/local/db";
 
 export async function listLibraryActivities(): Promise<ActivityDefinition[]> {
-  if (isLocalMode()) return localListActivities();
-  const supabase = getSupabase();
-  const { data, error } = await supabase.from("joma_activities").select("*").order("code");
-  if (error) throw error;
-  return (data ?? []).map(mapActivity);
+  if (!isLocalMode()) throw new Error("حالت فعلی فقط Local/Test است.");
+  return localListActivities();
 }
 
-export function activityLabel(activity: ActivityDefinition): string {
-  return displayActivityTitle(activity.code, activity.title, activity.titleSpecified);
+export async function createLibraryActivity(
+  input: Omit<ActivityDefinition, "id" | "userId" | "code" | "isSeed" | "createdAt" | "updatedAt">,
+): Promise<ActivityDefinition> {
+  if (!isLocalMode()) throw new Error("حالت فعلی فقط Local/Test است.");
+  return localCreateActivity(input);
+}
+
+export async function updateLibraryActivity(id: string, patch: Partial<ActivityDefinition>): Promise<ActivityDefinition> {
+  if (!isLocalMode()) throw new Error("حالت فعلی فقط Local/Test است.");
+  return localUpdateActivity(id, patch);
+}
+
+export async function deleteLibraryActivity(id: string): Promise<void> {
+  if (!isLocalMode()) throw new Error("حالت فعلی فقط Local/Test است.");
+  localDeleteActivity(id);
 }

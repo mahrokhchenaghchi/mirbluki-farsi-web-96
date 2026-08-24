@@ -1,14 +1,28 @@
+import { assetPath } from "@/lib/base";
 import { cn } from "@/lib/utils";
 
-export function Logo({ className, compact = false }: { className?: string; compact?: boolean }) {
+export function Logo({
+  className,
+  compact = false,
+  size = 48,
+}: {
+  className?: string;
+  compact?: boolean;
+  size?: number;
+}) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
-      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-hero text-white shadow-sm">
-        <span className="text-sm font-black">جو</span>
-      </div>
+      <img
+        src={assetPath("logo.jpg")}
+        alt="لوگوی جوما"
+        width={size}
+        height={size}
+        className="rounded-full border-2 border-white object-cover shadow-md"
+        style={{ width: size, height: size }}
+      />
       {!compact && (
         <div className="text-right">
-          <div className="text-base font-bold leading-none">جوما</div>
+          <div className="text-lg font-black leading-none">جوما</div>
           <div className="mt-1 text-[11px] text-muted-foreground">برنامه. اجرا. فهم.</div>
         </div>
       )}

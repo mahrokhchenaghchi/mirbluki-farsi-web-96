@@ -1,17 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import type { ActivityDefinition, Frequency, Plan, PlanActivity } from "@/domain/types";
-import { sumWeights } from "@/domain/rules/planRules";
 import JomaCalendarService from "@/calendar/JomaCalendarService";
+import { FREQUENCY_LABEL } from "@/domain/catalog";
+import { sumWeights } from "@/domain/rules/planRules";
+import type { ActivityDefinition, Plan, PlanActivity } from "@/domain/types";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { EmptyState } from "@/components/joma/EmptyState";
 import { LoadingState } from "@/components/joma/LoadingState";
-import { FrequencyBadge, StatusBadge } from "@/components/joma/StatusBadge";
-import { activityLabel, listLibraryActivities } from "@/services/activityService";
-import { addPlanActivity, listPlanActivities, removePlanActivity, transitionPlan } from "@/services/planService";
-import { ensureWorkingPeriod } from "@/services/periodService";
+import { StatusBadge } from "@/components/joma/StatusBadge";
 import { toUserMessage } from "@/lib/errors";
+import { listLibraryActivities } from "@/services/activityService";
+import { ensureWorkingPeriod } from "@/services/periodService";
+import { addPlanActivity, listPlanActivities, removePlanActivity, transitionPlan } from "@/services/planService";
 
 export default function PlanPage() {
   const [loading, setLoading] = useState(true);
@@ -19,10 +18,7 @@ export default function PlanPage() {
   const [plan, setPlan] = useState<Plan | null>(null);
   const [activities, setActivities] = useState<PlanActivity[]>([]);
   const [library, setLibrary] = useState<ActivityDefinition[]>([]);
-  const [selectedCode, setSelectedCode] = useState("");
-  const [frequency, setFrequency] = useState<Frequency>("DAILY");
-  const [targetValue, setTargetValue] = useState("1");
-  const [weight, setWeight] = useState("0");
+  const [selectedId, setSelectedId] = useState("");
   const [busy, setBusy] = useState(false);
 
   const reload = async () => {
@@ -31,175 +27,84 @@ export default function PlanPage() {
     setPlan(nextPlan);
     setLibrary(nextLibrary);
     setActivities(nextActivities);
-    if (!selectedCode && nextLibrary[0]) setSelectedCode(nextLibrary[0].code);
+    if (!selectedId && nextLibrary[0]) setSelectedId(nextLibrary[0].id);
   };
 
   useEffect(() => {
-    reload()
-      .catch((err) => setError(toUserMessage(err)))
-      .finally(() => setLoading(false));
+    reload().catch((err) => setError(toUserMessage(err))).finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const editable = plan?.status === "DRAFT" || plan?.status === "PLANNING";
   const weightSum = useMemo(() => sumWeights(activities.map((item) => item.weight)), [activities]);
 
-  const add = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!plan) return;
-    const activity = library.find((item) => item.code === selectedCode);
-    if (!activity) return;
-    setBusy(true);
-    setError(null);
-    try {
-      await addPlanActivity({
-        plan,
-        activity,
-        frequency,
-        targetValue: Number(targetValue),
-        weight: Number(weight),
-      });
-      await reload();
-    } catch (err) {
-      setError(toUserMessage(err));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const changeStatus = async (next: "PLANNING" | "RUNNING") => {
-    if (!plan) return;
-    setBusy(true);
-    setError(null);
-    try {
-      const updated = await transitionPlan(plan, next);
-      setPlan(updated);
-    } catch (err) {
-      setError(toUserMessage(err));
-    } finally {
-      setBusy(false);
-    }
-  };
-
   if (loading) return <LoadingState />;
   if (!plan) return <p className="text-destructive">{error}</p>;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-3xl font-black">برنامه {JomaCalendarService.formatPeriodLabel(plan.periodKey)}</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            فعالیت‌های کتابخانه هنگام ورود به برنامه به‌صورت تصویر ثابت ذخیره می‌شوند.
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground">با نهایی‌سازی، تصویر ثابت فعالیت‌ها برای همین دوره ذخیره می‌شود.</p>
         </div>
         <StatusBadge status={plan.status} />
       </div>
-
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      <section className="rounded-2xl border bg-card p-5">
-        <div className="flex flex-wrap gap-2">
-          {plan.status === "DRAFT" && (
-            <Button disabled={busy || activities.length === 0} onClick={() => changeStatus("PLANNING")}>
-              نهایی‌سازی برنامه
-            </Button>
-          )}
-          {plan.status === "PLANNING" && (
-            <Button disabled={busy || activities.length === 0} onClick={() => changeStatus("RUNNING")}>
-              شروع اجرا
-            </Button>
-          )}
-          {plan.status === "RUNNING" && (
-            <p className="text-sm text-emerald-700">برنامه در حال اجراست و برای حفظ تاریخچه قفل شده است.</p>
-          )}
-        </div>
-      </section>
+      <div className="joma-card flex flex-wrap gap-2 p-4">
+        {plan.status === "DRAFT" && <Button disabled={busy || activities.length === 0} onClick={async () => setPlan(await transitionPlan(plan, "PLANNING"))}>نهایی‌سازی برنامه</Button>}
+        {plan.status === "PLANNING" && <Button disabled={busy || activities.length === 0} onClick={async () => setPlan(await transitionPlan(plan, "RUNNING"))}>شروع اجرا</Button>}
+        {plan.status === "RUNNING" && <p className="text-sm text-emerald-700">برنامه قفل شده تا تاریخچه حفظ شود.</p>}
+      </div>
 
       {editable && (
-        <form className="space-y-4 rounded-2xl border bg-card p-5" onSubmit={add}>
-          <h2 className="font-bold">افزودن فعالیت به برنامه</h2>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label>فعالیت کتابخانه</Label>
-              <select
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-                value={selectedCode}
-                onChange={(e) => setSelectedCode(e.target.value)}
-              >
-                {library.map((item) => (
-                  <option key={item.id} value={item.code}>
-                    {activityLabel(item)}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label>تناوب</Label>
-              <select
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-                value={frequency}
-                onChange={(e) => setFrequency(e.target.value as Frequency)}
-              >
-                <option value="DAILY">روزانه</option>
-                <option value="WEEKLY">هفتگی</option>
-                <option value="MONTHLY">ماهانه</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label>هدف عددی</Label>
-              <Input dir="ltr" type="number" min={0.0001} step="any" value={targetValue} onChange={(e) => setTargetValue(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label>وزن</Label>
-              <Input dir="ltr" type="number" min={0} step="any" value={weight} onChange={(e) => setWeight(e.target.value)} />
-            </div>
-          </div>
-          <Button type="submit" disabled={busy}>
-            افزودن به برنامه
-          </Button>
+        <form
+          className="joma-card flex flex-col gap-3 p-5 md:flex-row"
+          onSubmit={async (event) => {
+            event.preventDefault();
+            const activity = library.find((item) => item.id === selectedId);
+            if (!activity) return;
+            setBusy(true);
+            try {
+              await addPlanActivity(plan, activity);
+              await reload();
+            } catch (err) {
+              setError(toUserMessage(err));
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          <select className="h-10 flex-1 rounded-md border bg-background px-3 text-sm" value={selectedId} onChange={(e) => setSelectedId(e.target.value)}>
+            {library.map((item) => (
+              <option key={item.id} value={item.id}>{item.sticker} {item.name}</option>
+            ))}
+          </select>
+          <Button type="submit" disabled={busy}>افزودن به برنامه</Button>
         </form>
       )}
 
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold">فعالیت‌های این دوره</h2>
-          <span className="text-sm text-muted-foreground">
-            جمع وزن: {JomaCalendarService.toPersianDigits(weightSum)}
-          </span>
-        </div>
-        {activities.length === 0 ? (
-          <EmptyState title="برنامه خالی است" description="هنوز فعالیتی به این دوره اضافه نشده است." />
-        ) : (
-          activities.map((item) => (
-            <div key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-card p-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold">فعالیت‌های این دوره</h2>
+        <span className="text-sm text-muted-foreground">جمع وزن: {JomaCalendarService.toPersianDigits(weightSum)}</span>
+      </div>
+      {activities.length === 0 ? (
+        <EmptyState title="برنامه خالی است" description="از کتابخانه یک فعالیت اضافه کنید." />
+      ) : (
+        activities.map((item) => (
+          <div key={item.id} className="joma-card flex items-center justify-between gap-3 p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl text-2xl" style={{ background: item.color }}>{item.sticker}</div>
               <div>
-                <div className="font-medium">{item.title}</div>
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                  <FrequencyBadge frequency={item.frequency} />
-                  <span>هدف {JomaCalendarService.toPersianDigits(item.targetValue)}</span>
-                  <span>وزن {JomaCalendarService.toPersianDigits(item.weight)}</span>
-                </div>
+                <div className="font-bold">{item.name}</div>
+                <div className="text-xs text-muted-foreground">{FREQUENCY_LABEL[item.frequency]} · وزن {item.weight}</div>
               </div>
-              {editable && (
-                <Button
-                  variant="outline"
-                  onClick={async () => {
-                    try {
-                      await removePlanActivity(plan, item.id);
-                      await reload();
-                    } catch (err) {
-                      setError(toUserMessage(err));
-                    }
-                  }}
-                >
-                  حذف
-                </Button>
-              )}
             </div>
-          ))
-        )}
-      </section>
+            {editable && <Button variant="outline" onClick={async () => { await removePlanActivity(plan, item.id); await reload(); }}>حذف</Button>}
+          </div>
+        ))
+      )}
     </div>
   );
 }

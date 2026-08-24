@@ -1,66 +1,23 @@
-import { UNSPECIFIED } from "@/domain/unspecified";
-import type { MoodRecord } from "@/domain/types";
+import type { MoodRecord, MoodScores } from "@/domain/types";
 import { isLocalMode } from "@/lib/mode";
-import { getSupabase } from "@/lib/supabase";
-import { localGetMood, localListMoodDates, localRecordMood } from "@/persistence/local/db";
-import { mapMood } from "./mappers";
+import { localGetMood, localListMoods, localRecordMood } from "@/persistence/local/db";
 
 export async function getMoodForDate(jalaliDate: string): Promise<MoodRecord | null> {
-  if (isLocalMode()) return localGetMood(jalaliDate);
-  const supabase = getSupabase();
-  const { data, error } = await supabase
-    .from("joma_mood_records")
-    .select("*")
-    .eq("jalali_date", jalaliDate)
-    .maybeSingle();
-  if (error) throw error;
-  return data ? mapMood(data) : null;
+  if (!isLocalMode()) throw new Error("حالت فعلی فقط Local/Test است.");
+  return localGetMood(jalaliDate);
 }
 
-export async function listMoodDates(periodStart: string, periodEnd: string): Promise<string[]> {
-  if (isLocalMode()) return localListMoodDates(periodStart, periodEnd);
-  const supabase = getSupabase();
-  const { data, error } = await supabase
-    .from("joma_mood_records")
-    .select("jalali_date")
-    .gte("jalali_date", periodStart)
-    .lte("jalali_date", periodEnd);
-  if (error) throw error;
-  return (data ?? []).map((row) => row.jalali_date);
+export async function listMoodRecords(start: string, end: string): Promise<MoodRecord[]> {
+  if (!isLocalMode()) throw new Error("حالت فعلی فقط Local/Test است.");
+  return localListMoods(start, end);
 }
 
-export async function listMoodMetricDefinitions() {
-  if (isLocalMode()) return [];
-  const supabase = getSupabase();
-  const { data, error } = await supabase
-    .from("joma_mood_metric_definitions")
-    .select("*")
-    .order("sort_order");
-  if (error) throw error;
-  return data ?? [];
+export async function listMoodDates(start: string, end: string): Promise<string[]> {
+  const rows = await listMoodRecords(start, end);
+  return rows.map((row) => row.jalaliDate);
 }
 
-export async function recordUnspecifiedMoodCheckIn(jalaliDate: string): Promise<MoodRecord> {
-  if (isLocalMode()) return localRecordMood(jalaliDate);
-
-  const supabase = getSupabase();
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError) throw userError;
-  if (!userData.user) throw new Error("not authenticated");
-
-  const { data, error } = await supabase
-    .from("joma_mood_records")
-    .upsert(
-      {
-        user_id: userData.user.id,
-        jalali_date: jalaliDate,
-        metrics: {},
-        metrics_status: UNSPECIFIED,
-      },
-      { onConflict: "user_id,jalali_date" },
-    )
-    .select("*")
-    .single();
-  if (error) throw error;
-  return mapMood(data);
+export async function recordMood(jalaliDate: string, scores: MoodScores, note: string): Promise<MoodRecord> {
+  if (!isLocalMode()) throw new Error("حالت فعلی فقط Local/Test است.");
+  return localRecordMood(jalaliDate, scores, note);
 }

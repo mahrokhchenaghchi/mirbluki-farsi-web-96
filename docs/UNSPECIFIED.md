@@ -1,24 +1,25 @@
-# موارد تعریف‌نشده
+# موارد تعریف‌نشده و موارد موقت
 
-طبق مشخصات محصول، این موارد حدس زده نشده‌اند:
+## قطعی در این نسخه
+
+- پنج شاخص Mood: انرژی، حال عمومی، تمرکز، کیفیت خواب، استرس
+- نام ACT001 تا ACT045
+- دسته‌ها، DataTypeها، Frequencyها، Sticker و Color palettes
+
+## UNSPECIFIED
 
 | مورد | وضعیت |
 |---|---|
 | فرمول Achievement | UNSPECIFIED |
-| فرمول Weighted Achievement | UNSPECIFIED |
 | فرمول Overall Success | UNSPECIFIED |
-| پنج شاخص Mood | UNSPECIFIED |
-| عنوان دقیق ACT001 تا ACT045 | UNSPECIFIED؛ فایل library.pdf در محیط ساخت در دسترس نبود |
-| DataTypeهای جدید فعالیت | UNSPECIFIED |
-| Frequency غیر از روزانه/هفتگی/ماهانه | UNSPECIFIED |
-| اعلان SMS / Email / Push | UNSPECIFIED |
-| پنل ادمین گسترده | UNSPECIFIED |
-| Reason Rules | UNSPECIFIED |
 | اطلاعات تماس پشتیبانی | UNSPECIFIED |
+| اعلان SMS / Email / Push | UNSPECIFIED |
+| پنل ادمین | UNSPECIFIED |
 
-ساختار آماده گسترش:
+## Seed موقت Frequency / Target / Weight
 
-- `joma_mood_metric_definitions`
-- فیلد `metrics` در `joma_mood_records`
-- فیلدهای `title_specified` در کتابخانه فعالیت
-- خروجی `unspecifiedResult()` در موتور گزارش
+فایل PDF کتابخانه در محیط ساخت خوانده نشد.
+
+برای اینکه کتابخانه قابل استفاده باشد، مقدار Frequency، DataType، Target و Weight اولیه به‌صورت seed موقت و کاملاً قابل ویرایش در UI گذاشته شده است.
+
+این مقادیر فرمول امتیازدهی نیستند. بعد از دریافت جدول رسمی Library جایگزین می‌شوند.

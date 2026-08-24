@@ -1,12 +1,14 @@
 import JomaCalendarService from "@/calendar/JomaCalendarService";
-import { allActivityCodes, displayActivityTitle } from "@/domain/seed/activityCodes";
+import { targetOf } from "@/domain/catalog";
 import { canRegisterPerformance } from "@/domain/rules/performanceRules";
-import { canEditPlan, canTransition, validatePlanActivityInput } from "@/domain/rules/planRules";
-import { activityLabel } from "@/services/activityService";
+import { canEditPlan, canTransition } from "@/domain/rules/planRules";
+import { buildSeedActivities } from "@/domain/seed/activityLibrary.seed";
 import type {
   ActivityDefinition,
   Frequency,
+  JomaUser,
   MoodRecord,
+  MoodScores,
   Period,
   PerformanceEvent,
   Plan,
@@ -14,22 +16,14 @@ import type {
   PlanStatus,
 } from "@/domain/types";
 import { JomaError } from "@/lib/errors";
-import { UNSPECIFIED } from "@/domain/unspecified";
 import { buildReportProjection } from "@/reporting/engine";
 import type { ReportProjection } from "@/reporting/types";
 
-const STORAGE_KEY = "joma.local.db.v1";
-
-export interface LocalUser {
-  id: string;
-  email: string;
-  passwordHash: string;
-  createdAt: string;
-}
+const STORAGE_KEY = "joma.local.db.v2";
 
 interface LocalState {
-  users: LocalUser[];
-  session: { userId: string; email: string } | null;
+  users: JomaUser[];
+  session: { userId: string } | null;
   activities: ActivityDefinition[];
   periods: Period[];
   plans: Plan[];
@@ -50,13 +44,7 @@ function emptyState(): LocalState {
   return {
     users: [],
     session: null,
-    activities: allActivityCodes().map((code) => ({
-      id: `activity-${code.toLowerCase()}`,
-      code,
-      title: code,
-      description: null,
-      titleSpecified: false,
-    })),
+    activities: [],
     periods: [],
     plans: [],
     planActivities: [],
@@ -75,9 +63,7 @@ function load(): LocalState {
       save(initial);
       return initial;
     }
-    const parsed = JSON.parse(raw) as LocalState;
-    if (!parsed.activities?.length) parsed.activities = emptyState().activities;
-    return parsed;
+    return JSON.parse(raw) as LocalState;
   } catch {
     const initial = emptyState();
     save(initial);
@@ -94,7 +80,7 @@ function id(prefix: string): string {
   return `${prefix}-${crypto.randomUUID()}`;
 }
 
-async function hashPassword(password: string): Promise<string> {
+export async function hashPassword(password: string): Promise<string> {
   const bytes = new TextEncoder().encode(`joma-local:${password}`);
   const digest = await crypto.subtle.digest("SHA-256", bytes);
   return Array.from(new Uint8Array(digest))
@@ -102,42 +88,72 @@ async function hashPassword(password: string): Promise<string> {
     .join("");
 }
 
-function requireUser(state: LocalState): { userId: string; email: string } {
-  if (!state.session) {
-    throw new JomaError("UNAUTHENTICATED", "نشست شما منقضی شده است. دوباره وارد شوید.");
-  }
-  return state.session;
+function requireUser(state: LocalState): string {
+  if (!state.session) throw new JomaError("UNAUTHENTICATED", "نشست شما منقضی شده است. دوباره وارد شوید.");
+  return state.session.userId;
 }
 
-export async function localSignUp(email: string, password: string): Promise<LocalUser> {
-  const state = load();
-  const normalized = email.trim().toLowerCase();
-  if (state.users.some((user) => user.email === normalized)) {
-    throw new JomaError("ACCOUNT_EXISTS", "این ایمیل قبلاً ثبت شده است. وارد شوید.");
+function ensureLibrary(state: LocalState, userId: string) {
+  if (!state.activities.some((item) => item.userId === userId && item.isSeed)) {
+    state.activities.push(...buildSeedActivities(userId));
   }
-  const user: LocalUser = {
+}
+
+export async function localSignUp(input: {
+  fullName: string;
+  username: string;
+  phone: string;
+  email: string;
+  job: string;
+  password: string;
+}): Promise<JomaUser> {
+  const state = load();
+  const email = input.email.trim().toLowerCase();
+  const username = input.username.trim().toLowerCase();
+  if (state.users.some((user) => user.email === email)) {
+    throw new JomaError("ACCOUNT_EXISTS", "این ایمیل قبلاً ثبت شده است.");
+  }
+  if (state.users.some((user) => user.username === username)) {
+    throw new JomaError("USERNAME_EXISTS", "این نام کاربری قبلاً گرفته شده است.");
+  }
+  const user: JomaUser = {
     id: id("user"),
-    email: normalized,
-    passwordHash: await hashPassword(password),
+    fullName: input.fullName.trim(),
+    username,
+    phone: input.phone.trim(),
+    email,
+    job: input.job.trim(),
+    passwordHash: await hashPassword(input.password),
     createdAt: new Date().toISOString(),
   };
   state.users.push(user);
-  state.session = { userId: user.id, email: user.email };
+  state.session = { userId: user.id };
+  ensureLibrary(state, user.id);
   save(state);
   return user;
 }
 
-export async function localSignIn(email: string, password: string): Promise<LocalUser> {
+export async function localSignIn(identifier: string, password: string): Promise<JomaUser> {
   const state = load();
-  const normalized = email.trim().toLowerCase();
-  const user = state.users.find((item) => item.email === normalized);
+  const key = identifier.trim().toLowerCase();
+  const user = state.users.find((item) => item.email === key || item.username === key);
   const passwordHash = await hashPassword(password);
   if (!user || user.passwordHash !== passwordHash) {
-    throw new JomaError("INVALID_LOGIN", "ایمیل یا رمز عبور نادرست است.");
+    throw new JomaError("INVALID_LOGIN", "نام کاربری/ایمیل یا رمز عبور نادرست است.");
   }
-  state.session = { userId: user.id, email: user.email };
+  state.session = { userId: user.id };
+  ensureLibrary(state, user.id);
   save(state);
   return user;
+}
+
+export async function localResetPassword(identifier: string, password: string): Promise<void> {
+  const state = load();
+  const key = identifier.trim().toLowerCase();
+  const user = state.users.find((item) => item.email === key || item.username === key);
+  if (!user) throw new JomaError("NOT_FOUND", "حسابی با این مشخصات پیدا نشد.");
+  user.passwordHash = await hashPassword(password);
+  save(state);
 }
 
 export function localSignOut() {
@@ -146,17 +162,63 @@ export function localSignOut() {
   save(state);
 }
 
-export function localGetSession(): { userId: string; email: string } | null {
-  return load().session;
+export function localGetSessionUser(): JomaUser | null {
+  const state = load();
+  if (!state.session) return null;
+  return state.users.find((item) => item.id === state.session?.userId) ?? null;
 }
 
 export function localListActivities(): ActivityDefinition[] {
-  return load().activities.slice().sort((a, b) => a.code.localeCompare(b.code));
+  const state = load();
+  const userId = requireUser(state);
+  ensureLibrary(state, userId);
+  save(state);
+  return state.activities
+    .filter((item) => item.userId === userId)
+    .sort((a, b) => a.code.localeCompare(b.code, "en"));
+}
+
+export function localCreateActivity(input: Omit<ActivityDefinition, "id" | "userId" | "code" | "isSeed" | "createdAt" | "updatedAt">): ActivityDefinition {
+  const state = load();
+  const userId = requireUser(state);
+  const existing = state.activities.filter((item) => item.userId === userId);
+  const next = existing.length + 1;
+  const now = new Date().toISOString();
+  const row: ActivityDefinition = {
+    ...input,
+    id: id("activity"),
+    userId,
+    code: `ACT${String(next).padStart(3, "0")}`,
+    isSeed: false,
+    createdAt: now,
+    updatedAt: now,
+  };
+  state.activities.push(row);
+  save(state);
+  return row;
+}
+
+export function localUpdateActivity(activityId: string, patch: Partial<ActivityDefinition>): ActivityDefinition {
+  const state = load();
+  const userId = requireUser(state);
+  const row = state.activities.find((item) => item.id === activityId && item.userId === userId);
+  if (!row) throw new JomaError("NOT_FOUND", "فعالیت پیدا نشد.");
+  Object.assign(row, patch, { id: row.id, userId, code: row.code, isSeed: row.isSeed, updatedAt: new Date().toISOString() });
+  save(state);
+  return row;
+}
+
+export function localDeleteActivity(activityId: string) {
+  const state = load();
+  const userId = requireUser(state);
+  state.activities = state.activities.filter((item) => !(item.id === activityId && item.userId === userId));
+  save(state);
 }
 
 export function localEnsurePeriod(periodKey: string): { period: Period; plan: Plan } {
   const state = load();
-  const { userId } = requireUser(state);
+  const userId = requireUser(state);
+  ensureLibrary(state, userId);
   const bounds = JomaCalendarService.periodBounds(periodKey);
   let period = state.periods.find((item) => item.userId === userId && item.periodKey === periodKey);
   if (!period) {
@@ -194,7 +256,7 @@ export function localEnsurePeriod(periodKey: string): { period: Period; plan: Pl
 
 export function localListPeriods(): Array<{ period: Period; plan: Plan }> {
   const state = load();
-  const { userId } = requireUser(state);
+  const userId = requireUser(state);
   return state.periods
     .filter((period) => period.userId === userId)
     .sort((a, b) => b.periodKey.localeCompare(a.periodKey))
@@ -207,7 +269,7 @@ export function localListPeriods(): Array<{ period: Period; plan: Plan }> {
 
 export function localGetPeriodByKey(periodKey: string): { period: Period; plan: Plan } | null {
   const state = load();
-  const { userId } = requireUser(state);
+  const userId = requireUser(state);
   const period = state.periods.find((item) => item.userId === userId && item.periodKey === periodKey);
   if (!period) return null;
   const plan = state.plans.find((item) => item.userId === userId && item.periodId === period.id);
@@ -217,7 +279,7 @@ export function localGetPeriodByKey(periodKey: string): { period: Period; plan: 
 
 export function localGetPlan(planId: string): Plan {
   const state = load();
-  const { userId } = requireUser(state);
+  const userId = requireUser(state);
   const plan = state.plans.find((item) => item.id === planId && item.userId === userId);
   if (!plan) throw new JomaError("MISSING_PLAN", "برنامه پیدا نشد.");
   return plan;
@@ -225,43 +287,41 @@ export function localGetPlan(planId: string): Plan {
 
 export function localListPlanActivities(planId: string): PlanActivity[] {
   const state = load();
-  const { userId } = requireUser(state);
+  const userId = requireUser(state);
   return state.planActivities
     .filter((item) => item.planId === planId && item.userId === userId)
     .sort((a, b) => a.snapshotAt.localeCompare(b.snapshotAt));
 }
 
-export function localAddPlanActivity(input: {
-  plan: Plan;
-  activity: ActivityDefinition;
-  frequency: Frequency;
-  targetValue: number;
-  weight: number;
-}): PlanActivity {
+export function localAddPlanActivity(plan: Plan, activity: ActivityDefinition): PlanActivity {
   const state = load();
-  const { userId } = requireUser(state);
-  const plan = state.plans.find((item) => item.id === input.plan.id && item.userId === userId);
-  if (!plan) throw new JomaError("MISSING_PLAN", "برنامه پیدا نشد.");
-  const editable = canEditPlan(plan.status);
+  const userId = requireUser(state);
+  const current = state.plans.find((item) => item.id === plan.id && item.userId === userId);
+  if (!current) throw new JomaError("MISSING_PLAN", "برنامه پیدا نشد.");
+  const editable = canEditPlan(current.status);
   if (!editable.ok) throw new JomaError(editable.code, editable.message);
-  const valid = validatePlanActivityInput(input);
-  if (!valid.ok) throw new JomaError(valid.code, valid.message);
-  if (state.planActivities.some((item) => item.planId === plan.id && item.activityId === input.activity.id)) {
+  if (state.planActivities.some((item) => item.planId === current.id && item.activityId === activity.id)) {
     throw new JomaError("DUPLICATE_ACTIVITY", "این فعالیت قبلاً به برنامه اضافه شده است.");
   }
   const now = new Date().toISOString();
   const row: PlanActivity = {
     id: id("pa"),
     userId,
-    planId: plan.id,
-    periodKey: plan.periodKey,
-    activityId: input.activity.id,
-    activityCode: input.activity.code,
-    title: displayActivityTitle(input.activity.code, input.activity.title, input.activity.titleSpecified),
-    description: input.activity.description,
-    frequency: input.frequency,
-    targetValue: input.targetValue,
-    weight: input.weight,
+    planId: current.id,
+    periodKey: current.periodKey,
+    activityId: activity.id,
+    activityCode: activity.code,
+    name: activity.name,
+    category: activity.category,
+    frequency: activity.frequency,
+    dataType: activity.dataType,
+    dailyTarget: activity.dailyTarget,
+    weeklyTarget: activity.weeklyTarget,
+    monthlyTarget: activity.monthlyTarget,
+    targetValue: targetOf(activity),
+    weight: activity.weight,
+    sticker: activity.sticker,
+    color: activity.color,
     snapshotAt: now,
   };
   state.planActivities.push(row);
@@ -271,7 +331,7 @@ export function localAddPlanActivity(input: {
 
 export function localRemovePlanActivity(plan: Plan, planActivityId: string) {
   const state = load();
-  const { userId } = requireUser(state);
+  const userId = requireUser(state);
   const current = state.plans.find((item) => item.id === plan.id && item.userId === userId);
   if (!current) throw new JomaError("MISSING_PLAN", "برنامه پیدا نشد.");
   const editable = canEditPlan(current.status);
@@ -282,7 +342,7 @@ export function localRemovePlanActivity(plan: Plan, planActivityId: string) {
 
 export function localTransitionPlan(plan: Plan, next: PlanStatus): Plan {
   const state = load();
-  const { userId } = requireUser(state);
+  const userId = requireUser(state);
   const current = state.plans.find((item) => item.id === plan.id && item.userId === userId);
   if (!current) throw new JomaError("MISSING_PLAN", "برنامه پیدا نشد.");
   const allowed = canTransition(current.status, next);
@@ -299,7 +359,7 @@ export function localTransitionPlan(plan: Plan, next: PlanStatus): Plan {
 
 export function localListEventsForPlan(planId: string): PerformanceEvent[] {
   const state = load();
-  const { userId } = requireUser(state);
+  const userId = requireUser(state);
   return state.events
     .filter((item) => item.planId === planId && item.userId === userId)
     .sort((a, b) => a.performanceDate.localeCompare(b.performanceDate) || a.createdAt.localeCompare(b.createdAt));
@@ -307,7 +367,7 @@ export function localListEventsForPlan(planId: string): PerformanceEvent[] {
 
 export function localListEventsForActivity(planActivityId: string): PerformanceEvent[] {
   const state = load();
-  const { userId } = requireUser(state);
+  const userId = requireUser(state);
   return state.events
     .filter((item) => item.planActivityId === planActivityId && item.userId === userId)
     .sort((a, b) => a.performanceDate.localeCompare(b.performanceDate) || a.createdAt.localeCompare(b.createdAt));
@@ -320,7 +380,7 @@ export function localRegisterPerformance(input: {
   actualValue: number;
 }): string {
   const state = load();
-  const { userId } = requireUser(state);
+  const userId = requireUser(state);
   const plan = state.plans.find((item) => item.id === input.plan.id && item.userId === userId);
   const planActivity = state.planActivities.find((item) => item.id === input.planActivity.id && item.userId === userId);
   if (!plan || !planActivity) throw new JomaError("MISSING_PLAN_ACTIVITY", "فعالیت برنامه پیدا نشد.");
@@ -333,7 +393,6 @@ export function localRegisterPerformance(input: {
     existingEvents: existing,
   });
   if (!decision.ok) throw new JomaError(decision.code, decision.message);
-
   const event: PerformanceEvent = {
     id: id("evt"),
     userId,
@@ -341,6 +400,7 @@ export function localRegisterPerformance(input: {
     planActivityId: planActivity.id,
     periodKey: plan.periodKey,
     frequency: planActivity.frequency,
+    dataType: planActivity.dataType,
     eventType: "PERFORMANCE_REGISTERED",
     performanceDate: input.performanceDate,
     actualValue: input.actualValue,
@@ -354,29 +414,34 @@ export function localRegisterPerformance(input: {
 
 export function localGetMood(jalaliDate: string): MoodRecord | null {
   const state = load();
-  const { userId } = requireUser(state);
+  const userId = requireUser(state);
   return state.moods.find((item) => item.userId === userId && item.jalaliDate === jalaliDate) ?? null;
 }
 
-export function localListMoodDates(start: string, end: string): string[] {
+export function localListMoods(start: string, end: string): MoodRecord[] {
   const state = load();
-  const { userId } = requireUser(state);
+  const userId = requireUser(state);
   return state.moods
     .filter((item) => item.userId === userId && item.jalaliDate >= start && item.jalaliDate <= end)
-    .map((item) => item.jalaliDate);
+    .sort((a, b) => a.jalaliDate.localeCompare(b.jalaliDate));
 }
 
-export function localRecordMood(jalaliDate: string): MoodRecord {
+export function localRecordMood(jalaliDate: string, scores: MoodScores, note: string): MoodRecord {
   const state = load();
-  const { userId } = requireUser(state);
+  const userId = requireUser(state);
   const existing = state.moods.find((item) => item.userId === userId && item.jalaliDate === jalaliDate);
-  if (existing) return existing;
+  if (existing) {
+    existing.scores = scores;
+    existing.note = note;
+    save(state);
+    return existing;
+  }
   const row: MoodRecord = {
     id: id("mood"),
     userId,
     jalaliDate,
-    metrics: {},
-    metricsStatus: UNSPECIFIED,
+    scores,
+    note,
     createdAt: new Date().toISOString(),
   };
   state.moods.push(row);
@@ -386,15 +451,15 @@ export function localRecordMood(jalaliDate: string): MoodRecord {
 
 export function localRebuildProjection(planId: string): ReportProjection {
   const state = load();
-  const { userId } = requireUser(state);
+  const userId = requireUser(state);
   const plan = state.plans.find((item) => item.id === planId && item.userId === userId);
   if (!plan) throw new JomaError("MISSING_PLAN", "برنامه پیدا نشد.");
   const activities = state.planActivities.filter((item) => item.planId === planId && item.userId === userId);
   const events = state.events.filter((item) => item.planId === planId && item.userId === userId);
   const bounds = JomaCalendarService.periodBounds(plan.periodKey);
-  const moodDates = state.moods
-    .filter((item) => item.userId === userId && item.jalaliDate >= bounds.startDate && item.jalaliDate <= bounds.endDate)
-    .map((item) => item.jalaliDate);
+  const moods = state.moods.filter(
+    (item) => item.userId === userId && item.jalaliDate >= bounds.startDate && item.jalaliDate <= bounds.endDate,
+  );
 
   const projection = buildReportProjection({
     periodKey: plan.periodKey,
@@ -403,10 +468,15 @@ export function localRebuildProjection(planId: string): ReportProjection {
     activities: activities.map((item) => ({
       id: item.id,
       activityCode: item.activityCode,
-      title: item.title,
+      title: item.name,
+      name: item.name,
+      category: item.category,
       frequency: item.frequency,
+      dataType: item.dataType,
       targetValue: item.targetValue,
       weight: item.weight,
+      sticker: item.sticker,
+      color: item.color,
     })),
     events: events.map((item) => ({
       id: item.id,
@@ -415,7 +485,11 @@ export function localRebuildProjection(planId: string): ReportProjection {
       actualValue: item.actualValue,
       createdAt: item.createdAt,
     })),
-    moodDates,
+    moods: moods.map((item) => ({
+      jalaliDate: item.jalaliDate,
+      scores: item.scores,
+      note: item.note,
+    })),
   });
 
   const existing = state.projections.find((item) => item.planId === plan.id && item.userId === userId);
@@ -437,3 +511,5 @@ export function localRebuildProjection(planId: string): ReportProjection {
   save(state);
   return projection;
 }
+
+export type { Frequency };

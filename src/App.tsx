@@ -5,19 +5,20 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AppLayout } from "@/layouts/AppLayout";
 import { ProtectedLayout } from "@/layouts/ProtectedLayout";
-import Landing from "@/pages/Landing";
-import AuthPage from "@/pages/Auth";
-import MoodPage from "@/pages/Mood";
-import Dashboard from "@/pages/Dashboard";
-import TodayPage from "@/pages/Today";
-import PlanPage from "@/pages/Plan";
-import LibraryPage from "@/pages/Library";
-import ReportsPage from "@/pages/Reports";
-import PeriodsPage from "@/pages/Periods";
-import PeriodDetailPage from "@/pages/PeriodDetail";
+import { appBasename } from "@/lib/base";
 import AboutPage from "@/pages/About";
-import SupportPage from "@/pages/Support";
+import AuthPage from "@/pages/Auth";
+import Dashboard from "@/pages/Dashboard";
+import Landing from "@/pages/Landing";
+import LibraryPage from "@/pages/Library";
+import MoodPage from "@/pages/Mood";
 import NotFound from "@/pages/NotFound";
+import PeriodDetailPage from "@/pages/PeriodDetail";
+import PeriodsPage from "@/pages/Periods";
+import PlanPage from "@/pages/Plan";
+import ReportsPage from "@/pages/Reports";
+import SupportPage from "@/pages/Support";
+import TodayPage from "@/pages/Today";
 
 const queryClient = new QueryClient();
 
@@ -25,11 +26,12 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename={appBasename() || undefined}>
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/about" element={<AboutPage />} />
             <Route element={<ProtectedLayout />}>
               <Route path="/mood" element={<MoodPage />} />
               <Route path="/app" element={<AppLayout />}>
@@ -44,7 +46,6 @@ const App = () => (
                 <Route path="support" element={<SupportPage />} />
               </Route>
             </Route>
-            <Route path="/about" element={<AboutPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
