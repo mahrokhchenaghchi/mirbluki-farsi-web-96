@@ -1,0 +1,34 @@
+راهنمای ADD-ONLY صفحه آموزش جوما
+سایت: https://joma.mirbolouki.com
+
+این پچ دیتابیس را عوض نمی‌کند.
+ثبت عملکرد، برنامه، خلق و حساب‌ها دست نمی‌خورند.
+فقط صفحه و منوی «آموزش» اضافه می‌شود.
+
+الف) بکاپ
+phpMyAdmin → Export
+File Manager → Compress پوشه سایت
+
+ب) فایل‌های NEW را آپلود کنید (فایل جدید؛ چیزی را پاک نکنید)
+NEW/pages/learn.php          →  pages/learn.php
+NEW/content/learn_lib.php    →  content/learn_lib.php
+NEW/content/learn_guides.json→  content/learn_guides.json
+NEW/content/.htaccess        →  content/.htaccess
+
+پوشه content را اگر نیست بسازید.
+
+پ) فایل‌های PATCH را جایگزین کنید (Overwrite)
+PATCH/index.php     →  index.php
+PATCH/helpers.php   →  includes/helpers.php
+PATCH/layout.php    →  includes/layout.php
+PATCH/library.php   →  pages/library.php
+
+config.php را عوض نکنید.
+today.php و functions/joma.php را عوض نکنید.
+
+ت) چک
+ورود → منو «آموزش»
+سه کارت: استفاده از جوما / زوج درمانی / طرحواره درمانی
+کتابخانه → روی فعالیت زوج یا طرحواره دکمه «آموزش»
+
+اگر صفحه سفید شد، از بکاپ همان ۴ فایل PATCH را برگردانید و فایل‌های NEW را حذف کنید.
