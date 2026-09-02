@@ -1,0 +1,82 @@
+راهنمای اضافه کردن طرحواره درمانی به جوما
+سایت: https://joma.mirbolouki.com
+مخاطب: بدون دانش برنامه‌نویسی
+
+این کار دیتابیس را از نو نمی‌سازد.
+ثبت عملکرد فعلی و برنامه‌های در حال اجرا پاک نمی‌شود.
+فقط ۲۷ فعالیت جدید (ACT081 تا ACT107) به کتابخانه اضافه می‌شود.
+خودکار وارد برنامهٔ ماه جاری کسی نمی‌شوند.
+
+
+الف) دانلود
+===========
+فایل را از GitHub دانلود کنید:
+
+UPLOAD-TARHWARE.zip
+
+بعد zip را Extract کنید. داخلش:
+
+00-RAHNAMA.txt
+1-JOMA_ADDONLY_ACT081_ACT107.sql
+2-helpers.php
+3-library_official.json
+4-library.php
+5-home.php
+
+این‌ها را روی هاست نگذارید: config.php و joma.sql
+
+
+ب) بکاپ (اجباری)
+================
+۱. cPanel → phpMyAdmin
+۲. دیتابیس جوما را انتخاب کنید
+۳. تب Export → Go → فایل را ذخیره کنید
+۴. File Manager → پوشهٔ سایت جوما (داخلش index.php و پوشه‌های pages و includes باشد)
+۵. Compress → zip را دانلود کنید
+
+
+پ) مرحله ۱ — SQL در phpMyAdmin
+==============================
+۱. phpMyAdmin → همان دیتابیس جوما
+۲. تب Import
+۳. Choose File → 1-JOMA_ADDONLY_ACT081_ACT107.sql
+۴. Go / Import
+۵. پیام موفقیت باید بیاید
+
+اگر قبلاً پچ زوج درمانی را زده‌اید، این فایل جداست و آن را پاک نمی‌کند.
+
+
+ت) مرحله ۲ — چهار فایل در File Manager
+======================================
+روی کامپیوتر نام این چهار فایل را این‌طور بگذارید:
+
+helpers.php
+library_official.json
+library.php
+home.php
+
+بعد Upload با جایگزینی (Overwrite):
+
+helpers.php              →  includes/helpers.php
+library_official.json    →  database/library_official.json
+library.php              →  pages/library.php
+home.php                 →  pages/home.php
+
+config.php را عوض نکنید.
+
+
+ث) چک
+=====
+۱. از سایت خارج شوید و دوباره وارد شوید
+۲. کتابخانه → فیلتر دسته → «طرحواره درمانی»
+۳. باید ۲۷ فعالیت ببینید (۹ هسته + ۱۸ طرحواره)
+۴. ثبت عملکرد قدیمی مثل قبل باشد
+۵. برنامهٔ در حال اجرا خودش این ۲۷ تا را ندارد؛ بعداً از کتابخانه اضافه می‌کنید
+۶. از ۱۸ طرحواره فقط ۱ تا ۳ تا را به برنامه بگذارید
+
+
+ج) اگر خراب شد
+==============
+phpMyAdmin → Import همان Export بکاپ
+File Manager → Extract همان zip بکاپ پوشه
+پیام خطا را برای من بفرستید
