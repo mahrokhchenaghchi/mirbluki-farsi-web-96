@@ -1,34 +1,58 @@
-راهنمای ADD-ONLY صفحه آموزش جوما
-سایت: https://joma.mirbolouki.com
+راهنمای نصب ADD-ONLY — بخش آموزش جوما
+سایت زنده: https://joma.mirbolouki.com
 
-این پچ دیتابیس را عوض نمی‌کند.
-ثبت عملکرد، برنامه، خلق و حساب‌ها دست نمی‌خورند.
-فقط صفحه و منوی «آموزش» اضافه می‌شود.
-
-الف) بکاپ
-phpMyAdmin → Export
-File Manager → Compress پوشه سایت
-
-ب) فایل‌های NEW را آپلود کنید (فایل جدید؛ چیزی را پاک نکنید)
-NEW/pages/learn.php          →  pages/learn.php
-NEW/content/learn_lib.php    →  content/learn_lib.php
-NEW/content/learn_guides.json→  content/learn_guides.json
-NEW/content/.htaccess        →  content/.htaccess
-
-پوشه content را اگر نیست بسازید.
-
-پ) فایل‌های PATCH را جایگزین کنید (Overwrite)
-PATCH/index.php     →  index.php
-PATCH/helpers.php   →  includes/helpers.php
-PATCH/layout.php    →  includes/layout.php
-PATCH/library.php   →  pages/library.php
-
+این بسته دیتابیس را دست نمی‌زند.
+ثبت عملکرد روزانه/هفتگی/ماهانه را عوض نمی‌کند.
+گزارش را عوض نمی‌کند.
 config.php را عوض نکنید.
 today.php و functions/joma.php را عوض نکنید.
+joma.sql را Import نکنید.
 
-ت) چک
-ورود → منو «آموزش»
-سه کارت: استفاده از جوما / زوج درمانی / طرحواره درمانی
-کتابخانه → روی فعالیت زوج یا طرحواره دکمه «آموزش»
+فقط صفحه و منوی «آموزش» اضافه می‌شود
+(+ دو کارت طرحواره/زوج روی صفحهٔ معرفی)
+(+ دکمهٔ آموزش روی کارت کتابخانه، اگر راهنما داشته باشد)
 
-اگر صفحه سفید شد، از بکاپ همان ۴ فایل PATCH را برگردانید و فایل‌های NEW را حذف کنید.
+
+الف) دانلود
+فایل UPLOAD-AMOOZESH.zip را از GitHub بگیرید و Extract کنید.
+
+
+ب) بکاپ (اجباری)
+۱. cPanel → phpMyAdmin → دیتابیس جوما → Export → ذخیره
+۲. File Manager → پوشهٔ سایت (index.php اینجاست) → Compress → zip را دانلود کنید
+
+
+پ) فایل‌های NEW — جدید هستند؛ چیزی را پاک نمی‌کنند
+پوشهٔ content را اگر نیست بسازید.
+
+NEW/pages/learn.php           →  pages/learn.php
+NEW/content/learn_lib.php     →  content/learn_lib.php
+NEW/content/learn_guides.json →  content/learn_guides.json
+NEW/content/.htaccess         →  content/.htaccess
+
+
+ت) فایل‌های PATCH — جایگزین با Overwrite
+قبل از جایگزینی، از File Manager همان فایل فعلی را Download کنید (بکاپ تکی).
+
+PATCH/index.php    →  index.php
+PATCH/helpers.php  →  includes/helpers.php
+PATCH/layout.php   →  includes/layout.php
+PATCH/library.php  →  pages/library.php
+PATCH/home.php     →  pages/home.php
+
+config.php را باز نکنید و جایگزین نکنید.
+
+
+ث) چک
+۱. بدون ورود: صفحهٔ اصلی باید ورود/شروع را داشته باشد + دو کارت
+   «تمرینات تخصصی طرحواره درمانی» و «تمرینات تخصصی زوج درمانی»
+۲. ورود → منو «آموزش»
+۳. سه بخش: استفاده از جوما / زوج درمانی / طرحواره درمانی
+۴. در طرحواره، روی کارت توضیح کوتاه نحوهٔ انجام را ببینید
+۵. ثبت یک عملکرد قدیمی مثل قبل کار کند
+
+
+ج) اگر صفحه سفید شد
+از بکاپ همان ۵ فایل PATCH را برگردانید.
+فایل‌های NEW را می‌توانید حذف کنید (pages/learn.php و پوشهٔ content).
+برنامه به حالت قبل برمی‌گردد چون دیتابیس عوض نشده.
