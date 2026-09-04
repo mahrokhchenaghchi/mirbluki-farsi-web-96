@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
     $act = isset($_POST['action']) ? $_POST['action'] : '';
     if ($act === 'add') {
-        $a = get_activity($_POST['activity_id'], $u['id']);
+        $a = get_activity(isset($_POST['activity_id']) ? $_POST['activity_id'] : 0, $u['id']);
         if ($a) $msg = add_plan_activity($u['id'], $plan, $a, array(
             'frequency' => isset($_POST['frequency']) ? $_POST['frequency'] : '',
             'target_value' => isset($_POST['target_value']) ? $_POST['target_value'] : '',
@@ -73,8 +73,17 @@ joma_header('برنامه من', array(array('label' => 'داشبورد', 'href'
 <form class="card grid grid-2" method="post">
   <?php echo csrf_field(); ?><input type="hidden" name="action" value="add">
   <div style="grid-column:1/-1">
+    <label>دسته‌بندی</label>
+    <select data-plan-cat-filter>
+      <option value="">همه فعالیت‌ها</option>
+      <?php foreach (categories_list() as $c) echo '<option value="'.e($c).'">'.e($c).'</option>'; ?>
+    </select>
+  </div>
+  <div style="grid-column:1/-1">
     <label>فعالیت کتابخانه</label>
-    <select name="activity_id"><?php foreach ($acts as $a) if ($a['status'] !== 'INACTIVE') echo '<option value="'.e($a['id']).'">'.e($a['sticker'].' '.$a['name']).'</option>'; ?></select>
+    <select name="activity_id" data-plan-activity-select>
+      <?php foreach ($acts as $a) if ($a['status'] !== 'INACTIVE') echo '<option value="'.e($a['id']).'" data-category="'.e($a['category']).'">'.e($a['sticker'].' '.$a['name']).'</option>'; ?>
+    </select>
   </div>
   <div>
     <label>تناوب این دوره</label>
@@ -84,6 +93,58 @@ joma_header('برنامه من', array(array('label' => 'داشبورد', 'href'
   <div><label>وزن این دوره</label><input name="weight" dir="ltr" placeholder="خالی = پیش‌فرض"></div>
   <div><label>&nbsp;</label><button class="btn" type="submit">افزودن به برنامه این دوره</button></div>
 </form>
+<script>
+(function () {
+  var filter = document.querySelector('[data-plan-cat-filter]');
+  var sel = document.querySelector('[data-plan-activity-select]');
+  if (!filter || !sel) return;
+  var all = [];
+  var i;
+  var opt;
+  for (i = 0; i < sel.options.length; i++) {
+    all.push({
+      value: sel.options[i].value,
+      text: sel.options[i].text,
+      category: sel.options[i].getAttribute('data-category') || ''
+    });
+  }
+  function applyFilter(resetIfMissing) {
+    var cat = filter.value;
+    var prev = sel.value;
+    sel.options.length = 0;
+    var keep = false;
+    for (i = 0; i < all.length; i++) {
+      if (cat && all[i].category !== cat) continue;
+      opt = document.createElement('option');
+      opt.value = all[i].value;
+      opt.text = all[i].text;
+      opt.setAttribute('data-category', all[i].category);
+      sel.appendChild(opt);
+      if (all[i].value === prev) keep = true;
+    }
+    if (!sel.options.length) {
+      opt = document.createElement('option');
+      opt.value = '';
+      opt.text = 'فعالیتی در این دسته نیست';
+      sel.appendChild(opt);
+      sel.value = '';
+      return;
+    }
+    if (keep) {
+      sel.value = prev;
+    } else if (resetIfMissing) {
+      opt = document.createElement('option');
+      opt.value = '';
+      opt.text = 'یک فعالیت انتخاب کنید';
+      sel.insertBefore(opt, sel.firstChild);
+      sel.value = '';
+    }
+  }
+  filter.addEventListener('change', function () {
+    applyFilter(true);
+  });
+})();
+</script>
 <?php } ?>
 <?php if (!$pas) {
     echo empty_state('برنامه خالی است', 'از کتابخانه یک فعالیت اضافه کنید.', joma_url('index.php?p=library'), 'کتابخانه');
