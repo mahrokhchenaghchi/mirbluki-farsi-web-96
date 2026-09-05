@@ -24,8 +24,11 @@ import {
   ScanLine,
   Wifi,
   Loader2,
+  QrCode,
+  X,
 } from "lucide-react";
 import drImage from "@/assets/dr-javad-mirbluki.jpg";
+import jomaLogo from "@/assets/joma-logo.jpg";
 import persianPattern from "@/assets/persian-pattern-bg.jpg";
 
 /* ------------------------------------------------------------------ */
@@ -110,15 +113,19 @@ const Badge = ({
 );
 
 const QrTile = ({ value, caption, scale }: { value: string; caption: string; scale: number }) => (
-  <div
+  <a
+    href={value}
+    target="_blank"
+    rel="noreferrer"
     onClick={stopFlip}
-    className="flex flex-col items-center gap-[0.35em] rounded-[0.9em] bg-white p-[0.55em] shadow-[0_10px_30px_-10px_rgba(0,0,0,0.55)]"
+    title={`باز کردن ${caption}`}
+    className="flex flex-col items-center gap-[0.35em] rounded-[0.9em] bg-white p-[0.8em] shadow-[0_10px_30px_-10px_rgba(0,0,0,0.55)] transition-transform hover:scale-105"
   >
-    <QRCodeSVG value={value} size={Math.round(74 * scale)} fgColor="#0B2E59" level="M" includeMargin={false} />
+    <QRCodeSVG value={value} size={Math.round(84 * scale)} fgColor="#0B2E59" level="M" includeMargin={false} />
     <span dir="ltr" className="text-[0.55em] font-bold tracking-[0.06em] text-[#0B2E59]/75">
       {caption}
     </span>
-  </div>
+  </a>
 );
 
 /* ------------------------------------------------------------------ */
@@ -247,7 +254,12 @@ const BackFaceContent = ({ scale }: { scale: number }) => (
               JOMA.MIRBOLOUKI.COM
             </span>
           </div>
-          <div className="mt-[0.15em] flex items-baseline gap-[0.6em]">
+          <div className="mt-[0.15em] flex items-center gap-[0.7em]">
+            <img
+              src={jomaLogo}
+              alt="لوگوی جوما — جغد دانا"
+              className="h-[2.1em] w-[2.1em] shrink-0 rounded-full border-[0.09em] border-[#d4af37]/80 object-cover shadow-[0_6px_20px_-6px_rgba(0,0,0,0.6)]"
+            />
             <h2 className="text-[1.9em] font-black leading-[1.1]">{JOMA.nameFa}</h2>
             <span dir="ltr" className="text-[0.6em] font-bold uppercase tracking-[0.4em] text-white/50">
               JOMA
@@ -292,12 +304,19 @@ const BackFaceContent = ({ scale }: { scale: number }) => (
         </div>
       </div>
 
-      {/* QR + links column */}
-      <div className="flex flex-col items-center gap-[0.7em]">
-        <QrTile value={JOMA.site} caption="joma.mirbolouki.com" scale={scale} />
-        <Chip href={JOMA.ig} icon={Instagram} ltr>@{JOMA.igHandle}</Chip>
-        <span className="text-[0.52em] font-medium text-white/50">از مجموعهٔ Mirbolouki.com</span>
-      </div>
+        {/* Logo + QR column */}
+        <div className="flex flex-col items-center gap-[0.7em]">
+          <div className="rounded-full bg-[conic-gradient(from_140deg,#3fd8d2,rgba(255,255,255,0.35),#F2C14E,#3fd8d2)] p-[0.22em]">
+            <img
+              src={jomaLogo}
+              alt="لوگوی پلنر جوما"
+              className="h-[5.2em] w-[5.2em] rounded-full border-[0.14em] border-white/70 object-cover"
+            />
+          </div>
+          <QrTile value={JOMA.site} caption="joma.mirbolouki.com" scale={scale} />
+          <Chip href={JOMA.ig} icon={Instagram} ltr>@{JOMA.igHandle}</Chip>
+          <span className="text-[0.52em] font-medium text-white/50">از مجموعهٔ Mirbolouki.com</span>
+        </div>
     </div>
   </div>
 );
