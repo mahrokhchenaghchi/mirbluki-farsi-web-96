@@ -202,3 +202,31 @@ All colors MUST be HSL.
     animation: slide-in-right 0.6s ease-out;
   }
 }
+/* ===== Digital Business Card — immersive 3D experience ===== */
+@layer base {
+  @keyframes card-drift-a {
+    0%, 100% { transform: translate3d(-6%, -4%, 0) scale(1); }
+    50% { transform: translate3d(7%, 6%, 0) scale(1.18); }
+  }
+  @keyframes card-drift-b {
+    0%, 100% { transform: translate3d(6%, 8%, 0) scale(1.12); }
+    50% { transform: translate3d(-8%, -6%, 0) scale(0.94); }
+  }
+  @keyframes card-drift-c {
+    0%, 100% { transform: translate3d(0%, 6%, 0) scale(0.95); }
+    50% { transform: translate3d(4%, -8%, 0) scale(1.1); }
+  }
+  @keyframes card-enter {
+    from { opacity: 0; transform: translateY(34px) rotateX(10deg) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) rotateX(0) scale(1); }
+  }
+  @keyframes float-hint {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-7px); }
+  }
+  .animate-card-drift-a { animation: card-drift-a 16s ease-in-out infinite; }
+  .animate-card-drift-b { animation: card-drift-b 21s ease-in-out infinite; }
+  .animate-card-drift-c { animation: card-drift-c 26s ease-in-out infinite; }
+  .animate-card-enter { animation: card-enter 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .animate-float-hint { animation: float-hint 2.6s ease-in-out infinite; }
+}

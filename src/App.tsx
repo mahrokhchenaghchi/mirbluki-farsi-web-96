@@ -14,6 +14,7 @@ import Appointment from "./pages/Appointment";
 import Appointments from "./pages/Appointments";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import BusinessCard from "./pages/BusinessCard";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,8 @@ const App = () => (
                 <Appointments />
               </ProtectedRoute>
             } />
+            {/* Public digital business card — no auth required */}
+            <Route path="/card" element={<BusinessCard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={
               <ProtectedRoute>
