@@ -26,54 +26,33 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
+            {/* Auth page (public; redirects logged-in users to the dashboard) */}
             <Route path="/auth" element={
               <ProtectedRoute>
                 <Auth />
               </ProtectedRoute>
             } />
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Index />
-              </ProtectedRoute>
-            } />
-            <Route path="/about" element={
-              <ProtectedRoute>
-                <About />
-              </ProtectedRoute>
-            } />
-            <Route path="/services" element={
-              <ProtectedRoute>
-                <Services />
-              </ProtectedRoute>
-            } />
-            <Route path="/blog" element={
-              <ProtectedRoute>
-                <Blog />
-              </ProtectedRoute>
-            } />
-            <Route path="/contact" element={
-              <ProtectedRoute>
-                <Contact />
-              </ProtectedRoute>
-            } />
-            <Route path="/appointment" element={
-              <ProtectedRoute>
-                <Appointment />
-              </ProtectedRoute>
-            } />
+
+            {/* Public pages — no account needed */}
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/appointment" element={<Appointment />} />
+
+            {/* Public digital business card */}
+            <Route path="/card" element={<BusinessCard />} />
+
+            {/* Admin area — login required */}
             <Route path="/appointments" element={
               <ProtectedRoute>
                 <Appointments />
               </ProtectedRoute>
             } />
-            {/* Public digital business card — no auth required */}
-            <Route path="/card" element={<BusinessCard />} />
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={
-              <ProtectedRoute>
-                <NotFound />
-              </ProtectedRoute>
-            } />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>

@@ -14,6 +14,7 @@ const Navigation = () => {
     { name: "خدمات", href: "/services" },
     { name: "بلاگ", href: "/blog" },
     { name: "تماس", href: "/contact" },
+    { name: "کارت ویزیت", href: "/card" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
