@@ -1,0 +1,20 @@
+name: Attach demo files to release
+
+on:
+  push:
+    branches: [arena/01a0820a-mirbluki-farsi-web-96]
+
+permissions:
+  contents: write
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upload assets to release
+        run: |
+          cp docs/index.html pizza-royal-demo.html
+          gh release upload demo pizza-royal-demo.html --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
