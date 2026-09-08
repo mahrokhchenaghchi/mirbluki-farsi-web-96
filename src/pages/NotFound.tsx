@@ -1,27 +1,24 @@
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
-const NotFound = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    console.error(
-      "404 Error: User attempted to access non-existent route:",
-      location.pathname
-    );
-  }, [location.pathname]);
-
+export default function NotFound() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
-          Return to Home
-        </a>
+    <div className="container flex min-h-[70vh] flex-col items-center justify-center py-16 text-center">
+      <div className="relative">
+        <span className="text-[120px] leading-none">🍕</span>
+        <span className="absolute -right-4 -top-2 rotate-12 rounded-full bg-primary px-3 py-1 text-sm font-black text-primary-foreground">
+          ۴۰۴
+        </span>
+      </div>
+      <h1 className="mt-6 text-3xl font-black">این صفحه را یکی خورده!</h1>
+      <p className="persian-text mt-3 max-w-md text-sm text-muted-foreground">
+        صفحه‌ای که دنبالش بودید پیدا نشد. شاید آدرس را اشتباه وارد کرده‌اید یا صفحه جابه‌جا شده است.
+        بیایید به جای گم شدن، یه پیتزا سفارش بدهیم.
+      </p>
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <Link to="/"><Button size="lg" className="rounded-full px-8">بازگشت به خانه</Button></Link>
+        <Link to="/menu"><Button size="lg" variant="outline" className="rounded-full px-8">مشاهده منو</Button></Link>
       </div>
     </div>
   );
-};
-
-export default NotFound;
+}

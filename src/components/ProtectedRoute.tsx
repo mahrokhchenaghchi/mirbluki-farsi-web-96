@@ -1,44 +1,36 @@
-import { useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  /** اگر true باشد فقط مدیران دسترسی دارند */
+  adminOnly?: boolean;
 }
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
+const ProtectedRoute = ({ children, adminOnly = false }: ProtectedRouteProps) => {
+  const { user, loading, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    if (!loading) {
-      if (!user && location.pathname !== '/auth') {
-        navigate('/auth');
-      } else if (user && location.pathname === '/auth') {
-        navigate('/appointments');
-      }
+    if (loading) return;
+    if (!user) {
+      navigate(`/auth?next=${encodeURIComponent(location.pathname)}`, { replace: true });
+    } else if (adminOnly && !isAdmin) {
+      navigate("/", { replace: true });
     }
-  }, [user, loading, navigate, location.pathname]);
+  }, [user, loading, isAdmin, adminOnly, navigate, location.pathname]);
 
-  // Show loading state while checking authentication
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
       </div>
     );
   }
 
-  // Allow access to auth page when not logged in
-  if (!user && location.pathname === '/auth') {
-    return <>{children}</>;
-  }
-
-  // Require authentication for all other pages
-  if (!user) {
-    return null; // This will trigger the redirect in useEffect
-  }
+  if (!user || (adminOnly && !isAdmin)) return null;
 
   return <>{children}</>;
 };

@@ -1,161 +1,155 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
+import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/db";
+import { isValidIranMobile, normalizePhone } from "@/lib/format";
+
+/**
+ * احراز هویت مبتنی بر شماره موبایل (OTP).
+ *
+ * حالت دمو (پیش‌فرض): کد تایید ثابت 123456 است و در toast نمایش داده می‌شود.
+ * حالت Supabase: از signInWithOtp واقعی استفاده می‌شود.
+ *
+ * کاربرانی که شماره‌شان با settings.admin_phone برابر باشد نقش «مدیر» دارند.
+ */
+
+export interface AppUser {
+  phone: string;
+  name: string;
+  isAdmin: boolean;
+}
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: AppUser | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
-  signOut: () => Promise<void>;
+  isAdmin: boolean;
+  /** ارسال کد تایید به شماره موبایل */
+  requestOtp: (phone: string) => Promise<{ error?: string; demoCode?: string }>;
+  /** بررسی کد وارد شده */
+  verifyOtp: (phone: string, code: string, name?: string) => Promise<{ error?: string }>;
+  signOut: () => void;
+  updateName: (name: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const DEMO_CODE = "123456";
+const LS_USER = "royal-pizza-user";
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    // بازیابی نشست ذخیره‌شده
+    try {
+      const raw = localStorage.getItem(LS_USER);
+      if (raw) setUser(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+    if (isSupabaseConfigured) {
+      supabase.auth
+        .getSession()
+        .then(({ data }) => {
+          if (data.session?.user?.phone) {
+            setUser({
+              phone: data.session.user.phone,
+              name: (data.session.user.user_metadata?.name as string) || "مشتری",
+              isAdmin: false,
+            });
+          }
+        })
+        .catch(() => undefined)
+        .finally(() => setLoading(false));
+    } else {
       setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    }
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        toast({
-          variant: "destructive",
-          title: "Sign in failed",
-          description: error.message,
-        });
-        return { error };
+  // به‌روزرسانی نقش مدیر وقتی تنظیمات عوض می‌شود
+  useEffect(() => {
+    if (!user) return;
+    let alive = true;
+    api.getSettings().then((s) => {
+      if (!alive) return;
+      if (user.isAdmin !== (user.phone === s.admin_phone)) {
+        const updated = { ...user, isAdmin: user.phone === s.admin_phone };
+        setUser(updated);
+        localStorage.setItem(LS_USER, JSON.stringify(updated));
       }
+    });
+    return () => {
+      alive = false;
+    };
+  }, [user?.phone]);
 
-      toast({
-        title: "Welcome back!",
-        description: "You've been signed in successfully.",
-      });
-
-      navigate('/appointments');
-      return { error: null };
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Sign in failed",
-        description: "An unexpected error occurred.",
-      });
-      return { error };
+  const requestOtp = useCallback(async (phone: string) => {
+    const p = normalizePhone(phone);
+    if (!isValidIranMobile(p)) {
+      return { error: "شماره موبایل معتبر نیست (مثال: ۰۹۱۲۳۴۵۶۷۸۹)" };
     }
-  };
-
-  const signUp = async (email: string, password: string) => {
-    try {
-      const redirectUrl = `${window.location.origin}/`;
-
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl
-        }
-      });
-
-      if (error) {
-        if (error.message.includes('already registered')) {
-          toast({
-            variant: "destructive",
-            title: "Account exists",
-            description: "This email is already registered. Please sign in instead.",
-          });
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Sign up failed",
-            description: error.message,
-          });
-        }
-        return { error };
+    if (isSupabaseConfigured) {
+      try {
+        const { error } = await supabase.auth.signInWithOtp({ phone: p });
+        if (error) return { error: error.message };
+        return {};
+      } catch {
+        return { error: "خطا در ارسال کد. دوباره تلاش کنید." };
       }
-
-      toast({
-        title: "Account created!",
-        description: "Please check your email to verify your account.",
-      });
-
-      return { error: null };
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Sign up failed", 
-        description: "An unexpected error occurred.",
-      });
-      return { error };
     }
-  };
+    // حالت دمو: کد ثابت برمی‌گردد تا فرآیند قابل تست باشد
+    return { demoCode: DEMO_CODE };
+  }, []);
 
-  const signOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        toast({
-          variant: "destructive",
-          title: "Sign out failed",
-          description: error.message,
-        });
-        return;
+  const verifyOtp = useCallback(async (phone: string, code: string, name?: string) => {
+    const p = normalizePhone(phone);
+    if (!/^\d{6}$/.test(code.trim())) {
+      return { error: "کد تایید باید ۶ رقم باشد." };
+    }
+    if (isSupabaseConfigured) {
+      try {
+        const { error } = await supabase.auth.verifyOtp({ phone: p, token: code, type: "sms" });
+        if (error) return { error: "کد تایید اشتباه است." };
+      } catch {
+        return { error: "خطا در بررسی کد." };
       }
-
-      toast({
-        title: "Signed out",
-        description: "You've been signed out successfully.",
-      });
-
-      navigate('/auth');
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Sign out failed",
-        description: "An unexpected error occurred.",
-      });
+    } else if (code.trim() !== DEMO_CODE) {
+      return { error: "کد تایید اشتباه است." };
     }
-  };
+
+    const settings = await api.getSettings();
+    const appUser: AppUser = {
+      phone: p,
+      name: name?.trim() || "مشتری",
+      isAdmin: p === settings.admin_phone,
+    };
+    setUser(appUser);
+    localStorage.setItem(LS_USER, JSON.stringify(appUser));
+    return {};
+  }, []);
+
+  const signOut = useCallback(() => {
+    setUser(null);
+    localStorage.removeItem(LS_USER);
+    if (isSupabaseConfigured) {
+      supabase.auth.signOut().catch(() => undefined);
+    }
+  }, []);
+
+  const updateName = useCallback(
+    (name: string) => {
+      if (!user) return;
+      const updated = { ...user, name };
+      setUser(updated);
+      localStorage.setItem(LS_USER, JSON.stringify(updated));
+    },
+    [user]
+  );
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      session,
-      loading,
-      signIn,
-      signUp,
-      signOut,
-    }}>
+    <AuthContext.Provider
+      value={{ user, loading, isAdmin: Boolean(user?.isAdmin), requestOtp, verifyOtp, signOut, updateName }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -164,7 +158,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

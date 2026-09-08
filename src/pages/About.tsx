@@ -1,237 +1,107 @@
-import { Award, Users, BookOpen, Heart, CheckCircle, Star } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import drImage from "@/assets/dr-javad-mirbluki.jpg";
-import clinicImage from "@/assets/clinic-interior.jpg";
+import { Wheat, Users, Store, HeartHandshake } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { useSettings, useBranches } from "@/hooks/useData";
+import { faDigits } from "@/lib/format";
 
-const About = () => {
-  const qualifications = [
-    {
-      icon: BookOpen,
-      title: "تحصیلات",
-      description: "کارشناس ارشد روانشناسی، دانشگاه تهران"
-    },
-    {
-      icon: Award,
-      title: "پروانه رسمی",
-      description: "شماره پروانه ۱۲۳۴۵ از سازمان نظام روانشناسی ایران"
-    },
-    {
-      icon: Users,
-      title: "عضویت‌ها",
-      description: "عضو انجمن روانشناسی ایران و انجمن زوج‌درمانگران"
-    },
-    {
-      icon: Heart,
-      title: "تخصص‌ها",
-      description: "زوج‌درمانی، روانکاوی، سکس‌تراپی، درمان خانواده"
-    }
-  ];
-
-  const achievements = [
-    "بیش از ۱۰ سال تجربه در مشاوره و روانشناسی",
-    "درمان موفق بیش از ۱۰۰۰ مراجع",
-    "مدرس دوره‌های تخصصی روانشناسی",
-    "مشاور رسمی آموزش و پرورش استان البرز",
-    "نویسنده مقالات تخصصی در زمینه روانشناسی",
-    "برگزارکننده کارگاه‌های آموزشی خانواده"
-  ];
-
-  const approaches = [
-    {
-      title: "رویکرد شناختی-رفتاری",
-      description: "استفاده از تکنیک‌های مدرن CBT برای تغییر الگوهای فکری و رفتاری"
-    },
-    {
-      title: "روانکاوی",
-      description: "بررسی عمیق ناخودآگاه و تجارب گذشته برای فهم مشکلات کنونی"
-    },
-    {
-      title: "درمان خانواده‌محور",
-      description: "درنظرگیری تمام اعضای خانواده در فرآیند درمان"
-    },
-    {
-      title: "درمان تلفیقی",
-      description: "ترکیب روش‌های مختلف متناسب با نیاز هر مراجع"
-    }
-  ];
+export default function About() {
+  const { data: settings } = useSettings();
+  const { data: branches } = useBranches();
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      {/* Hero Section */}
-      <section className="py-20 bg-gradient-hero text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">درباره دکتر جواد میربلوکی</h1>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto persian-text">
-              روانشناس مجرب و مشاور خانواده با تعهد به ارائه بهترین خدمات روانشناسی
+    <div>
+      {/* هدر */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <img src="/images/brand/store.jpg" alt="" className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-l from-background via-background/85 to-background/40" />
+        </div>
+        <div className="container relative py-20">
+          <div className="max-w-xl animate-fade-in-up">
+            <p className="text-xs font-bold uppercase tracking-wider text-primary">درباره ما</p>
+            <h1 className="mt-2 text-3xl font-black sm:text-4xl">
+              داستان {settings?.brand ?? "ما"}
+            </h1>
+            <p className="persian-text mt-4 text-sm leading-8 text-muted-foreground sm:text-base">
+              {settings?.about_text}
             </p>
           </div>
         </div>
       </section>
 
-      {/* Main About Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="text-right">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">مسیر حرفه‌ای من</h2>
-              <div className="space-y-6 text-lg text-muted-foreground persian-text">
-                <p>
-                  به عنوان کارشناس ارشد روانشناسی با بیش از ۱۰ سال تجربه، همواره تلاش کرده‌ام تا با 
-                  استفاده از جدیدترین روش‌های علمی و تجربه عملی، به بهبود کیفیت زندگی مراجعین کمک کنم.
-                </p>
-                <p>
-                  مسیر حرفه‌ای من با تحصیل در رشته روانشناسی در دانشگاه تهران آغاز شد و با کسب 
-                  پروانه رسمی از سازمان نظام روانشناسی ایران ادامه یافت. طی این سال‌ها، موفق به 
-                  تخصص در زمینه‌های زوج‌درمانی، روانکاوی و مشاوره خانواده شده‌ام.
-                </p>
-                <p>
-                  اعتقاد دارم که هر فردی ظرفیت‌های ذاتی برای بهبود و رشد دارد و وظیفه من 
-                  کمک به کشف و شکوفایی این ظرفیت‌هاست. رویکرد من در درمان، ترکیبی از روش‌های 
-                  علمی مدرن و درک عمیق از فرهنگ و ارزش‌های ایرانی است.
-                </p>
-              </div>
-            </div>
-            <div className="flex justify-center">
-              <img 
-                src={drImage} 
-                alt="دکتر جواد میربلوکی" 
-                className="w-full max-w-md rounded-lg shadow-xl"
-              />
-            </div>
-          </div>
+      {/* آمار */}
+      <section className="container -mt-6 pb-4">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {[
+            { icon: Store, value: faDigits(branches?.length ?? 3), label: "شعبه فعال" },
+            { icon: Users, value: `${faDigits(12)}٬۰۰۰+`, label: "مشتری وفادار" },
+            { icon: Wheat, value: `${faDigits(11)} سال`, label: "تجربه پخت" },
+            { icon: HeartHandshake, value: `${faDigits(98)}٪`, label: "رضایت مشتریان" },
+          ].map((s) => (
+            <Card key={s.label} className="card-hover">
+              <CardContent className="flex flex-col items-center gap-1 p-6 text-center">
+                <s.icon className="h-7 w-7 text-primary" />
+                <span className="text-2xl font-black">{s.value}</span>
+                <span className="text-xs text-muted-foreground">{s.label}</span>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </section>
 
-      {/* Qualifications */}
-      <section className="py-20 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">مدارک و تخصص‌ها</h2>
-            <p className="text-xl text-muted-foreground">تحصیلات و گواهینامه‌های تخصصی</p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {qualifications.map((qual, index) => (
-              <Card key={index} className="text-center">
-                <CardHeader>
-                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <qual.icon className="w-8 h-8 text-primary" />
-                  </div>
-                  <CardTitle className="text-xl">{qual.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="persian-text">{qual.description}</CardDescription>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+      {/* ارزش‌ها */}
+      <section className="container py-14">
+        <div className="mx-auto max-w-xl text-center">
+          <p className="text-xs font-bold uppercase tracking-wider text-primary">ارزش‌های ما</p>
+          <h2 className="mt-2 text-2xl font-black">سه قانونی که هرگز نمی‌شکنیم</h2>
+        </div>
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          {[
+            {
+              emoji: "🧀",
+              title: "مواد اولیه، غیرقابل مذاکره",
+              desc: "پنیر موزارلا واقعی، گوشت تازه و سبزیجات روز؛ اگر ماده‌ای کیفیت لازم را نداشته باشد، آن روز از منو حذف می‌شود نه اینکه جایگزین ارزان‌تر بیاوریم.",
+            },
+            {
+              emoji: "⏱️",
+              title: "وقت شما، اعتبار ماست",
+              desc: "زمان تحویل وعده‌ای است که به آن پایبندیم. اگر سفارش با تاخیر رسید، هزینه ارسال برمی‌گردد.",
+            },
+            {
+              emoji: "🤝",
+              title: "مشتری، مهمان خانه",
+              desc: "هر نارضایتی ظرف ۲۴ ساعت پاسخ می‌گیرد و در صورت تکرار سفارش، سفارش جدید با تخفیف ارسال می‌شود.",
+            },
+          ].map((v) => (
+            <Card key={v.title}>
+              <CardContent className="p-6">
+                <span className="text-4xl">{v.emoji}</span>
+                <h3 className="mt-4 font-extrabold">{v.title}</h3>
+                <p className="persian-text mt-2 text-sm leading-7 text-muted-foreground">{v.desc}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </section>
 
-      {/* Achievements */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <img 
-                src={clinicImage} 
-                alt="کلینیک روانشناسی" 
-                className="rounded-lg shadow-xl w-full h-96 object-cover"
-              />
-            </div>
-            <div className="text-right">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">دستاوردها و افتخارات</h2>
-              <p className="text-lg text-muted-foreground mb-8 persian-text">
-                طی سال‌های فعالیت حرفه‌ای، توانسته‌ام رکوردهای قابل توجهی در زمینه ارائه 
-                خدمات روانشناسی کسب کنم.
-              </p>
-              <ul className="space-y-4">
-                {achievements.map((achievement, index) => (
-                  <li key={index} className="flex items-center space-x-3 space-x-reverse">
-                    <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
-                    <span className="text-muted-foreground">{achievement}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+      {/* گالری */}
+      <section className="container pb-16">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {[
+            "/images/brand/hero.jpg",
+            "/images/menu/pizza-supreme.jpg",
+            "/images/brand/store.jpg",
+            "/images/menu/pizza-pepperoni.jpg",
+          ].map((src, i) => (
+            <img
+              key={i}
+              src={src}
+              alt=""
+              loading="lazy"
+              className={`h-48 w-full rounded-2xl object-cover ${i % 2 ? "md:translate-y-4" : ""}`}
+            />
+          ))}
         </div>
       </section>
-
-      {/* Treatment Approaches */}
-      <section className="py-20 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">رویکردهای درمانی</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto persian-text">
-              استفاده از متنوع‌ترین و مؤثرترین روش‌های درمانی متناسب با نیاز هر مراجع
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 gap-8">
-            {approaches.map((approach, index) => (
-              <Card key={index} className="text-right">
-                <CardHeader>
-                  <CardTitle className="text-xl">{approach.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="persian-text text-base">{approach.description}</CardDescription>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Patient Reviews */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">نظرات مراجعین</h2>
-            <p className="text-xl text-muted-foreground">تجربه واقعی مراجعین از خدمات ما</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                name: "خانم صادقی",
-                text: "بعد از ماه‌ها مشکل در زندگی زناشویی، جلسات زوج‌درمانی با دکتر میربلوکی نقطه عطفی در زندگی ما بود.",
-                rating: 5
-              },
-              {
-                name: "آقای رضایی",
-                text: "روش درمان دکتر بسیار علمی و منطقی است. توانست مشکل چندساله افسردگی من را حل کند.",
-                rating: 5
-              },
-              {
-                name: "خانم احمدی",
-                text: "محیط کلینیک بسیار آرام و دکتر با صبر و حوصله به مشکلات گوش می‌دهد.",
-                rating: 5
-              }
-            ].map((review, index) => (
-              <Card key={index} className="text-right">
-                <CardHeader>
-                  <div className="flex justify-end space-x-1 space-x-reverse mb-4">
-                    {[...Array(review.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                  <CardDescription className="text-lg persian-text">"{review.text}"</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="font-semibold">{review.name}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <Footer />
     </div>
   );
-};
-
-export default About;
+}

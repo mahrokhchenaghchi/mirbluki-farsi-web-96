@@ -2,122 +2,104 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Persian (Farsi) Design System for Javad Mirbluki Psychology Website
-RTL Layout with calm, professional colors and Persian typography
-All colors MUST be HSL.
-*/
+/* ------------------------------------------------------------
+   سیستم طراحی «پیتزا رویال» — RTL، فونت وزیرمتن
+   پالت: قرمز گوجه‌ای (برند)، کرم گرم (پس‌زمینه)، سبز ریحان (تاکید)
+   همه رنگ‌ها HSL هستند تا با توکن‌های shadcn هم‌خوان باشند.
+------------------------------------------------------------ */
 
 @layer base {
   :root {
-    /* Light, calming background */
-    --background: 210 20% 98%;
-    --foreground: 215 25% 20%;
+    --background: 36 43% 96%;
+    --foreground: 20 15% 12%;
 
-    /* Clean card backgrounds */
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 20%;
+    --card-foreground: 20 15% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 20%;
+    --popover-foreground: 20 15% 12%;
 
-    /* Professional blue primary */
-    --primary: 210 100% 45%;
-    --primary-foreground: 0 0% 100%;
-    --primary-light: 210 100% 85%;
+    /* قرمز گوجه‌ای — رنگ اصلی برند */
+    --primary: 8 74% 49%;
+    --primary-foreground: 45 60% 98%;
+    --primary-light: 8 90% 95%;
 
-    /* Soft secondary colors */
-    --secondary: 210 30% 95%;
-    --secondary-foreground: 215 25% 30%;
+    /* بژ گرم برای سطوح ثانویه */
+    --secondary: 35 32% 92%;
+    --secondary-foreground: 20 12% 24%;
 
-    /* Muted backgrounds */
-    --muted: 210 20% 96%;
-    --muted-foreground: 215 15% 50%;
+    --muted: 35 28% 94%;
+    --muted-foreground: 20 8% 44%;
 
-    /* Accent colors */
-    --accent: 195 100% 50%;
+    /* سبز ریحان برای تایید/موفقیت */
+    --accent: 145 45% 40%;
     --accent-foreground: 0 0% 100%;
 
-    /* Status colors */
-    --success: 142 76% 36%;
+    --success: 145 55% 38%;
     --success-foreground: 0 0% 100%;
-    
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 20 15% 12%;
+
+    --destructive: 0 72% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders and inputs */
-    --border: 210 20% 90%;
-    --input: 210 20% 96%;
-    --ring: 210 100% 45%;
+    --border: 32 16% 86%;
+    --input: 32 16% 88%;
+    --ring: 8 74% 49%;
 
-    /* Persian design elements */
-    --persian-blue: 210 100% 45%;
-    --persian-turquoise: 186 100% 42%;
-    --persian-gold: 45 100% 50%;
-    --soft-gray: 210 10% 95%;
+    /* طلایی برای ستاره‌ها و تخفیف‌ها */
+    --brand-gold: 40 95% 47%;
 
-    /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(210 100% 45%), hsl(186 100% 42%));
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(210 20% 98%));
+    --radius: 1rem;
 
-    --radius: 0.75rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 20 14% 10%;
+    --sidebar-foreground: 35 25% 90%;
+    --sidebar-primary: 8 74% 49%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 20 10% 17%;
+    --sidebar-accent-foreground: 35 25% 95%;
+    --sidebar-border: 20 10% 18%;
+    --sidebar-ring: 8 74% 49%;
   }
 
   .dark {
-    /* Dark mode with professional colors */
-    --background: 215 25% 8%;
-    --foreground: 210 20% 95%;
+    --background: 20 14% 8%;
+    --foreground: 35 30% 92%;
 
-    --card: 215 25% 10%;
-    --card-foreground: 210 20% 95%;
+    --card: 20 13% 11%;
+    --card-foreground: 35 30% 92%;
 
-    --popover: 215 25% 10%;
-    --popover-foreground: 210 20% 95%;
+    --popover: 20 13% 11%;
+    --popover-foreground: 35 30% 92%;
 
-    --primary: 210 100% 55%;
+    --primary: 8 85% 56%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 215 25% 15%;
-    --secondary-foreground: 210 20% 90%;
+    --secondary: 20 10% 16%;
+    --secondary-foreground: 35 25% 88%;
 
-    --muted: 215 25% 12%;
-    --muted-foreground: 210 15% 65%;
+    --muted: 20 10% 14%;
+    --muted-foreground: 30 10% 62%;
 
-    --accent: 195 100% 60%;
+    --accent: 145 45% 45%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 75% 60%;
+    --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 25% 20%;
-    --input: 215 25% 15%;
-    --ring: 210 100% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --border: 20 10% 20%;
+    --input: 20 10% 18%;
+    --ring: 8 85% 56%;
+
+    --sidebar-background: 20 14% 6%;
+    --sidebar-foreground: 35 25% 90%;
+    --sidebar-primary: 8 74% 49%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 20 10% 14%;
+    --sidebar-accent-foreground: 35 25% 95%;
+    --sidebar-border: 20 10% 14%;
+    --sidebar-ring: 8 74% 49%;
   }
 }
 
@@ -126,79 +108,95 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground font-vazir;
     direction: rtl;
-  }
-
-  /* Persian typography and RTL support */
-  .font-vazir {
-    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  }
-
-  /* RTL-specific utility classes */
-  .text-start-rtl {
     text-align: right;
   }
-  
-  .text-end-rtl {
-    text-align: left;
+
+  .font-vazir {
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+@layer utilities {
+  /* پس‌زمینه بافت دار ملایم */
+  .bg-pattern-warm {
+    background-color: hsl(36 43% 96%);
+    background-image: radial-gradient(hsl(8 74% 49% / 0.045) 1.5px, transparent 1.5px);
+    background-size: 22px 22px;
   }
 
-  /* Persian number formatting */
-  .persian-numbers {
-    font-variant-numeric: oldstyle-nums;
+  .text-balance {
+    text-wrap: balance;
   }
 
-  /* Smooth scrolling for Persian content */
-  html {
-    scroll-behavior: smooth;
-    font-feature-settings: "liga" 1, "kern" 1;
+  /* سایه کارت‌های منو */
+  .card-hover {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px -18px hsl(8 74% 49% / 0.35);
   }
 
-  /* Custom gradient utilities */
-  .bg-gradient-hero {
-    background: var(--gradient-hero);
+  /* زوم تصویر محصول */
+  .img-zoom {
+    transition: transform 0.4s ease;
+  }
+  .group:hover .img-zoom {
+    transform: scale(1.06);
   }
 
-  .bg-gradient-card {
-    background: var(--gradient-card);
-  }
-
-  /* Persian-specific spacing and line-height */
   .persian-text {
-    line-height: 1.8;
-    letter-spacing: 0.01em;
+    line-height: 1.9;
+    letter-spacing: 0.005em;
   }
 
-  /* Custom animations for Persian content */
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(30 12% 75%);
+    border-radius: 999px;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   @keyframes fade-in-up {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-
-  @keyframes slide-in-right {
-    from {
-      opacity: 0;
-      transform: translateX(-30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
   .animate-fade-in-up {
-    animation: fade-in-up 0.6s ease-out;
+    animation: fade-in-up 0.5s ease-out both;
   }
 
-  .animate-slide-in-right {
-    animation: slide-in-right 0.6s ease-out;
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
   }
+  .animate-pulse-soft {
+    animation: pulse-soft 1.8s ease-in-out infinite;
+  }
+}
+
+/* اعداد فارسی در همه‌جا یکدست باشند */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }

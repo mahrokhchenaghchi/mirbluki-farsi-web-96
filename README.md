@@ -1,73 +1,94 @@
-# Welcome to your Lovable project
+# 🍕 پلتفرم سفارش آنلاین رستوران (Pizza Ordering Platform)
 
-## Project info
+یک پلتفرم کامل و فارسی (RTL) برای سفارش آنلاین غذا از رستوران و فست‌فود — شامل سایت مشتری، پنل مدیریت حرفه‌ای و زیرساخت قابل اتصال به Supabase.
 
-**URL**: https://lovable.dev/projects/949e9607-0a67-4899-bb44-121a8dcdd847
+> مهندسی معکوس و بازطراحی ایده‌های سایت pizzasoli.ir با معماری مدرن، قابل توسعه و کاملاً شخصی‌سازی‌پذیر. تحلیل کامل و نقشه راه در [`docs/ANALYSIS-AND-ROADMAP.md`](docs/ANALYSIS-AND-ROADMAP.md)
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## ✨ امکانات
 
-**Use Lovable**
+### سایت مشتری
+- 🛒 منوی کامل با دسته‌بندی، جستجو و فیلتر (گیاهی / تند / تخفیف‌دار)
+- 📏 انتخاب سایز برای هر آیتم (کوچک / متوسط / خانواده) + یادداشت برای آشپز
+- 🏪 چند شعبه با هزینه ارسال، حداقل سفارش و ساعات کاری مستقل
+- 🎟️ کد تخفیف (درصدی / مبلغی) با اعتبارسنجی حداقل سفارش
+- 🚚 سه روش پرداخت: اینترنتی، کارت به کارت، پرداخت در محل
+- 📱 ورود با شماره موبایل + کد تایید (OTP)
+- 📍 صفحه پیگیری سفارش با تایم‌لاین وضعیت و به‌روزرسانی خودکار
+- 👤 حساب کاربری با تاریخچه سفارش‌ها و آدرس‌های اخیر
+- 📱 کاملاً واکنش‌گرا با نوار سبد خرید شناور در موبایل
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/949e9607-0a67-4899-bb44-121a8dcdd847) and start prompting.
+### پنل مدیریت (`/admin`)
+- 📊 داشبورد: درآمد امروز، سفارش‌های در جریان، نمودارهای ۷ روز اخیر، پرفروش‌ترین‌ها
+- 📋 مدیریت سفارش‌ها: فیلتر وضعیت/شعبه/جستجو + تغییر وضعیت با یک کلیک
+- 🍽️ مدیریت منو: CRUD کامل محصولات، سایزها، تخفیف، برچسب‌ها (تند/گیاهی/ویژه)، موجودی
+- 🏪 مدیریت شعب: افزودن/ویرایش شعبه، هزینه ارسال، ساعت کاری، مختصات نقشه
+- 🎟️ مدیریت کدهای تخفیف
+- 👥 لیست مشتریان با آمار خرید و وفاداری
+- ⚙️ تنظیمات برند + تعیین شماره مدیر + پشتیبان‌گیری JSON + بازنشانی داده دمو
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## 🚀 اجرای سریع
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+npm install
+npm run dev     # اجرا روی http://localhost:8080
+npm run build   # ساخت نسخه production
 ```
 
-**Edit a file directly in GitHub**
+**حالت دمو:** بدون هیچ تنظیمی، اپ با داده‌های نمونه اجرا می‌شود (ذخیره در localStorage).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- ورود مشتری: هر شماره موبایل معتبر + کد `123456`
+- ورود مدیر: شماره `09120000000` + کد `123456` → سپس مسیر `/admin`
+- سفارش‌های ثبت‌شده در حالت دمو به صورت خودکار بین وضعیت‌ها جابه‌جا می‌شوند تا جریان کار دیده شود.
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🔌 اتصال به بک‌اند واقعی (Supabase)
 
-## What technologies are used for this project?
+1. در [supabase.com](https://supabase.com) یک پروژه بسازید.
+2. فایل `supabase/migrations/20260908000000_restaurant_platform.sql` را در SQL Editor اجرا کنید.
+3. فایل `.env.local` بسازید:
 
-This project is built with:
+```env
+VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+4. برای ورود با OTP واقعی، سرویس پیامک (SMS) را در تنظیمات Auth پروژه Supabase متصل کنید.
 
-## How can I deploy this project?
+اپ به صورت خودکار حالت Supabase را تشخیص می‌دهد؛ در صورت خطا به حالت دمو برمی‌گردد.
 
-Simply open [Lovable](https://lovable.dev/projects/949e9607-0a67-4899-bb44-121a8dcdd847) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+## 🧱 معماری
 
-Yes, you can!
+```
+src/
+├── components/        # کامپوننت‌های مشترک (Navigation, CartDrawer, ProductCard...)
+├── layouts/           # SiteLayout (مشتری) و AdminLayout (مدیریت)
+├── pages/             # صفحات عمومی + pages/admin (پنل مدیریت)
+├── store/             # CartContext — سبد خرید وابسته به شعبه
+├── hooks/             # useAuth (OTP)، useData (React Query)
+├── lib/
+│   ├── types.ts       # مدل داده (منبع اصلی حقیقت)
+│   ├── db.ts          # لایه داده: دمو (localStorage) ↔ Supabase
+│   └── format.ts      # اعداد فارسی، تاریخ شمسی، برچسب وضعیت‌ها
+├── data/seed.ts       # داده اولیه منو، شعب و تنظیمات
+└── integrations/      # کلاینت Supabase
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### نکات کلیدی طراحی
+- **جابه‌جایی شفاف دمو/سرور:** همه کامپوننت‌ها فقط از طریق `src/lib/db.ts` با داده کار می‌کنند.
+- **قابل توسعه:** افزودن قابلیت جدید = افزودن فیلد به `types.ts` + migration + فرم ادمین.
+- **RTL بومی:** فونت وزیرمتن، اعداد فارسی، تاریخ شمسی و چیدمان راست‌به‌چپ در همه‌جا.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🛠 استک
+
+React 18 + TypeScript + Vite + Tailwind CSS + shadcn/ui + React Query + React Router + Recharts + Lucide
+
+## 🗺 نقشه راه پیشنهادی
+
+موردهای «فاز بعدی» (ارسال با پیک واقعی، PWA، پنل پیک، درگاه زرین‌پال،...) در سند تحلیل آمده است.
