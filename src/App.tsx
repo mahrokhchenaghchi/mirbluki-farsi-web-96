@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { CartProvider } from "@/store/CartContext";
@@ -47,12 +47,22 @@ const queryClient = new QueryClient({
   },
 });
 
+/**
+ * وقتی اپ به صورت فایل HTML مستقل (file://) باز شود از HashRouter استفاده
+ * می‌کنیم تا مسیریابی بدون وب‌سرور کار کند؛ در محیط توسعه/استقرار عادی
+ * BrowserRouter با آدرس‌های تمیز استفاده می‌شود.
+ */
+const Router =
+  typeof window !== "undefined" && window.location.protocol === "file:"
+    ? HashRouter
+    : BrowserRouter;
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner position="top-center" dir="rtl" />
-      <BrowserRouter>
+      <Router>
         <AuthProvider>
           <CartProvider>
             <Routes>
@@ -107,7 +117,7 @@ const App = () => (
             </Routes>
           </CartProvider>
         </AuthProvider>
-      </BrowserRouter>
+      </Router>
     </TooltipProvider>
   </QueryClientProvider>
 );

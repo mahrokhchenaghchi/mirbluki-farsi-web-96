@@ -38,6 +38,25 @@ npm run dev     # اجرا روی http://localhost:8080
 npm run build   # ساخت نسخه production
 ```
 
+### 📦 فایل دموی تک‌فایلی (برای ارائه به کارفرما)
+
+برای ساخت یک فایل HTML مستقل که با دابل‌کلیک و **بدون سرور و بدون اینترنت** باز می‌شود:
+
+```bash
+node scripts/build-single-file.mjs   # خروجی: demo/pizza-royal-demo.html (~3.5MB)
+```
+
+همه‌چیز داخل همان یک فایل جاسازی می‌شود: کد، تصاویر منو، فونت وزیرمتن و حتی favicon.
+تست خودکار صحت فایل (مسیر کامل خرید با مرورگر headless):
+
+```bash
+npm i --no-save playwright @sparticuz/chromium
+node -e "require('@sparticuz/chromium').default.executablePath()"
+# استخراج کتابخانه‌های مرورگر:
+node -e "require('zlib').brotliDecompressSync(require('fs').readFileSync('node_modules/@sparticuz/chromium/bin/al2023.tar.br'))" # ... سپس tar
+LD_LIBRARY_PATH=/tmp/chromium-libs/lib node scripts/smoke-test.cjs
+```
+
 **حالت دمو:** بدون هیچ تنظیمی، اپ با داده‌های نمونه اجرا می‌شود (ذخیره در localStorage).
 
 - ورود مشتری: هر شماره موبایل معتبر + کد `123456`

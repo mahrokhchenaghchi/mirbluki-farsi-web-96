@@ -70,9 +70,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.couponCode]);
 
-  // ذخیره در localStorage
+  // ذخیره در localStorage (با try/catch تا در محیط‌های بدون storage هم اپ کار کند)
   useEffect(() => {
-    localStorage.setItem(LS_CART, JSON.stringify(state));
+    try {
+      localStorage.setItem(LS_CART, JSON.stringify(state));
+    } catch {
+      /* ignore */
+    }
   }, [state]);
 
   const subtotal = useMemo(
