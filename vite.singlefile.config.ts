@@ -14,6 +14,14 @@ import path from "path";
  */
 export default defineConfig({
   base: "./",
+  /**
+   * __DEMO_BUILD__ باعث می‌شود اپ در این بیلد از HashRouter استفاده کند؛
+   * در نتیجه فایل حاصل روی «هر آدرسی» کار می‌کند: file:// ، زیرمسیر سایت،
+   * GitHub Pages، CDN و... بدون نیاز به تنظیم basename یا وب‌سرور.
+   */
+  define: {
+    __DEMO_BUILD__: true,
+  },
   plugins: [react()],
   resolve: {
     alias: {

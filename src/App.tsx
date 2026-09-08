@@ -48,14 +48,16 @@ const queryClient = new QueryClient({
 });
 
 /**
- * وقتی اپ به صورت فایل HTML مستقل (file://) باز شود از HashRouter استفاده
- * می‌کنیم تا مسیریابی بدون وب‌سرور کار کند؛ در محیط توسعه/استقرار عادی
- * BrowserRouter با آدرس‌های تمیز استفاده می‌شود.
+ * انتخاب روتر بر اساس محیط اجرا:
+ *  - بیلد دموی تک‌فایلی (__DEMO_BUILD__) یا باز شدن مستقیم فایل (file://)
+ *    → HashRouter تا روی هر آدرسی کار کند (دابل‌کلیک، CDN، زیرمسیر سایت)
+ *  - محیط توسعه/استقرار عادی → BrowserRouter با آدرس‌های تمیز
  */
-const Router =
-  typeof window !== "undefined" && window.location.protocol === "file:"
-    ? HashRouter
-    : BrowserRouter;
+const isStandaloneDemo =
+  (typeof __DEMO_BUILD__ !== "undefined" && __DEMO_BUILD__) ||
+  (typeof window !== "undefined" && window.location.protocol === "file:");
+
+const Router = isStandaloneDemo ? HashRouter : BrowserRouter;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

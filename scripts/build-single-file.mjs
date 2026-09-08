@@ -145,12 +145,20 @@ html = html.replace(
   () => `<script type="module">\n${js}\n</script>`
 );
 
-// نوشتن خروجی
+// نوشتن خروجی‌ها
 const outDir = path.join(root, "demo");
 fs.mkdirSync(outDir, { recursive: true });
 const out = path.join(outDir, "pizza-royal-demo.html");
 fs.writeFileSync(out, html);
 
+// نسخه هاست وب — GitHub Pages از پوشه docs سرو می‌کند و همین فایل مستقل
+// روی هر هاست استاتیک/CDN (jsDelivr، raw.githack و...) هم قابل ارائه است
+const docsDir = path.join(root, "docs");
+fs.mkdirSync(docsDir, { recursive: true });
+fs.writeFileSync(path.join(docsDir, "index.html"), html);
+fs.writeFileSync(path.join(docsDir, ".nojekyll"), "");
+
 const sizeMB = (fs.statSync(out).size / (1024 * 1024)).toFixed(2);
 console.log(`\n✅ فایل دمو ساخته شد: demo/pizza-royal-demo.html (${sizeMB} مگابایت)`);
-console.log("   این فایل را می‌توانید مستقیم به کارفرما بدهید — با دابل‌کلیک و بدون اینترنت باز می‌شود.");
+console.log("   با دابل‌کلیک و بدون اینترنت باز می‌شود (فایل محلی، gitignore شده)");
+console.log("✅ نسخه هاست وب: docs/index.html + docs/.nojekyll (برای GitHub Pages / CDN)");
