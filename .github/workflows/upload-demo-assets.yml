@@ -15,6 +15,7 @@ jobs:
       - name: Upload assets to release
         run: |
           cp docs/index.html pizza-royal-demo.html
-          gh release upload demo pizza-royal-demo.html --clobber
+          cd docs && zip -q ../pizza-royal-demo-web.zip index.html .nojekyll && cd ..
+          gh release upload demo pizza-royal-demo.html pizza-royal-demo-web.zip --clobber
         env:
           GH_TOKEN: ${{ github.token }}
