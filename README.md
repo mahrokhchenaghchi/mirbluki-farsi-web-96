@@ -43,10 +43,23 @@ npm run build   # ساخت نسخه production
 برای ساخت یک فایل HTML مستقل که با دابل‌کلیک و **بدون سرور و بدون اینترنت** باز می‌شود:
 
 ```bash
-node scripts/build-single-file.mjs   # خروجی: demo/pizza-royal-demo.html (~3.5MB)
+node scripts/build-single-file.mjs   # خروجی: demo/pizza-royal-demo.html و docs/index.html
 ```
 
 همه‌چیز داخل همان یک فایل جاسازی می‌شود: کد، تصاویر منو، فونت وزیرمتن و حتی favicon.
+
+### 🌐 انتشار دمو روی وب (لینک قابل اشتراک)
+
+خروجی `docs/index.html` یک صفحه کاملا مستقل است و روی هر هاست استاتیک کار می‌کند:
+
+| روش | مراحل |
+|---|---|
+| **Netlify Drop** (سریع‌ترین) | دانلود `demo-web.zip` → باز کردن [app.netlify.com/drop](https://app.netlify.com/drop) → درگ‌اند‌دراپ فایل zip → لینک فوری `*.netlify.app` |
+| **GitHub Pages** (دائمی) | ساخت ریپوی عمومی جدید (مثلا `pizza-royal-demo`) → آپلود `demo-web/index.html` → Settings → Pages → Branch: `main` / Root → لینک `username.github.io/pizza-royal-demo` |
+| **هاست دلخواه** | آپلود `docs/index.html` به هر هاست (cPanel، ابرآروان، و…) |
+
+> نکته: بیلد دمو از HashRouter استفاده می‌کند (`__DEMO_BUILD__`)، بنابراین روی هر زیرمسیر و دامنه‌ای بدون تنظیم اضافه کار می‌کند.
+
 تست خودکار صحت فایل (مسیر کامل خرید با مرورگر headless):
 
 ```bash
