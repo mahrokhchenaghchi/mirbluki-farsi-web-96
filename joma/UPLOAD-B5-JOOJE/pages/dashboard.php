@@ -48,6 +48,78 @@ joma_header('داشبورد', array(array('label' => 'داشبورد')));
   <div class="card stat"><div class="k">فعالیت‌های برنامه</div><div class="v"><?php echo fa_num(count($acts)); ?></div></div>
   <div class="card stat"><div class="k">قابل ثبت امروز</div><div class="v"><?php echo fa_num($remaining); ?></div></div>
 </div>
+<?php
+// JOMA-HAMMASIR-BEGIN (کارت‌های هم‌مسیر در داشبورد — باگ ۸؛ فقط mode=admin/provider و flag روشن؛
+// با Flag خاموش: فقط خواندن config ماژول، هیچ خروجی — D39/AC6.8)
+try {
+    $__hcfg = dirname(__FILE__) . '/../config/hammasir_config.php';
+    if (is_file($__hcfg)) {
+        $HAMMASIR_CONFIG = array();
+        include $__hcfg;
+        if (!empty($HAMMASIR_CONFIG['hammasir_enabled'])) {
+            $__hfn = dirname(__FILE__) . '/../functions/hammasir.php';
+            if (is_file($__hfn)) {
+                include_once $__hfn;
+                $__hmode = hammasir_active_mode();
+                if ($__hmode === 'admin') {
+                    echo '<section class="card"><h2>پنل مدیریت هم‌مسیر</h2>';
+                    echo '<div class="btn-row">';
+                    echo '<a class="btn" href="' . e(joma_url('index.php?p=hammasir')) . '">مدیریت همراهان</a>';
+                    echo '<a class="btn sec" href="' . e(joma_url('index.php?p=hammasir')) . '">مدیران سیستم</a>';
+                    echo '</div></section>';
+                } elseif ($__hmode === 'provider') {
+                    $__hpend = hammasir_links_by_provider((int) $u['id'], 'PENDING');
+                    $__hact = hammasir_links_by_provider((int) $u['id'], 'ACTIVE');
+                    $__hnp = is_array($__hpend) ? count($__hpend) : 0;
+                    $__hna = is_array($__hact) ? count($__hact) : 0;
+                    echo '<section class="card"><h2>میز کار مشاور</h2>';
+                    echo '<div class="btn-row">';
+                    echo '<span class="chip">درخواست‌های در انتظار: ' . (int) $__hnp . '</span>';
+                    echo '<span class="chip">مراجعان فعال: ' . (int) $__hna . '</span>';
+                    echo '<a class="btn" href="' . e(joma_url('index.php?p=hammasir')) . '">ورود به میز کار</a>';
+                    echo '</div></section>';
+                } elseif ($__hmode === 'client') {
+                    // کارت دعوت هم‌مسیر در داشبورد (حکم PO — اصلاح نهایی Onboarding بخش ۱):
+                    // فقط seen=0 و بدون «هیچ» لینک (باز یا بسته — بخش ۴)؛ فرم‌ها POST به p=hammasir.
+                    // fail-closed: خطای خواندن → دعوت رندر نمی‌شود.
+                    $__hstate = array('seen' => 1, 'intent' => 0);
+                    $__hany = true;
+                    try {
+                        $__hstate = hammasir_onboarding_state((int) $u['id']);
+                        $__hany = (hammasir_links_any_by_client((int) $u['id']) === true);
+                    } catch (Throwable $e) {
+                        $__hstate = array('seen' => 1, 'intent' => 0);
+                        $__hany = true;
+                    }
+                    if ($__hstate['seen'] === 0 && !$__hany) {
+                        echo '<section class="card">';
+                        echo '<h2>آیا مایلید در این مسیر یک همراه داشته باشید؟</h2>';
+                        echo '<p>' . e(hammasir_onboarding_text()) . '</p>';
+                        echo '<div class="btn-row">';
+                        echo '<form method="post" action="' . e(joma_url('index.php?p=hammasir')) . '">';
+                        echo csrf_field();
+                        echo '<input type="hidden" name="hammasir_action" value="onboarding_accept">';
+                        echo '<button class="btn" type="submit">بله، انتخاب می‌کنم</button>';
+                        echo '</form>';
+                        echo '<form method="post" action="' . e(joma_url('index.php?p=hammasir')) . '">';
+                        echo csrf_field();
+                        echo '<input type="hidden" name="hammasir_action" value="onboarding_dismiss">';
+                        echo '<button class="btn sec" type="submit">فعلاً نه</button>';
+                        echo '</form>';
+                        echo '</div></section>';
+                    }
+                }
+            }
+        }
+        unset($HAMMASIR_CONFIG);
+    }
+    unset($__hcfg);
+} catch (Throwable $e) {
+    // fail-closed: هیچ کارتی؛ فقط لاگ امن با پیام ثابت (PC-4)
+    error_log('hammasir dashboard kept silent: safe load failed.');
+}
+// JOMA-HAMMASIR-END
+?>
 <div class="grid grid-2" style="margin:8px 0 18px">
   <a class="btn" href="<?php echo e(joma_url('index.php?p=today')); ?>">ثبت عملکرد</a>
   <a class="btn sec" href="<?php echo e(joma_url('index.php?p=plan')); ?>">برنامه دوره</a>

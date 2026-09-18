@@ -277,6 +277,7 @@ function nav_items() {
         'today' => array('امروز', '📝'),
         'mood' => array('خلق من', '💗'),
         'reports' => array('گزارش‌ها', '📊'),
+        'jooje' => array('جوجهٔ من', '🐣'), // (B5) جوجهٔ من — مرحلهٔ ۱
         'plan' => array('برنامه من', '🗂️'),
         'periods' => array('دوره‌های من', '📅'),
         'library' => array('کتابخانه فعالیت‌ها', '📚'),

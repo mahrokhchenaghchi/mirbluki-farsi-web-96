@@ -5,6 +5,7 @@ $allowed = array(
     'home', 'login', 'register', 'forgot', 'logout',
     'mood', 'dashboard', 'plan', 'today', 'library',
     'periods', 'period', 'reports', 'profile', 'settings', 'about', 'support',
+    'jooje', // (B5) جوجهٔ من — مرحلهٔ ۱
 );
 if (!in_array($p, $allowed, true)) $p = 'home';
 maybe_mood_gate($p);
