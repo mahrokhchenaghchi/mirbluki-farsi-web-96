@@ -709,3 +709,36 @@
     else if (sleeping && soundOn) startSnoreLoop();
   });
 })();
+
+/* ==========================================================================
+   تقویم «مسیر این ماه» — زدن روی روز، خلاصه‌اش را زیر تقویم نشان می‌دهد
+   ========================================================================== */
+(function () {
+  var grid = document.querySelector('.cal-grid');
+  if (!grid) return;
+  var bar = document.getElementById('cal-bar');
+  if (!bar) return;
+  var tiles = grid.querySelectorAll('[data-detail]');
+
+  tiles.forEach(function (t) {
+    t.addEventListener('click', function (e) {
+      var state = t.getAttribute('data-state');
+      var label = t.getAttribute('aria-label') || '';
+      var date = t.getAttribute('data-day');
+      var detail = t.getAttribute('data-detail') || '';
+      // اگر همان روز دوباره زده شد، به صفحهٔ ثبت همان روز برو (تایل لینک است)
+      if (t.getAttribute('data-picked') === '1') return;
+      if (state === 'future') {
+        e.preventDefault();
+        bar.textContent = 'ثبت برای روزهای آینده ممکن نیست — از ابتدای ماه تا امروز می‌توانی ثبت کنی.';
+        return;
+      }
+      // اولین زدن: خلاصه را نشان بده و انتخاب را نگه دار
+      e.preventDefault();
+      tiles.forEach(function (x) { x.removeAttribute('data-picked'); });
+      t.setAttribute('data-picked', '1');
+      var name = label.split(' — ')[0] || date;
+      bar.innerHTML = '<b>' + name + '</b> — ' + detail + ' <span class="tiny">(برای ثبت در این روز دوباره بزن)</span>';
+    });
+  });
+})();

@@ -113,6 +113,7 @@ $groups = array('DAILY' => array(), 'WEEKLY' => array(), 'MONTHLY' => array());
 foreach ($pas as $a) $groups[$a['frequency']][] = $a;
 $labels = array('DAILY' => 'روزانه', 'WEEKLY' => 'هفتگی', 'MONTHLY' => 'ماهانه');
 $todayCap = jalali_today();
+$view = (isset($_GET['view']) && $_GET['view'] === 'month') ? 'month' : 'today';
 
 // (B6) فعالیت آب این برنامه و وضعیت همان روز
 $waterPa = null;
@@ -133,6 +134,20 @@ $stressToday = $moodToday ? (int) $moodToday['stress'] : 0;
 joma_header('کارهای امروز', array());
 ?>
 <?php joma_v2_pagehead('کارهای امروز', 'ثبت کارها', 'دورهٔ ' . jalali_period_label($plan['period_key']) . ' — هر ثبت، یک قدم واقعی است.', '<span>' . e(jalali_weekday_name($date) . ' ' . jalali_format($date)) . '</span>'); ?>
+
+<div class="viewtabs">
+  <a class="<?php echo ($view === 'today') ? 'on' : ''; ?>" href="<?php echo e(joma_url('index.php?p=today')); ?>">امروز</a>
+  <a class="<?php echo ($view === 'month') ? 'on' : ''; ?>" href="<?php echo e(joma_url('index.php?p=today&view=month')); ?>">مسیر این ماه</a>
+</div>
+
+<?php if ($view === 'month') { ?>
+  <?php
+  if (function_exists('joma_v2_month_calendar')) {
+      joma_v2_month_calendar((int) $u['id'], $plan, $pas, $evs, list_moods($u['id'], $b['start'], $b['end']), array('title' => true, 'counters' => true, 'stats' => true));
+  }
+  ?>
+  <?php joma_footer(); return; ?>
+<?php } ?>
 
 <?php if ($plan['status'] !== 'RUNNING') { echo empty_state('دوره در حال اجرا نیست', 'اول برنامه را نهایی و اجرا را شروع کن.', joma_url('index.php?p=plan'), 'رفتن به برنامه'); } ?>
 

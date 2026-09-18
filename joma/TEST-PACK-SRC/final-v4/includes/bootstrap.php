@@ -84,6 +84,10 @@ unset($_joma_water);
 $_joma_insight = dirname(__FILE__) . '/../functions/insight.php';
 if (is_file($_joma_insight)) require_once $_joma_insight;
 unset($_joma_insight);
+// (تقویم مسیر این ماه) کامپوننت مشترک خانه و کارهای امروز
+$_joma_cal = dirname(__FILE__) . '/v2_calendar.php';
+if (is_file($_joma_cal)) require_once $_joma_cal;
+unset($_joma_cal);
 // (ویزارد حال) تصویرهای مراحل حال
 $_joma_mood = dirname(__FILE__) . '/v2_mood.php';
 if (is_file($_joma_mood)) require_once $_joma_mood;
