@@ -107,3 +107,21 @@ rm -f "$W/site/test/data/store.json" "$W/site/test/data/hammasir/"* "$W/site/tes
 7. B3 → ثبت برای تاریخ آینده: «ثبت عملکرد برای روزهای آینده ممکن نیست.» و تاریخ آینده در
    فهرست تاریخ‌ها نیست؛ تاریخ گذشتهٔ همان ماه ثبت می‌شود.
 8. B2 → کاربر بدون حالِ امروز: «برنامه من» و «گزارش‌ها» باز، «امروز» به صفحهٔ حال می‌رود.
+
+---
+
+## نسخهٔ ۹ (این دور) — C1 · C2 · C3 · بندِ ۴
+
+بستهٔ تحویلی: `joma/JOMA-TEST-PACK-v9.zip` (همان ساختار v8: یک پوشهٔ `test/`).
+منابعِ این دور (فقط فایل‌های عوض‌شده/تازه): `TEST-PACK-SRC/v9/…`
+
+| بخش | خروجی |
+|---|---|
+| C1 | تب‌های تناوب در `pages/today.php` |
+| C2 | `functions/companion_roles.php` + `includes/v2_roles.php` + یک خط گارد در `index.php` + فیلتر ناوبری در `includes/v2_shell.php` |
+| C3 | `functions/companion_provider.php` + بازسازی داشبورد در `pages/hammasir_provider.php` |
+| بندِ ۴ | `functions/companion_invite.php` + کارت در `pages/dashboard.php` + چهار گام در `pages/hammasir_client.php` |
+| ظاهر/رفتار | `assets/css/joma-companion.css` · `assets/js/joma-companion.js` (فایل‌های طرح و JS قبلی دست‌نخورده‌اند) |
+
+قفل: `joma/LOCK-v8.sha256` (هش همهٔ فایل‌های v8) + `test/DIFF.txt` + `test/LOCK-LIST-v8.txt` (L01…L31).
+قاعدهٔ این دور: فقط افزودن — هیچ بازنویسی/بهسازی/جابه‌جایی بیرون از بخش اعلام‌شده.
