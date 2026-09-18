@@ -1,0 +1,414 @@
+/* ==========================================================================
+   JOMA — طرح زنده (نسخهٔ ۲۰) روی اپ واقعی
+   منبع توکن‌ها: FRONTEND/proto.css نسخهٔ ۲۰ (تم کلاسیک) + SPEC/01-foundation
+   این فایل جای joma.css قدیمی را می‌گیرد و کلاس‌های موجود اپ را هم پوشش می‌دهد
+   تا همهٔ صفحه‌ها با طرح تازه دیده شوند. هیچ منطق بک‌اندی اینجا نیست.
+   ========================================================================== */
+
+/* ---------- ۱) توکن‌ها ---------- */
+:root{
+  --bg-layer:
+    radial-gradient(42% 34% at 88% -6%, #FFE4D2 0%, rgba(255,228,210,0) 62%),
+    radial-gradient(38% 30% at -6% 26%, #DDF3E6 0%, rgba(221,243,230,0) 60%),
+    radial-gradient(40% 34% at 106% 58%, #E9E4FC 0%, rgba(233,228,252,0) 60%),
+    radial-gradient(36% 30% at 12% 98%, #FFF3D2 0%, rgba(255,243,210,0) 60%),
+    linear-gradient(180deg, #FDFEFB 0%, #F3F8F0 100%);
+  --card:#FFFFFF; --card-brd:#EAEFE6;
+  --ink:#14382E; --ink-2:#5C7A6C; --ink-3:#8FA79B;
+  --brand:#0FA678; --brand2:#2FBF8F; --brand-ink:#0A7E5B;
+  --brand-soft:#D6F4E6; --brand-softer:#EDFAF3;
+  --ok:#12905F; --ring-track:#E4EBE1; --grid:rgba(20,56,46,.10);
+  --grad1:#0FA678; --grad2:#4EA8DE;
+  --side-bg:#FCFDF9; --topbar-bg:rgba(255,255,255,.9); --toast-bg:#14382E;
+
+  --gold:#F0B23A;  --gold-soft:#FFF0C9;  --gold-ink:#8F6A12;
+  --rose:#EE6D95;  --rose-soft:#FFE3EC;  --rose-ink:#B24763;
+  --lav:#8B7CF6;   --lav-soft:#EBE7FE;   --lav-ink:#5F4FC0;
+  --sky:#3FA3DC;   --sky-soft:#DDF0FC;   --sky-ink:#2277A8;
+  --coral:#F2784B; --coral-soft:#FFE5DA; --coral-ink:#C25327;
+  --indigo:#6D7BE0;--indigo-soft:#E7E9FD;--indigo-ink:#4B58B8;
+
+  --owl-a:#5E93C8; --owl-b:#3F6FA0; --owl-cream:#F6EBD9; --owl-gold:#E8B64A;
+  --owl-beak:#F0A63C; --owl-ink:#2E3A48; --owl-rose:#E07898;
+
+  --r-sm:10px; --r:16px; --r-lg:22px; --r-pill:999px;
+  --shadow:0 2px 10px rgba(20,60,45,.06), 0 18px 44px -24px rgba(20,60,45,.3);
+  --shadow-sm:0 1px 4px rgba(20,60,45,.05), 0 8px 20px -14px rgba(20,60,45,.24);
+  --side-w:248px;
+}
+
+/* ---------- ۲) پایه ---------- */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Vazirmatn","IRANSans","Segoe UI",Tahoma,system-ui,sans-serif;
+  color:var(--ink);font-size:14px;line-height:1.9;min-height:100vh;padding-bottom:76px;
+}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg-layer)}
+a{color:var(--brand-ink);text-decoration:none}
+a:hover{text-decoration:none}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+h1,h2,h3,h4{margin:0;line-height:1.6;font-weight:900}
+h1{font-size:19px}
+h2{font-size:15.5px;margin:4px 0}
+h3{font-size:13.5px}
+p{margin:0}
+small{font-size:11.5px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;background:var(--brand-softer);padding:1px 6px;border-radius:6px;direction:ltr;display:inline-block}
+img{max-width:100%;height:auto}
+hr{border:0;border-top:1px solid var(--card-brd);margin:12px 0}
+.ic{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic.lg{width:26px;height:26px}
+.tiny{font-size:11px;color:var(--ink-3);line-height:1.9}
+.muted{color:var(--ink-2)}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- ۳) اسکلت: .wrap / .side / .main ---------- */
+.wrap{display:flex;min-height:100vh;max-width:1240px;margin:0 auto}
+.side{
+  width:var(--side-w);flex:none;background:var(--side-bg);border-inline-start:1px solid var(--card-brd);
+  padding:16px 14px;display:flex;flex-direction:column;gap:12px;position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.main{flex:1;min-width:0;padding:18px 22px 30px;display:flex;flex-direction:column;gap:16px}
+.main > *{min-width:0}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-tile{width:40px;height:40px;border-radius:13px;background:linear-gradient(150deg,var(--grad1),var(--grad2));
+  display:grid;place-items:center;box-shadow:var(--shadow-sm);flex:none}
+.logo-tile svg{width:30px;height:30px}
+.logo b{font-size:17px;display:block;line-height:1.4}
+.logo small{font-size:9.5px;color:var(--ink-3);font-weight:700}
+.slabel{font-size:10px;font-weight:900;color:var(--ink-3);letter-spacing:.4px;margin:6px 4px -4px}
+.nav{display:flex;flex-direction:column;gap:3px}
+.nav a{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:12px;color:var(--ink-2);
+  font-size:13px;font-weight:700;position:relative}
+.nav a:hover{background:var(--brand-softer);color:var(--ink)}
+.nav a.on{background:var(--brand-soft);color:var(--brand-ink);font-weight:900}
+.nav a .cnt{position:absolute;inset-inline-start:10px;top:50%;transform:translateY(-50%);
+  background:linear-gradient(150deg,var(--grad1),var(--grad2));color:#fff;font-size:10px;font-weight:900;
+  min-width:20px;height:20px;border-radius:99px;display:grid;place-items:center;padding:0 5px}
+.dura{background:var(--card);border:1px solid var(--card-brd);border-radius:var(--r);padding:10px 12px;box-shadow:var(--shadow-sm)}
+.dura small{font-size:9.5px;color:var(--ink-3);font-weight:800;display:block}
+.dura b{font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.sprof{margin-top:auto;display:flex;align-items:center;gap:10px;padding:9px;border-radius:var(--r);
+  background:var(--card);border:1px solid var(--card-brd);box-shadow:var(--shadow-sm)}
+.sprof .av{width:34px;height:34px;border-radius:11px;background:var(--rose-soft);color:var(--rose-ink);
+  display:grid;place-items:center;font-weight:900;flex:none}
+.sprof b{font-size:12px;display:block;line-height:1.4}
+.sprof small{font-size:9.5px;color:var(--ink-3)}
+.sprof .chev{margin-inline-start:auto;width:15px;height:15px;stroke:var(--ink-3)}
+
+/* ---------- ۴) سرصفحهٔ صفحه ---------- */
+.pagehead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pagehead .kicker{font-size:11px;font-weight:900;color:var(--brand-ink);background:var(--brand-softer);
+  border-radius:99px;padding:3px 10px;display:inline-block}
+.pagehead h1{margin-top:6px}
+.pagehead .sub{font-size:12.5px;color:var(--ink-2);margin-top:2px}
+.datechip{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--card-brd);
+  border-radius:99px;padding:6px 12px;font-size:11.5px;font-weight:800;color:var(--ink-2);box-shadow:var(--shadow-sm)}
+.datechip .ic{width:15px;height:15px}
+.crumbs{font-size:11.5px;color:var(--ink-3);display:flex;gap:6px;flex-wrap:wrap}
+.crumbs a{color:var(--ink-3)}
+
+/* ---------- ۵) کارت و شبکه ---------- */
+.card{background:var(--card);border:1px solid var(--card-brd);border-radius:var(--r);padding:14px;
+  box-shadow:var(--shadow-sm)}
+.card > * + *{margin-top:8px}
+.card.hero-card{background:linear-gradient(150deg,#FFFFFF,var(--brand-softer))}
+.grid{display:grid;gap:14px}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.grid.tall{align-items:start}
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat .k{font-size:11.5px;color:var(--ink-3);font-weight:800}
+.stat .v{font-size:26px;font-weight:900;line-height:1.3}
+.k{font-size:11.5px;color:var(--ink-3);font-weight:800}
+.v{font-size:22px;font-weight:900}
+.lede{color:var(--ink-2);font-size:12.5px}
+.meta{color:var(--ink-3);font-size:11px}
+.sep{height:1px;background:var(--card-brd);margin:10px 0}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.empty{text-align:center;padding:22px 12px;color:var(--ink-2)}
+.empty-ico{font-size:30px;display:block;margin-bottom:6px}
+.notice-unspecified{background:var(--gold-soft);color:var(--gold-ink);border-radius:var(--r-sm);padding:8px 11px;font-size:12px}
+.done-box{background:var(--brand-softer);border-radius:var(--r-sm);padding:9px 11px;font-size:12px}
+
+/* ---------- ۶) دکمه/چیپ/برچسب ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 17px;border-radius:var(--r);
+  font-size:12.5px;font-weight:900;background:linear-gradient(150deg,var(--grad1),var(--grad2));color:#fff;
+  box-shadow:var(--shadow-sm);cursor:pointer;border:1.5px solid transparent}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(1px)}
+.btn.sec,.btn-sec,.btn.soft{background:var(--brand-softer);color:var(--brand-ink);border-color:transparent;box-shadow:none}
+.btn.ghost,.btn-ghost{background:var(--card);color:var(--ink-2);border:1.5px solid var(--card-brd);box-shadow:none}
+.btn.danger{background:var(--coral);color:#fff}
+.btn-block{width:100%}
+.btn.sm{padding:7px 13px;font-size:11.5px;border-radius:var(--r-sm)}
+.btn:disabled,.btn[disabled]{opacity:.5;cursor:not-allowed;filter:grayscale(.4)}
+.btn-row form{margin:0}
+.chip,.badge,.badge-draft,.badge-planning,.badge-running,.badge-archived{display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:900;background:var(--ring-track);color:var(--ink-2)}
+.badge-running{background:var(--brand-soft);color:var(--brand-ink)}
+.badge-planning{background:var(--gold-soft);color:var(--gold-ink)}
+.badge-draft{background:var(--indigo-soft);color:var(--indigo-ink)}
+.badge-archived{background:var(--ring-track);color:var(--ink-2)}
+.chip.g{background:var(--brand-soft);color:var(--brand-ink)}
+.chip.go{background:var(--gold-soft);color:var(--gold-ink)}
+.chip.r{background:var(--rose-soft);color:var(--rose-ink)}
+.chip.s{background:var(--sky-soft);color:var(--sky-ink)}
+.icon-btn{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--card);
+  border:1px solid var(--card-brd);box-shadow:var(--shadow-sm)}
+.back{font-size:11.5px;color:var(--ink-3)}
+.check{width:20px;height:20px;border-radius:7px;background:var(--brand-soft);color:var(--brand-ink);
+  display:grid;place-items:center;font-size:12px;font-weight:900}
+
+/* ---------- ۷) فرم‌ها ---------- */
+label{display:block;font-size:12px;font-weight:800;color:var(--ink-2);margin:10px 0 4px}
+input,select,textarea{width:100%;padding:10px 12px;border:1.5px solid var(--card-brd);border-radius:var(--r-sm);
+  background:var(--card);color:var(--ink);font:inherit;font-size:13px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand2);box-shadow:0 0 0 3px var(--brand-softer)}
+input[type=checkbox],input[type=radio]{width:auto}
+textarea{min-height:90px;resize:vertical}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:11px;color:var(--ink-3);margin-top:3px}
+.ok,.bad{font-size:12px;border-radius:var(--r-sm);padding:8px 11px;margin-top:8px}
+.ok{background:var(--brand-soft);color:var(--brand-ink)}
+.bad{background:var(--rose-soft);color:var(--rose-ink)}
+.toast{border-radius:var(--r-sm);padding:9px 12px;font-size:12.5px;font-weight:700}
+.toast.ok{background:var(--brand-soft);color:var(--brand-ink)}
+.toast.bad{background:var(--rose-soft);color:var(--rose-ink)}
+.mode-tabs{display:flex;gap:6px;background:var(--brand-softer);border-radius:99px;padding:4px;margin:12px 0}
+.mode-tabs a{flex:1;text-align:center;font-size:12px;font-weight:900;color:var(--ink-2);padding:7px 8px;border-radius:99px}
+.mode-tabs a.on{background:var(--card);color:var(--brand-ink);box-shadow:var(--shadow-sm)}
+.bool-grid{display:flex;flex-wrap:wrap;gap:8px}
+.rate-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(64px,1fr));gap:6px}
+
+/* ---------- ۸) جدول ---------- */
+.table-wrap{overflow-x:auto;border:1px solid var(--card-brd);border-radius:var(--r);background:var(--card)}
+table.tbl,.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl th,.tbl td{padding:9px 11px;border-bottom:1px solid var(--card-brd);text-align:right;vertical-align:middle}
+.tbl th{background:var(--brand-softer);font-size:11.5px;color:var(--ink-2);font-weight:900}
+.tbl tbody tr:last-child td{border-bottom:0}
+.ar-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.ar-tbl th,.ar-tbl td{padding:8px 10px;border-bottom:1px solid var(--card-brd);text-align:right}
+
+/* ---------- ۹) نمودار ---------- */
+.chart-box,.chart-card,.ar-chart,.ar-card,.success-charts,.spark{background:var(--card);border:1px solid var(--card-brd);
+  border-radius:var(--r);padding:12px;box-shadow:var(--shadow-sm);overflow:hidden}
+.chart-box canvas,.ar-chart canvas,.success-charts canvas{max-width:100%}
+.chart-empty{text-align:center;color:var(--ink-3);font-size:12px;padding:16px}
+.ar-note{background:var(--gold-soft);color:var(--gold-ink);border-radius:var(--r-sm);padding:8px 11px;font-size:11.5px}
+.ar-card h3{margin-bottom:6px}
+
+/* ---------- ۱۰) برگهٔ ثبت عملکرد / خلق / آمار خانه ---------- */
+.perf,.act-card,.mood-card,.hd-card,.mood-bars,.weight-row{background:var(--card);border:1px solid var(--card-brd);
+  border-radius:var(--r);padding:14px;box-shadow:var(--shadow-sm)}
+.perf-head,.act-head,.mood-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.act-body{margin-top:8px}
+.sticker{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:19px;flex:none}
+.mood-opt{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 6px;border:1.5px solid var(--card-brd);
+  border-radius:var(--r-sm);background:var(--card);cursor:pointer;font-size:11px}
+.mood-opt.on{border-color:var(--brand2);background:var(--brand-softer)}
+.moodbtn{width:100%;padding:9px;border-radius:var(--r-sm);border:1.5px solid var(--card-brd);background:var(--card);font-weight:900;font-size:12px}
+.bar,.hd-bar{height:9px;border-radius:99px;background:var(--ring-track);overflow:hidden}
+.bar > i,.bar > span,.hd-bar > i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--grad1),var(--grad2))}
+.hd-kpis,.hd-cards,.hd-strip,.hd-kpi{display:flex;gap:10px;flex-wrap:wrap}
+.hd-kpi,.hd-dot{background:var(--brand-softer);border-radius:var(--r-sm);padding:6px 10px;font-size:11.5px;font-weight:800}
+.hd-sec{font-size:13px;font-weight:900;margin-top:6px}
+.hd-pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--brand2)}
+.hd-item{padding:8px 0;border-bottom:1px solid var(--card-brd)}
+.hd-item:last-child{border-bottom:0}
+.hm-wrap{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.hm-head,.hm-day{font-size:10.5px;color:var(--ink-3);text-align:center;font-weight:800}
+.hm-cell{aspect-ratio:1/1;border-radius:10px;background:var(--ring-track);display:grid;place-items:center;
+  font-size:11.5px;font-weight:800;color:var(--ink-2);cursor:default}
+.hm-cell.hm-future{opacity:.45}
+.hm-val{font-size:10px}
+.hm-dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--brand2)}
+.hm-legend{display:flex;gap:10px;flex-wrap:wrap;font-size:10.5px;color:var(--ink-3);margin-top:6px}
+.grow{color:var(--ok);font-weight:900}
+.big{font-size:20px;font-weight:900}
+.ico{display:inline-grid;place-items:center}
+
+/* ---------- ۱۱) آموزش / کتابخانه ---------- */
+.learn-wrap,.learn-hero,.learn-block,.learn-step,.learn-ex,.learn-tile,.learn-reg,
+.learn-quote,.learn-mist,.joma-section,.joma-soft-section,.joma-text-box,.joma-quote{
+  background:var(--card);border:1px solid var(--card-brd);border-radius:var(--r);padding:14px;box-shadow:var(--shadow-sm)}
+.learn-hero{background:linear-gradient(150deg,#FFFFFF,var(--brand-softer))}
+.learn-kicker,.joma-section-label,.kicker{font-size:11px;font-weight:900;color:var(--brand-ink)}
+.learn-sign,.joma-section-heading{font-size:15px;font-weight:900}
+.learn-n{width:26px;height:26px;border-radius:9px;background:var(--brand-soft);color:var(--brand-ink);
+  display:grid;place-items:center;font-weight:900;font-size:12px;flex:none}
+.learn-ex-h{font-weight:900;font-size:12.5px}
+.learn-ex-b{font-size:12.5px;color:var(--ink-2)}
+.profile-list{display:flex;flex-direction:column;gap:8px}
+.weight-row{display:flex;align-items:center;gap:10px}
+
+/* ---------- ۱۲) صفحه‌های عمومی (ورود/ثبت‌نام/فراموشی) ---------- */
+.public-shell{max-width:940px;margin:0 auto;padding:26px 20px 60px;display:flex;flex-direction:column;gap:16px}
+.public-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.auth-card{max-width:460px;margin:8px auto 0;width:100%}
+.auth-card h1{text-align:center;margin-top:6px}
+.auth-card .lede{text-align:center}
+.joma-reg-gate-contacts{display:flex;flex-direction:column;gap:4px;background:var(--brand-softer);border-radius:var(--r-sm);
+  padding:10px 12px;font-size:12.5px;margin-top:10px}
+.joma-reg-gate-contacts span{color:var(--ink-2);font-weight:800}
+.joma-reg-gate-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.joma-reg-gate-overlay{position:fixed;inset:0;background:rgba(20,56,46,.45);display:grid;place-items:center;z-index:40;padding:16px}
+.joma-reg-gate-dialog{background:var(--card);border-radius:var(--r-lg);padding:18px;max-width:420px;box-shadow:var(--shadow)}
+.joma-reg-gate{font-size:12px;color:var(--ink-2)}
+.joma-owl-symbol{width:26px;height:26px}
+
+/* ---------- ۱۳) لندینگ ---------- */
+.land{max-width:1080px;margin:0 auto;padding:0 22px 40px}
+.lnav{display:flex;align-items:center;gap:12px;padding:14px 0;flex-wrap:wrap}
+.lnav .sp{flex:1}
+.hero{display:grid;gap:22px;align-items:center;padding:18px 0 26px}
+@media(min-width:900px){.hero{grid-template-columns:1.05fr .95fr}}
+.hero h1{font-size:30px;line-height:1.5;font-weight:900}
+.hero .lead{font-size:15px;color:var(--ink-2);margin-top:10px}
+.hero .cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.hero-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.feat3{display:grid;gap:14px;margin:8px 0 4px}
+@media(min-width:820px){.feat3{grid-template-columns:repeat(3,1fr)}}
+.feat3 .card{display:flex;flex-direction:column;gap:8px;text-align:center;align-items:center}
+.feat3 .owl{width:56px;height:56px}
+.calm{display:grid;gap:16px;background:linear-gradient(150deg,#FFFFFF,var(--sky-soft));border:1px solid var(--card-brd);
+  border-radius:var(--r-lg);padding:18px}
+@media(min-width:820px){.calm{grid-template-columns:1.1fr .9fr;align-items:center}}
+.petband{display:flex;align-items:center;gap:14px;background:linear-gradient(150deg,#FFFFFF,var(--gold-soft));
+  border:1px solid var(--card-brd);border-radius:var(--r-lg);padding:16px}
+.petband .owl{width:66px;height:66px;flex:none}
+.cta-band{text-align:center;background:linear-gradient(150deg,var(--grad1),var(--grad2));color:#fff;border-radius:var(--r-lg);
+  padding:26px 18px;margin:18px 0}
+.cta-band h2{font-size:20px;color:#fff}
+.cta-band .btn{background:#fff;color:var(--brand-ink);margin-top:12px}
+.lfoot{display:grid;gap:18px;border-top:1px solid var(--card-brd);margin-top:26px;padding-top:18px;font-size:12.5px;color:var(--ink-2)}
+@media(min-width:820px){.lfoot{grid-template-columns:repeat(3,1fr)}}
+.lfoot b{display:block;color:var(--ink);margin-bottom:6px}
+.lfoot a{display:block;color:var(--ink-2);padding:2px 0}
+.phone{width:100%;max-width:300px;margin:0 auto;background:var(--card);border:1px solid var(--card-brd);
+  border-radius:34px;box-shadow:var(--shadow);padding:16px;transform:rotate(-1.2deg)}
+.phone .prow{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--card-brd);font-size:12px}
+.phone .prow:last-child{border-bottom:0}
+@media(max-width:520px){.phone{display:none}}
+@media(max-width:900px){.hero h1{font-size:24px}}
+
+/* لندینگ قدیمی (اگر جایی مانده) */
+.joma-hero,.joma-founder-section,.joma-philosophy-card,.joma-process-card,.joma-visual-section,.joma-owl-section,
+.joma-cta,.joma-about-page,.joma-image-frame,.joma-highlight,.home-spec,.home-spec-card,.joma-container,.landing{
+  background:var(--card);border:1px solid var(--card-brd);border-radius:var(--r);padding:16px;box-shadow:var(--shadow-sm);
+  max-width:none;margin:12px 0}
+.joma-hero{border-radius:var(--r-lg)}
+.joma-brand-line,.joma-eyebrow{font-size:11px;font-weight:900;color:var(--brand-ink)}
+.joma-founder-title,.joma-section-heading{font-weight:900}
+.joma-hide,.joma-owl-symbol-only{display:revert}
+
+/* ---------- ۱۴) هم‌مسیر ---------- */
+.hammasir-msgs{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow-y:auto;padding:4px}
+.hammasir-msg{background:var(--brand-softer);border-radius:14px;padding:9px 12px;font-size:12.5px;max-width:82%}
+.hammasir-msg.mine{background:var(--brand-soft);margin-inline-start:auto}
+.hammasir-fab{position:fixed;inset-inline-start:18px;bottom:82px;background:linear-gradient(150deg,var(--grad1),var(--grad2));
+  color:#fff;border-radius:99px;padding:10px 16px;font-weight:900;box-shadow:var(--shadow);z-index:20}
+.hammasir-modebox{background:var(--brand-softer);border-radius:var(--r-sm);padding:8px}
+.mob-more,.mob-head,.mob-hammasir,.mob-close{background:var(--card);border:1px solid var(--card-brd);border-radius:var(--r);padding:12px}
+.mob-head{display:flex;align-items:center;justify-content:space-between}
+.fab-img{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--brand-softer)}
+.fab-label{font-size:11.5px;font-weight:800}
+
+/* ---------- ۱۵) نوار پایین موبایل ---------- */
+.tabbar{position:fixed;inset-inline:0;bottom:0;height:62px;background:var(--topbar-bg);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--card-brd);
+  display:none;z-index:30}
+.tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  font-size:9.5px;font-weight:800;color:var(--ink-3);position:relative}
+.tabbar a.on{color:var(--brand-ink);font-weight:900}
+.tabbar .ic{width:21px;height:21px}
+.tabbar .cnt{position:absolute;top:6px;inset-inline-end:22%;background:var(--coral);color:#fff;font-size:9px;
+  min-width:16px;height:16px;border-radius:99px;display:grid;place-items:center;padding:0 4px}
+.mobile{display:none}
+.mob-sheet{position:fixed;inset:0;background:rgba(20,56,46,.4);z-index:35;display:none}
+.mob-sheet.open{display:block}
+.mob-sheet .inner{position:absolute;inset-inline:0;bottom:0;background:var(--card);border-radius:22px 22px 0 0;
+  padding:16px;max-height:78vh;overflow-y:auto}
+.mob-sheet .inner a{display:flex;align-items:center;gap:10px;padding:11px;border-radius:12px;color:var(--ink);font-weight:800;font-size:13px}
+.mob-sheet .inner a:hover{background:var(--brand-softer)}
+@media(max-width:900px){
+  .side{display:none}
+  .wrap{display:block}
+  .tabbar{display:flex}
+  .main{padding:14px 16px 84px}
+  .grid-2,.grid-3,.field-row{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .main{padding:12px 13px 84px}
+  .public-shell{padding:18px 14px 50px}
+}
+
+/* ---------- ۱۶) توست شیشه‌ای ---------- */
+.toastbar{position:fixed;inset-inline:0;bottom:74px;display:flex;justify-content:center;z-index:45;pointer-events:none}
+.toastbar .t{background:var(--toast-bg);color:#fff;border-radius:99px;padding:9px 16px;font-size:12.5px;font-weight:800;
+  box-shadow:var(--shadow);pointer-events:auto}
+
+/* ---------- ۱۷) پرینت ---------- */
+@media print{.side,.tabbar,.hammasir-fab{display:none}body{padding:0}}
+
+/* ==========================================================================
+   ۱۸) گزارش‌ها (گام ۳) — نوار تب، فیلترها، کارت نمودار، حالت بی‌داده
+   ========================================================================== */
+.rtabs{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 2px 6px;
+  -webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.rtabs::-webkit-scrollbar{height:6px}
+.rtabs::-webkit-scrollbar-thumb{background:var(--ring-track);border-radius:99px}
+.rtab{flex:none;scroll-snap-align:start;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;
+  border-radius:99px;font-size:12.5px;font-weight:800;color:var(--ink-2);background:var(--card);
+  border:1px solid var(--card-brd);box-shadow:var(--shadow-sm);white-space:nowrap}
+.rtab:hover{background:var(--brand-softer);color:var(--ink)}
+.rtab.on{background:linear-gradient(150deg,var(--grad1),var(--grad2));color:#fff;border-color:transparent;font-weight:900}
+.tabdesc{background:var(--brand-softer);border-radius:var(--r-sm);padding:8px 12px;font-size:12px;color:var(--ink-2)}
+.rfilters{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.fsel{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--card-brd);
+  border-radius:99px;padding:7px 13px;font-size:12px;font-weight:800;color:var(--ink-2);box-shadow:var(--shadow-sm)}
+.fsel.on{background:var(--brand-soft);color:var(--brand-ink);border-color:transparent}
+.fsel:hover{background:var(--brand-softer);color:var(--ink)}
+.nodata{text-align:center;background:var(--card);border:1px dashed var(--card-brd);border-radius:var(--r);
+  padding:26px 16px;color:var(--ink-2)}
+.nodata .ico{font-size:30px;display:block;margin-bottom:6px}
+.nodata b{display:block;margin-bottom:4px;color:var(--ink)}
+.glossary{background:var(--card);border:1px solid var(--card-brd);border-radius:var(--r);padding:14px}
+.glossary table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+.glossary th,.glossary td{border-bottom:1px solid var(--card-brd);padding:7px 8px;text-align:right}
+.glossary th{color:var(--ink-3);font-size:11.5px;background:var(--brand-softer)}
+.gl-arrow{cursor:pointer}
+details.gl > summary{cursor:pointer;font-weight:900;font-size:12.5px;color:var(--brand-ink);list-style:none}
+details.gl > summary::-webkit-details-marker{display:none}
+details.gl > summary::before{content:"؟ ";font-weight:900}
+
+/* کارت‌های نمودار: بازنویسی رنگ‌های قدیمی (specificity بالاتر از استایل درون‌صفحه) */
+body .chart-card{background:var(--card);border:1px solid var(--card-brd);border-radius:var(--r);padding:12px}
+body .chart-card h4{color:var(--ink);font-weight:900}
+body .chart-empty{background:var(--brand-softer);color:var(--ink-3);border-radius:var(--r-sm)}
+body .success-charts{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.rkpis{display:flex;gap:8px;flex-wrap:wrap}
+.rkpi{background:var(--card);border:1px solid var(--card-brd);border-radius:var(--r);padding:10px 14px;
+  box-shadow:var(--shadow-sm);min-width:130px}
+.rkpi .k{font-size:11.5px;color:var(--ink-3);font-weight:800}
+.rkpi .v{font-size:22px;font-weight:900}
+.rkpi .t{font-size:11px;color:var(--ink-3)}
+.summaryline{background:linear-gradient(150deg,#FFFFFF,var(--brand-softer));border:1px solid var(--card-brd);
+  border-radius:var(--r);padding:14px;font-size:13px;color:var(--ink-2)}
+.summaryline b{color:var(--ink)}
+
+/* ==========================================================================
+   ۱۹) آب (B6) و دفترچهٔ جوما (B7)
+   ========================================================================== */
+.water-card{background:linear-gradient(150deg,#FFFFFF,var(--sky-soft))}
+.glasses{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin:8px 0}
+.glass-form{margin:0}
+.glass{padding:0;border:0;background:none;cursor:pointer;border-radius:6px;transition:transform .15s}
+.glass:hover{transform:translateY(-3px)}
+.glass.on{filter:drop-shadow(0 4px 8px rgba(27,106,155,.18))}
+.insight-card{background:linear-gradient(var(--card),var(--card)) padding-box,
+  linear-gradient(150deg,var(--grad1),var(--grad2)) border-box;border:1.5px solid transparent}
+.insight-card .in-text{font-size:13px;line-height:2.1;color:var(--ink)}
+.insight-card .in-meta{font-size:11px;color:var(--ink-3)}
