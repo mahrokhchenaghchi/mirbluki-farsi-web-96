@@ -230,6 +230,26 @@ function get_activity($id, $user_id) {
 function save_activity($user_id, $in, $id = 0) {
     $now = joma_now();
     $in['track_mode'] = $in['data_type'];
+
+    // Single-target storage: only the column that belongs to the selected
+    // frequency is written; the two others go to 0.00 on a new record (the
+    // pattern the official seeds use). No x7 / x30 conversion is invented.
+    $existingRow = $id ? get_activity($id, $user_id) : null;
+    $targetValue = isset($in['target'])
+        ? $in['target']
+        : (isset($in[frequency_target_column($in['frequency'])])
+            ? $in[frequency_target_column($in['frequency'])]
+            : ($existingRow ? target_of($existingRow) : 0));
+    // A daily checkbox has no target field in the form: "one tick a day" is
+    // stored as exactly 1.00 so the engine has a real number to work with.
+    $__rule = activity_target_rule($in['data_type'], $in['unit'], $in['frequency']);
+    if (!empty($__rule['hidden'])) $targetValue = 1;
+    unset($__rule);
+    $targets = normalize_activity_targets($in['frequency'], $targetValue, $existingRow);
+    $in['daily_target'] = $targets['daily_target'];
+    $in['weekly_target'] = $targets['weekly_target'];
+    $in['monthly_target'] = $targets['monthly_target'];
+    unset($in['target']);
     if (store_mode() === 'mysql') {
         if ($id) {
             joma_exec(

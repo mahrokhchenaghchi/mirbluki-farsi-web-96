@@ -117,10 +117,11 @@ function set_current_period_key($key) {
 }
 
 function maybe_mood_gate($page) {
+    // (تصمیم مالک — B2): گیت ثبت حال فقط روی صفحهٔ «امروز» می‌ماند.
+    // برنامه، گزارش‌ها و بقیهٔ صفحات آزادند؛ حال یک دعوت است نه مانع.
+    if ($page !== 'today') return;
     $u = current_user();
     if (!$u) return;
-    $skip = array('mood', 'logout', 'about', 'login', 'register', 'forgot', 'home');
-    if (in_array($page, $skip, true)) return;
     if (!get_mood($u['id'], jalali_today())) {
         joma_redirect('index.php?p=mood');
     }

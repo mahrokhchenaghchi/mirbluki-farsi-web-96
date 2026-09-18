@@ -38,6 +38,7 @@ joma_header('امروز', array(array('label' => 'داشبورد', 'href' => jom
 <?php } else { ?>
 <form method="get" class="card" style="max-width:360px">
   <input type="hidden" name="p" value="today">
+  <?php echo function_exists('joma_sid_field') ? joma_sid_field() : ''; ?>
   <label>تاریخ عملکرد</label>
   <select name="date" onchange="this.form.submit()">
     <?php for ($d = 1; $d <= $b['days']; $d++) {
@@ -64,7 +65,7 @@ foreach ($groups as $fk => $list) {
         echo '<article class="card perf">';
         echo '<div class="perf-head" style="background:'.$a['color'].'55">';
         echo '<div style="display:flex;gap:12px;align-items:center"><div class="sticker">'.e($a['sticker']).'</div><div><h3 style="margin:0">'.e($a['name']).'</h3><p class="meta">'.e($a['category']).' · '.e($labels[$a['frequency']]).' · '.e(datatypes_list()[$a['data_type']]).'</p></div></div>';
-        echo '<span class="chip">وزن '.fa_num($a['weight']).'</span></div>';
+        echo '<span class="chip">اهمیت '.e(weight_label($a['weight'])).'</span></div>';
         echo '<div style="padding:18px">';
         echo '<p class="lede">مقدار ثبت‌شده: '.e(format_value($a['data_type'], $sum, $a['unit'])).' از هدف '.e(format_value($a['data_type'], $a['target_value'], $a['unit'])).'</p>';
         if ($plan['status'] === 'RUNNING') {
