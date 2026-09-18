@@ -8,8 +8,21 @@ require_login();
 $_jooje_fn = dirname(__FILE__) . '/../functions/jooje.php';
 if (is_file($_jooje_fn)) require_once $_jooje_fn;
 $u = current_user();
+$jooje_msg = '';
+$jooje_err = '';
+// ثبت/تغییر نام جوجه (یک بار گذاشتن + یک بار عوض‌کردن)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['jooje_action']) && $_POST['jooje_action'] === 'name') {
+    csrf_check();
+    $res = function_exists('jooje_name_save') ? jooje_name_save((int) $u['id'], isset($_POST['pet_name']) ? $_POST['pet_name'] : '') : array('ok' => false, 'error' => 'این بخش در دسترس نیست.');
+    if (!empty($res['ok'])) {
+        $jooje_msg = 'نام ثبت شد: ' . $res['name'];
+    } else {
+        $jooje_err = isset($res['error']) ? $res['error'] : 'ثبت نام ممکن نشد.';
+    }
+}
 $j = function_exists('jooje_state') ? jooje_state((int) $u['id']) : array('enabled' => false);
-joma_header('جوجهٔ من', array(array('label' => 'داشبورد', 'href' => joma_url('index.php?p=dashboard')), array('label' => 'جوجهٔ من')));
+$jooje_title = (!empty($j['pet_name'])) ? $j['pet_name'] : 'جوجهٔ من';
+joma_header($jooje_title, array(array('label' => 'داشبورد', 'href' => joma_url('index.php?p=dashboard')), array('label' => 'جوجهٔ من')));
 ?>
 <?php if (empty($j['enabled'])) { ?>
   <div class="card">
@@ -37,10 +50,45 @@ joma_header('جوجهٔ من', array(array('label' => 'داشبورد', 'href' =
 ?>
 <div class="page-head">
   <div>
-    <h1>جوجهٔ من</h1>
+    <h1><?php echo e($jooje_title); ?></h1>
     <p class="lede">همهٔ اعداد این صفحه از ثبت‌های واقعی خودت می‌آید. هیچ عدد نمایشی یا نمونه‌ای وجود ندارد.</p>
   </div>
 </div>
+
+<?php if ($jooje_msg) echo '<p class="toast ok">' . e($jooje_msg) . '</p>'; ?>
+<?php if ($jooje_err) echo '<p class="toast bad">' . e($jooje_err) . '</p>'; ?>
+
+<?php if ($j['stage'] === 'chick' && !empty($j['pet_name'])) { ?>
+<div class="card">
+  <div class="k">نام جوجه</div>
+  <div class="v" style="font-size:26px"><?php echo e($j['pet_name']); ?></div>
+  <?php if (!empty($j['pet_name_can_change'])) { ?>
+    <form method="post" style="margin-top:8px">
+      <?php echo csrf_field(); ?>
+      <input type="hidden" name="jooje_action" value="name">
+      <label>عوض‌کردن نام (فقط همین یک‌بار)</label>
+      <input name="pet_name" maxlength="16" required>
+      <p><button class="btn sec" type="submit">مطمئنی؟ نام را عوض کن</button></p>
+      <p class="lede">بعد از این یک‌بار، دیگر قابل تغییر نیست.</p>
+    </form>
+  <?php } else { ?>
+    <p class="lede">نام جوجه یک‌بار گذاشته و یک‌بار عوض می‌شود؛ نوبت تغییرش گذشته است.</p>
+  <?php } ?>
+  <p class="lede">این نام فقط در همین صفحه دیده می‌شود — نه در کارت خانه و نه برای هم‌مسیر.</p>
+</div>
+<?php } elseif ($j['stage'] === 'chick' && !empty($j['pet_name_can_set'])) { ?>
+<div class="card">
+  <h2>حالا که به دنیا آمده، اسمش را چه بگذاریم؟</h2>
+  <p class="lede">۲ تا ۱۶ نویسه. یک‌بار می‌گذاری و یک‌بار می‌توانی عوضش کنی.</p>
+  <form method="post">
+    <?php echo csrf_field(); ?>
+    <input type="hidden" name="jooje_action" value="name">
+    <input name="pet_name" maxlength="16" required>
+    <p><button class="btn" type="submit">ثبت نام</button></p>
+  </form>
+  <p class="lede">اگر نامی نگذاری، «جوجهٔ من» می‌ماند.</p>
+</div>
+<?php } ?>
 
 <div class="grid grid-3">
   <div class="card stat">

@@ -23,7 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $_SESSION['user'] = session_user_array($u);
             copy_seed_to_user($u['id']);
-            joma_redirect('index.php?p=mood');
+            // (حکم PO — باگ ۹ گزینه A) مقصد پس از ورود داشبورد است؛ کاربرِ بدون خلقِ امروز
+            // همچنان توسط maybe_mood_gate از همان داشبورد به p=mood هدایت می‌شود (رفتار gate دست‌نخورده).
+            joma_redirect('index.php?p=dashboard');
         }
     }
 }
@@ -35,7 +37,7 @@ joma_header('ورود', array(), array('public' => 1));
     <a href="<?php echo e(joma_url('index.php?p=home')); ?>">بازگشت به معرفی</a>
   </div>
   <h1>ورود به جوما</h1>
-  <p class="lede">حالت آزمایشی محلی — داده روی همین سرور می‌ماند.</p>
+  <p class="lede"></p>
   <div class="mode-tabs">
     <a class="on" href="<?php echo e(joma_url('index.php?p=login')); ?>">ورود</a>
     <a href="<?php echo e(joma_url('index.php?p=register')); ?>">ثبت‌نام</a>

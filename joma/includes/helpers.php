@@ -76,7 +76,16 @@ function csrf_check() {
 }
 
 function current_user() {
-    return isset($_SESSION['user']) ? $_SESSION['user'] : null;
+    if (!isset($_SESSION['user'])) return null;
+    $u = $_SESSION['user'];
+    // (B1 — مرحلهٔ ۲): پس از تغییر رمز، نشست‌های قدیمی خودکار باطل می‌شوند.
+    // اگر ماژول بازیابی نباشد یا شمارنده صفر باشد، هیچ‌کس بیرون نمی‌رود (رفتار قبلی).
+    if (is_array($u) && function_exists('joma_auth_epoch_outdated') && joma_auth_epoch_outdated($u)) {
+        unset($_SESSION['user']);
+        $_SESSION['auth_epoch_boot'] = 1;
+        return null;
+    }
+    return $u;
 }
 
 function require_login() {

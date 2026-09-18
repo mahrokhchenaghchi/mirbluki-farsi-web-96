@@ -262,6 +262,73 @@ function jooje_plan_cmp($a, $b) {
 }
 
 /* ------------------------------------------------------------------ */
+/* نام جوجه (پردهٔ ۹ سند: «یک بار گذاشتن + یک بار عوض‌کردن»، در بک‌اند)  */
+/* ------------------------------------------------------------------ */
+
+function jooje_name_key($user_id) {
+    return 'jooje_name_' . (int) $user_id;
+}
+
+/** انبار کلید/مقدار آماده است؟ (اگر ماژول بازیابی/انبار نباشد، نام نمایش داده نمی‌شود) */
+function jooje_store_ready() {
+    return function_exists('joma_kv_get') && function_exists('joma_kv_set');
+}
+
+function jooje_strlen($s) {
+    if (function_exists('mb_strlen')) return (int) mb_strlen((string) $s, 'UTF-8');
+    return (int) preg_match_all('/./us', (string) $s);
+}
+
+/** وضعیت نام: نام فعلی + آیا می‌تواند بگذارد/عوض کند. */
+function jooje_name_state($user_id) {
+    $out = array(
+        'name' => null,
+        'changes' => 0,
+        'can_set' => false,
+        'can_change' => false,
+        'status' => 'awaiting_backend_storage',
+    );
+    if (!jooje_store_ready()) return $out;
+    $rec = joma_kv_get_json(jooje_name_key($user_id));
+    if (!is_array($rec) || empty($rec['name'])) {
+        $out['can_set'] = true;
+        $out['status'] = 'available';
+        return $out;
+    }
+    $changes = isset($rec['changes']) ? (int) $rec['changes'] : 0;
+    $out['name'] = (string) $rec['name'];
+    $out['changes'] = $changes;
+    $out['can_change'] = ($changes < 1);
+    $out['status'] = $out['can_change'] ? 'set' : 'locked_after_change';
+    return $out;
+}
+
+/** ثبت/تغییر نام. خروجی: آرایه با ok و error. */
+function jooje_name_save($user_id, $name) {
+    if (!jooje_store_ready()) return array('ok' => false, 'error' => 'ذخیره‌سازی نام در این نصب فعال نیست.');
+    $name = trim(preg_replace('/[\x00-\x1F\x7F]/u', '', (string) $name));
+    $len = jooje_strlen($name);
+    if ($len < 2) return array('ok' => false, 'error' => 'نام باید حداقل ۲ نویسه باشد.');
+    if ($len > 16) return array('ok' => false, 'error' => 'نام باید حداکثر ۱۶ نویسه باشد.');
+    $rec = joma_kv_get_json(jooje_name_key($user_id));
+    $is_first = !is_array($rec) || empty($rec['name']);
+    if (!$is_first && (int) $rec['changes'] >= 1) {
+        return array('ok' => false, 'error' => 'نام جوجه یک‌بار عوض شده است؛ دیگر قابل تغییر نیست.');
+    }
+    $now = date('Y-m-d H:i:s');
+    $save = array(
+        'name' => $name,
+        'changes' => $is_first ? 0 : ((int) $rec['changes'] + 1),
+        'set_at' => $is_first ? $now : (isset($rec['set_at']) ? $rec['set_at'] : $now),
+        'changed_at' => $is_first ? null : $now,
+    );
+    joma_kv_set_json(jooje_name_key($user_id), $save);
+    $check = jooje_name_state($user_id);
+    if ($check['name'] !== $name) return array('ok' => false, 'error' => 'ذخیره‌سازی نام ممکن نشد.');
+    return array('ok' => true, 'error' => '', 'name' => $name);
+}
+
+/* ------------------------------------------------------------------ */
 /* محاسبهٔ وضعیت جوجه                                                  */
 /* ------------------------------------------------------------------ */
 
@@ -297,6 +364,7 @@ function jooje_state($user_id) {
     $events = jooje_event_rows($user_id);
     $moods = jooje_mood_rows($user_id);
     $units = count($events);
+    $name_state = jooje_name_state($user_id);
 
     /* --- مرحله: تخم → ترک → جوجه (تولد یک‌بار و برگشت‌ناپذیر) --- */
     $stage = 'egg';
@@ -502,8 +570,10 @@ function jooje_state($user_id) {
             'faded_days' => (int) $cfg['faded_days'],
             'gray_days' => (int) $cfg['gray_days'],
         ),
-        'pet_name' => null,
-        'pet_name_status' => 'awaiting_backend_storage', // نام جوجه بعد از تصمیم ذخیره‌سازی می‌آید
+        'pet_name' => $name_state['name'],
+        'pet_name_status' => $name_state['status'],
+        'pet_name_can_set' => (bool) $name_state['can_set'],
+        'pet_name_can_change' => (bool) $name_state['can_change'],
         'sharing' => 'private',                          // هرگز با هم‌مسیر به اشتراک گذاشته نمی‌شود
         'rules' => array(
             'never_dies' => true,

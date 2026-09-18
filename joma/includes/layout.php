@@ -28,6 +28,11 @@ function joma_header($title, $crumbs = array(), $opts = array()) {
             $cls = $page === $k ? 'nav-link active' : 'nav-link';
             echo '<a class="' . $cls . '" href="' . e(joma_url('index.php?p=' . $k)) . '"><span>' . $item[1] . '</span>' . e($item[0]) . '</a>';
         }
+        // (B1 — مرحلهٔ ۲) میان‌بر مدیر برای صدور کد بازیابی رمز — فقط نقش مدیر.
+        if (isset($u['role_key']) && $u['role_key'] === 'admin' && function_exists('has_perm') && has_perm('ADMIN_ACCESS')) {
+            $__ar_cls = ($page === 'admin_recovery') ? 'nav-link active' : 'nav-link';
+            echo '<a class="' . $__ar_cls . '" href="' . e(joma_url('index.php?p=admin_recovery')) . '"><span>🔑</span>بازیابی رمز کاربران</a>';
+        }
         echo '</nav>';
         echo '<div class="side-foot">';
         echo '<div class="who"><strong>' . e($u['full_name']) . '</strong><small>@' . e($u['username']) . '</small></div>';

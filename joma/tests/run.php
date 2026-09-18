@@ -59,6 +59,7 @@ t('report events', $rep['source_event_count'] === 2);
 /* ------------------------------------------------------------------ */
 /* B5 — جوجهٔ من (سه سنجهٔ موجود؛ بدون جعل عدد)                        */
 /* ------------------------------------------------------------------ */
+require dirname(__FILE__) . '/../functions/recovery.php'; // انبار کلید/مقدار و کد بازیابی
 require dirname(__FILE__) . '/../functions/jooje.php';
 
 function jj_shift_jalali($days) {
@@ -156,6 +157,22 @@ t('jooje water today + progress', (float) $j3['metrics'][1]['today'] === 3.0 && 
 t('jooje home metric', (int) $j3['metrics'][2]['today'] === 1 && (float) $j3['metrics'][2]['progress'] === 1.0);
 t('jooje growth from backend', $j3['growth'] !== null && (int) $j3['growth']['from_units'] <= (int) $j3['units']);
 
+/* نام جوجه: یک بار گذاشتن + یک بار عوض‌کردن */
+$nm0 = jooje_name_save($juser['id'], 'پ');
+t('jooje name rejects too short', empty($nm0['ok']));
+$nm0b = jooje_name_save($juser['id'], 'این‌نام‌بیش‌ازشانزده‌نویسه‌است');
+t('jooje name rejects too long', empty($nm0b['ok']));
+$nm1 = jooje_name_save($juser['id'], 'پُفی');
+t('jooje name set once', !empty($nm1['ok']));
+$j3b = jooje_state($juser['id']);
+t('jooje name shows in state', $j3b['pet_name'] === 'پُفی' && $j3b['pet_name_status'] === 'set');
+$nm2 = jooje_name_save($juser['id'], 'پفک');
+t('jooje name change allowed once', !empty($nm2['ok']));
+$nm3 = jooje_name_save($juser['id'], 'دیگر');
+t('jooje name locked after one change', empty($nm3['ok']));
+$j3c = jooje_state($juser['id']);
+t('jooje name never regresses', $j3c['pet_name'] === 'پفک' && $j3c['pet_name_can_change'] === false);
+
 jj_shift_activity($juser['id'], 4);
 $j4 = jooje_state($juser['id']);
 t('jooje faded on 3-5 days', $j4['state'] === 'faded' && (int) $j4['days_since_last'] === 4);
@@ -163,6 +180,59 @@ jj_shift_activity($juser['id'], 7);
 $j5 = jooje_state($juser['id']);
 t('jooje gray on 6+ days', $j5['state'] === 'gray');
 t('jooje never returns to egg', $j5['stage'] === 'chick' && (int) $j5['units'] >= $j_birth);
+
+/* ------------------------------------------------------------------ */
+/* B1 (مرحلهٔ ۲) — بازیابی رمز با کد یک‌بارمصرف                        */
+/* ------------------------------------------------------------------ */
+require_once dirname(__FILE__) . '/../functions/recovery.php';
+
+$r_uid = (int) $juser['id'];
+$admin = array('id' => 900, 'username' => 'boss');
+
+$iss1 = joma_recovery_issue($r_uid, $admin);
+t('recovery issues 6-digit code', !empty($iss1['ok']) && preg_match('/^[0-9]{6}$/', $iss1['code']) === 1);
+$stored = joma_kv_get(joma_recovery_code_key($r_uid));
+t('recovery stores hash, not plaintext', strpos($stored, $iss1['code']) === false && strpos($stored, '"hash":"$2y$') !== false);
+
+$wrong = joma_recovery_verify($r_uid, '000000');
+t('recovery wrong code counts down', empty($wrong['ok']) && $wrong['status'] === 'WRONG' && strpos($wrong['error'], '۴') !== false);
+$last = null;
+for ($i = 0; $i < 4; $i++) $last = joma_recovery_verify($r_uid, '000000');
+t('recovery locks after 5 tries', $last['status'] === 'TOO_MANY');
+
+$iss2 = joma_recovery_issue($r_uid, $admin);
+$okv = joma_recovery_verify($r_uid, $iss2['code']);
+t('recovery accepts correct code', !empty($okv['ok']) && $okv['status'] === 'OK');
+joma_recovery_consume($r_uid);
+$again = joma_recovery_verify($r_uid, $iss2['code']);
+t('recovery code is one-time', empty($again['ok']));
+
+$iss3 = joma_recovery_issue($r_uid, $admin);
+$rec = joma_kv_get_json(joma_recovery_code_key($r_uid));
+$rec['expires_ts'] = time() - 5;
+joma_kv_set_json(joma_recovery_code_key($r_uid), $rec);
+$exp = joma_recovery_verify($r_uid, $iss3['code']);
+t('recovery expired code rejected', $exp['status'] === 'EXPIRED');
+
+$epoch_before = joma_auth_epoch($r_uid);
+$old_session = array('id' => $r_uid, 'auth_epoch' => $epoch_before);
+t('recovery session valid before reset', joma_auth_epoch_outdated($old_session) === false);
+$iss4 = joma_recovery_issue($r_uid, $admin);
+$done = joma_recovery_complete($r_uid, $iss4['code'], 'brandnew123', 'brandnew123');
+t('recovery completes password change', !empty($done['ok']));
+t('recovery invalidates other sessions', joma_auth_epoch_outdated($old_session) === true);
+t('recovery new session stays valid', joma_auth_epoch_outdated(array('id' => $r_uid, 'auth_epoch' => joma_auth_epoch($r_uid))) === false);
+$u_after = get_user($r_uid);
+t('recovery new password works', password_verify('brandnew123', $u_after['password_hash']) === true);
+t('recovery old password fails', password_verify('secret1', $u_after['password_hash']) === false);
+
+$iss5 = joma_recovery_issue($r_uid, $admin);
+$bad = joma_recovery_complete($r_uid, $iss5['code'], 'abc123456', 'different1');
+t('recovery blocks mismatched password', empty($bad['ok']));
+
+$req = joma_recovery_request_log($r_uid);
+t('recovery request logged', !empty($req['ok']));
+t('recovery admin log records events', count(joma_recovery_log(60)) >= 5);
 
 @unlink($GLOBALS['JOMA_STORE_PATH']);
 echo "PHP tests pass=$pass fail=$fail\n";
