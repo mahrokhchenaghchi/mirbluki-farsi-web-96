@@ -1,0 +1,98 @@
+DIFF — اختلاف کامل این بسته با v8
+==============================================================================
+این بسته تجمعی از v8 است؛ به‌تنهایی نصب می‌شود و نصب v9 لازم نیست.
+
+مسیرها نسبت به پوشهٔ «test» هستند. هش، SHA-256 است.
+مبنای مقایسه: JOMA-TEST-PACK-v8.zip  (آخرین نسخهٔ نصب‌شدهٔ سرور تست)
+بخش اعلام‌شدهٔ این دور: C1 · C2 · C3 · C4 (بستهٔ v9) + C5 · F1 · F2 · F3 · F4 و کد دعوت (این دور)
+بیرون از بخش‌های اعلام‌شدهٔ این دو دور چیزی عوض نشده.
+
+──────────────────────────────────────────────────────────────────────────────
+۱) فایل‌های عوض‌شده (12 فایل)   «هشِ v8 → هشِ این بسته»
+──────────────────────────────────────────────────────────────────────────────
+2b4f3f6b8e20698a0303f0bbf9482d99b9644239f1352005062e4dd3bade780e  →  b23569a9a1277a8be2f5661bbe923301d246e3cc99df5bedbb7239a52920bbc3
+    includes/bootstrap.php
+c87804c46a52cf83616a8f57d626768cba042e4c624f0dc10b8c47077065231f  →  09732f276345510b65311da390def5faebcd75dd791767320d1b34557257b5ef
+    includes/layout.php
+432cbfb70301d59e1a646a92462da2d81a98355c7de1d34e91fc184ea9bd1710  →  0145f2343ab8984d965550425b787eeb3ff2e9a4742505a38ef9a0451a57f1a3
+    includes/v2_shell.php
+ca5f37d531fde83bf9425cc9a6fe758f8990653c1967cf86b31225747a245b68  →  e4fe4660c91a84b26d99c86bcbfbe283cc8bdea9a02da5a8038f8f1d02e5e0a9
+    index.php
+0214582357958fea8a95b3c7fa912021d68796d13d9634389a8ef4a09c06e698  →  996d10d0ea2735334e4bdecc4c7ec7b4da25670c11a910885630f140b4f17ab6
+    pages/dashboard.php
+400646cda9924bee5a41530b26461c59a98addfb9549f17a172936eeb7fbaf24  →  7b642acb1d527cc4cb7b88baa3d55dcf51556b91c14227a0fb2d0f334e51fbc1
+    pages/forgot.php
+d52cf7952760d22f7b60340d5a3b606eff5cf3392c18dc4641c2f313472fdb86  →  a09883a0ddd8c3434dd71ac23eb3d90dd3f19c8486df0491c3373fe7f56ba511
+    pages/hammasir.php
+10d53ab544798481790c4f1c2fdc957f43bd803cb5c4127a912ff8c06c6fe309  →  0dfd6985e478dfd32607196e2482b6f05e983aed619e2c34c93051bb81c81906
+    pages/hammasir_client.php
+9a463b9e4fedd4020996ff1d9ffcbf2de5728e2a82146a65d09034086bc04ea7  →  6da87aeebcb22157692e9768af167cf2418b683654e4badec040901a6e16c697
+    pages/hammasir_provider.php
+3f678dddd9f701265e12045823584cd0188d249ace97847d6362e6adfb187664  →  f20e978994e2697e08672163f4fa101bc83d86d79b2664d9302f6d75ba48f5b0
+    pages/register.php
+5dddd8d6df588e15f313e0739644a8ca9917baf174a79095114196d3f8a093c5  →  e0c3bb611ca6ebd2a2ffa48c26400a2c2cce9ee4a2227125c8cb6e78450f15e3
+    pages/settings.php
+32f5d1d5cdb599e127ad976a84cbc6cb87e559bbe1f6dc38b341ff54ffe24e33  →  afa1713d0548bed2839a14528420247be2d29a89d139ecbe1334da003c644c4e
+    pages/today.php
+
+──────────────────────────────────────────────────────────────────────────────
+۲) فایل‌های تازهٔ کد و آزمون (21 فایل)   «(نبود) → هش»
+──────────────────────────────────────────────────────────────────────────────
+(نبود)  →  adae24c73f07ebfd4d481658d9e058912f2389ca9bbaa0259589a2fda396ad7e
+    07-راهنما-به‌روزرسانی.txt
+(نبود)  →  07a051d585be3da6bf28b5984b2e516df5fde383e1d9ed0e512ce766143cffad
+    08-چه-چیزی-در-این-بسته-هست.txt
+(نبود)  →  5a6e4cf20a6a58843b48d795b01e675c8700601944d1064ed4beafc8d54efc41
+    09-گزارش-تست.txt
+(نبود)  →  42a98f0799af35b98c21631c9bf8ee41233f00a4190f7bca422520f5c9888e91
+    10-گزارش-C1C2C3.txt
+(نبود)  →  68c0fa80ecc76e295e4c8bbe5f8745aa0ac310ef82dce0bc75531a477f32e9df
+    assets/css/joma-companion.css
+(نبود)  →  e164bd3cb362fb07919120f761b8dbeab443904b7118c5656390a002885a5498
+    assets/js/joma-companion.js
+(نبود)  →  7fde86061a41de2f1247b7ba5d79ac9753921b82804d6ad34f84b3e90c61d44c
+    functions/companion_invite.php
+(نبود)  →  e498181be5898ded134e751846eeac9779af2f08aa457ee50c767499858565ae
+    functions/companion_invitecode.php
+(نبود)  →  28d02d82d1d7ceb494c8704c778510b3159805570a11e4aa0c815cdc56b37ab7
+    functions/companion_provider.php
+(نبود)  →  eaec9dd2e143933472ff905772e7089541689296888456bbb0f46165ab2b5b84
+    functions/companion_roles.php
+(نبود)  →  0a2b76f3875ac564e4fa8a895ff74fe7440944df0097f1d4bc5962b4595ebf98
+    includes/v2_rings.php
+(نبود)  →  551b6e1211e9d1f455d79b25fdeac36e12a6a60c1d99ca4ccb7bb7a5aa04acf9
+    includes/v2_roles.php
+(نبود)  →  78a923909f589956a4063f9683923807e621d66037b487c98756d8aa50bd8039
+    tests/c-round-dom-test.mjs
+(نبود)  →  f139ac67e9f9cdf0d0546b69ee34957a8bb992b56a4e68130bc809aef0a6d25b
+    tests/c5-glance-test.mjs
+(نبود)  →  78476bb8b43ab683c7b0e7c9a5da7295c2926b211f11f13e0bf259f0a96f79f0
+    tests/dbg-provider.php
+(نبود)  →  b0994d571a0a4e6241ffc838c13d82d4672bcf3412db78d3f6297357b96e0d68
+    tests/dbg-v10.php
+(نبود)  →  1c954e266ed1ac343370348c06652b322821c33b23fdc5b90f1e34fd041f3df4
+    tests/seed-c-round.php
+(نبود)  →  aa50267df60ae9b37afee07130818615c22af226a892b8e36c26bf9bb22973bd
+    tests/seed-v10.php
+(نبود)  →  17f658d492948c0c957dd2fbf8598cb8db52cb01131b3e063b8f3e476e6ec85d
+    tests/sweep-roles.mjs
+(نبود)  →  6c59884ca741e1cb5449978c95f2eeb4e7a89e0dd0a108495200af3dd0c2f12e
+    tests/v10-aria-density-test.mjs
+(نبود)  →  d354e6ceda94a574d65985c38c8e2faab444cec3561be726f5909237fe994401
+    اختیاری-2-hammasir_invite_codes.sql
+
+──────────────────────────────────────────────────────────────────────────────
+۳) فایل‌های حذف‌شده (0 فایل)
+──────────────────────────────────────────────────────────────────────────────
+هیچ فایلی حذف نشده.
+
+──────────────────────────────────────────────────────────────────────────────
+۴) جمع
+──────────────────────────────────────────────────────────────────────────────
+عوض‌شده: 12   تازهٔ کد/آزمون: 21   حذف‌شده: 0   بدون تغییر: 114
+
+پوشهٔ data/ در این فهرست نیست: دادهٔ اجرایی خودِ نصب است (نشست‌ها و storage ماژول).
+در این بسته مثل v8 خالی است: store.json = {} و پوشه‌های hammasir/ و sessions/ خالی.
+
+فایل‌هایی که در این فهرست نیستند، بایت‌به‌بایت همان v8 هستند و با
+LOCK-v8.sha256 قابل بررسی‌اند: درست = ۱۱۴ خط OK و ۱۲ خط FAILED (همین ۱۲ فایل بالا).

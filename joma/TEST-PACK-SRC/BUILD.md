@@ -125,3 +125,24 @@ rm -f "$W/site/test/data/store.json" "$W/site/test/data/hammasir/"* "$W/site/tes
 
 قفل: `joma/LOCK-v8.sha256` (هش همهٔ فایل‌های v8) + `test/DIFF.txt` + `test/LOCK-LIST-v8.txt` (L01…L31).
 قاعدهٔ این دور: فقط افزودن — هیچ بازنویسی/بهسازی/جابه‌جایی بیرون از بخش اعلام‌شده.
+
+---
+
+## نسخهٔ ۱۰ (این دور) — تجمعی از v8 + کارهای این دور
+
+بستهٔ تحویلی: `joma/JOMA-TEST-PACK-v10.zip` (همان ساختار `test/`).
+**تجمعی:** همهٔ کارهای v9 + کارهای این دور، در یک زیپ. نصب v9 لازم نیست.
+منابع این دور: `TEST-PACK-SRC/v10/…` — شامل **۱۲ فایل عوض‌شده** و فایل‌های تازه:
+
+| بخش | خروجی |
+|---|---|
+| C5 | `functions/companion_provider.php` (آستانه‌ها · رنگ‌ها · ترتیب · عدد روز · آخرین ثبت) + `pages/hammasir_provider.php` |
+| کد دعوت | `functions/companion_invitecode.php` (تازه) + `اختیاری-2-hammasir_invite_codes.sql` (ADD-ONLY) + `pages/hammasir.php` · `pages/hammasir_client.php` · `pages/hammasir_provider.php` |
+| F1 | `includes/v2_rings.php` (تازه) + `pages/dashboard.php` |
+| F2 | `pages/register.php` · `pages/forgot.php` (فقط افزودن aria-label) |
+| F3 | `pages/settings.php` (بلوک «نمایش») + `assets/js/joma-companion.js` |
+| ظاهر | `assets/css/joma-companion.css` (بندهای ۶ · ۷ · ۸ · ۹) |
+| آزمون‌ها | `tests/c5-glance-test.mjs` · `tests/v10-aria-density-test.mjs` · `tests/sweep-roles.mjs` · `tests/seed-v10.php` (تازه) + اصلاح دو مورد در `tests/c-round-dom-test.mjs` (رزولوشن مسیر ریدایرکت · متن حالت خاموش طبق C5) |
+
+قفل: `joma/LOCK-v8.sha256` (بی‌تغییر) + `test/DIFF.txt` (با جملهٔ تجمعی) + `test/LOCK-LIST-v8.txt` (L01…L33).
+بررسی قفل روی بستهٔ تحویلی: **۱۱۴ خط OK و ۱۲ خط FAILED** — دقیقاً همان ۱۲ فایل DIFF.

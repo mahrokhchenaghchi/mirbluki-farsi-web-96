@@ -1,0 +1,217 @@
+/* ==========================================================================
+   JOMA — استایل بستهٔ C1/C2/C3 و کارت دعوت هم‌مسیر
+   این فایل فقط کلاس‌های تازهٔ همین بسته را دارد؛ هیچ قاعدهٔ قبلی بازنویسی نشده.
+   توکن‌ها همان توکن‌های joma-v2.css هستند (--brand, --indigo, --gold, ...).
+   ========================================================================== */
+
+/* ---------- ۱) تب‌های تناوب «کارهای امروز» (C1) ---------- */
+.ftabs{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 10px}
+.ftab{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--r-pill);
+  background:var(--card);border:1px solid var(--card-brd);font-size:13px;color:var(--ink-2);text-decoration:none}
+.ftab:hover{border-color:var(--brand2)}
+.ftab.on{background:var(--brand-soft);border-color:var(--brand2);color:var(--brand-ink);font-weight:700}
+.ftab sup.num{font-size:11px;font-weight:700;color:var(--ink-3);transform:translateY(-2px)}
+.ftab.on sup.num{color:var(--brand-ink)}
+.ftab.dis{opacity:.55;cursor:not-allowed;background:var(--card);border-style:dashed}
+.ftab-why{margin:0 0 10px}
+body.compact .ftabs{margin-bottom:6px}
+
+/* ---------- ۲) کلید نقش و پنل «نقش‌های من» (C2) ---------- */
+.rolebar{position:relative;display:flex;justify-content:flex-end;margin:0 0 10px}
+.rolebar .role-strip{position:absolute;inset:0 0 auto 0;height:3px;border-radius:3px}
+.role-strip{background:linear-gradient(90deg,var(--brand),var(--sky))}
+.role-strip.role-provider{background:linear-gradient(90deg,var(--indigo),var(--lav))}
+.role-strip.role-admin{background:linear-gradient(90deg,var(--gold),#F6D07A)}
+.role-strip-block{display:block;height:3px;border-radius:3px;margin-bottom:10px}
+.rs-wrap{position:relative}
+.rs-wrap>summary{list-style:none;cursor:pointer}
+.rs-wrap>summary::-webkit-details-marker{display:none}
+.roleswitch{display:inline-flex;align-items:center;gap:10px;padding:6px 12px 6px 8px;border-radius:var(--r-pill);
+  background:var(--card);border:1px solid var(--card-brd);box-shadow:var(--shadow-sm)}
+.roleswitch .chev{transition:transform .2s ease}
+.rs-wrap[open] .roleswitch .chev{transform:rotate(180deg)}
+.rs-avatar{width:30px;height:30px;border-radius:50%;background:var(--brand-soft);color:var(--brand-ink);
+  display:grid;place-items:center;font-weight:700;font-size:13px}
+.role-provider .rs-avatar{background:var(--indigo-soft);color:var(--indigo-ink)}
+.role-admin .rs-avatar{background:var(--gold-soft);color:var(--gold-ink)}
+.rs-txt{display:flex;flex-direction:column;line-height:1.25;text-align:right}
+.rs-txt b{font-size:12.5px}
+.rs-txt small{font-size:11px;color:var(--ink-3)}
+.rolemenu{position:absolute;inset-inline-end:0;top:calc(100% + 8px);width:270px;z-index:70;
+  background:var(--card);border:1px solid var(--card-brd);border-radius:var(--r);box-shadow:var(--shadow);padding:10px}
+.rolemenu-head{font-size:11.5px;color:var(--ink-3);margin:2px 6px 8px}
+.role-form{margin:0}
+.role-row{display:flex;align-items:center;gap:10px;width:100%;text-align:right;background:transparent;
+  border:1px solid transparent;border-radius:var(--r-sm);padding:8px;cursor:pointer;font:inherit;color:inherit}
+.role-row:hover{background:var(--brand-softer)}
+.role-row.on{border-color:var(--brand2);background:var(--brand-softer)}
+.role-dot{width:11px;height:11px;border-radius:50%;flex:none;background:var(--brand)}
+.role-dot.role-provider{background:var(--indigo)}
+.role-dot.role-admin{background:var(--gold)}
+.role-names{display:flex;flex-direction:column;flex:1;min-width:0;line-height:1.3}
+.role-names b{font-size:13px}
+.role-names small{font-size:11px;color:var(--ink-3)}
+.role-go{color:var(--ink-3);display:inline-flex}
+.role-now{font-size:10px}
+.rolemenu-sep{height:1px;background:var(--card-brd);margin:8px 4px}
+.role-next{display:flex;align-items:center;gap:8px;padding:8px;border-radius:var(--r-sm);font-size:13px;color:var(--ink)}
+.role-next:hover{background:var(--brand-softer)}
+.role-accent.role-provider{--brand:var(--indigo);--brand2:var(--indigo);--brand-ink:var(--indigo-ink);
+  --brand-soft:var(--indigo-soft);--brand-softer:#F1F3FE}
+.role-accent.role-admin{--brand:var(--gold);--brand2:#F6D07A;--brand-ink:var(--gold-ink);
+  --brand-soft:var(--gold-soft);--brand-softer:#FFF8E6}
+.role-guard{max-width:640px}
+.chip.ind{background:var(--indigo-soft);color:var(--indigo-ink)}
+.mob-roles{border:1px solid var(--card-brd);border-radius:var(--r);padding:8px;margin-bottom:10px;background:var(--card)}
+.mob-roles .mob-head{border-bottom:none;padding-bottom:6px}
+@media (max-width:960px){
+  .rolebar{display:none}
+}
+
+/* ---------- ۳) کارت دعوت «انتخاب هم‌مسیر» (بند ۴) ---------- */
+.inv-card{display:flex;gap:14px;align-items:center;border-radius:var(--r-lg);padding:16px;
+  border:1.5px solid rgba(255,255,255,.75);box-shadow:var(--shadow-sm);
+  background:linear-gradient(135deg,#EFE9FD 0%,#FFE6F0 48%,#FFF3D6 100%)}
+.inv-card .inv-art{position:relative;flex:none;width:74px;height:74px;border-radius:22px;
+  background:rgba(255,255,255,.55);display:grid;place-items:center;overflow:hidden}
+.inv-dot{position:absolute;width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.95);
+  box-shadow:0 0 0 3px rgba(255,255,255,.35);animation:invFloat 6s ease-in-out infinite}
+.inv-dot.d1{top:12px;left:14px}
+.inv-dot.d2{bottom:14px;right:12px;animation-delay:1.6s}
+.inv-dot.d3{top:36px;right:10px;animation-delay:3.2s}
+@keyframes invFloat{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-6px);opacity:1}}
+.inv-body{flex:1;min-width:0}
+.inv-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-2);
+  background:rgba(255,255,255,.72);border-radius:var(--r-pill);padding:3px 10px;margin-bottom:6px}
+.inv-body h3{font-size:15px}
+.inv-body p{font-size:12.5px;color:var(--ink-2);margin-top:6px}
+.inv-acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.inv-note{font-size:11.5px;color:var(--ink-3);margin-top:8px}
+@media (max-width:560px){
+  .inv-card{flex-direction:column;align-items:flex-start}
+}
+@media (prefers-reduced-motion:reduce){
+  .inv-dot{animation:none}
+}
+
+/* ---------- ۴) کارت مراجع در داشبورد مشاور (C3) ---------- */
+.cc-filter{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.cc-filter a{padding:8px 14px;border-radius:var(--r-pill);background:var(--card);border:1px solid var(--card-brd);
+  font-size:12.5px;color:var(--ink-2);text-decoration:none}
+.cc-filter a.on{background:var(--indigo-soft);border-color:var(--indigo);color:var(--indigo-ink);font-weight:700}
+.cc-filter a .n{font-size:11px;color:var(--ink-3)}
+.cc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.client-card{background:var(--card);border:1px solid var(--card-brd);border-radius:var(--r);padding:14px;
+  display:flex;flex-direction:column;gap:10px}
+.cc-top{display:flex;align-items:center;gap:10px}
+.cc-av{width:38px;height:38px;border-radius:50%;background:var(--indigo-soft);color:var(--indigo-ink);
+  display:grid;place-items:center;font-weight:700;flex:none}
+.cc-top b{font-size:13px;display:block}
+.cc-top small{font-size:11.5px;color:var(--ink-3)}
+.cc-chick{display:flex;align-items:center;gap:12px}
+.cc-state b{display:block;font-size:12.5px}
+.cc-state small{font-size:11.5px;color:var(--ink-3)}
+.client-card[data-state="attention"] .cc-state b{color:var(--rose-ink)}
+.client-card[data-state="calm"] .cc-state b{color:var(--gold-ink)}
+.client-card[data-state="good"] .cc-state b{color:var(--ok)}
+.client-card[data-state="new"] .cc-state b{color:var(--indigo-ink)}
+.cc-perms{display:flex;gap:6px;flex-wrap:wrap}
+.cc-perms .chip{font-size:10px}
+.cc-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.cc-sort{font-size:11.5px;color:var(--ink-3);margin-top:10px}
+.cc-pending .client-card{border-color:var(--gold);background:linear-gradient(160deg,#FFFFFF,var(--gold-soft))}
+@media (max-width:900px){
+  .cc-grid{grid-template-columns:1fr}
+}
+
+/* ---------- ۵) چهار گام دعوت (بند ۴) ---------- */
+.cstep{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--brand-softer)}
+.cstep:last-child{border-bottom:none}
+.cstep .inum{flex:none;width:30px;height:30px;border-radius:50%;background:var(--brand-softer);color:var(--brand-ink);
+  display:grid;place-items:center;font-weight:700;font-size:13px}
+.cstep-body{flex:1;min-width:0}
+.cstep-body>b{font-size:13.5px;display:block}
+.cstep-body>p{font-size:12px;color:var(--ink-2);margin-top:4px}
+.prow{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px dashed var(--card-brd)}
+.prow:last-child{border-bottom:none}
+.prow input[type=checkbox]{margin-top:3px;flex:none}
+.prow b{font-size:12.5px;display:block}
+.prow small{font-size:11.5px;color:var(--ink-3);display:block;margin-top:2px}
+.pgroup{background:var(--brand-softer);border-radius:var(--r-sm);padding:10px;margin-top:8px}
+.pgroup>b{font-size:12.5px}
+.quota{background:var(--sky-soft);border-radius:var(--r-sm);padding:8px 10px;font-size:11.5px;color:var(--sky-ink);margin-top:8px}
+.share-box{border:1.5px dashed var(--indigo);border-radius:var(--r-sm);padding:10px;background:var(--indigo-soft);margin-top:10px}
+.share-box b{font-size:12.5px}
+.share-box small{display:block;font-size:11.5px;color:var(--indigo-ink);margin-top:4px}
+.mood-note-warn{background:var(--rose-soft);border-radius:var(--r-sm);padding:8px 10px;font-size:11.5px;color:var(--rose-ink);margin-top:8px}
+.cp-search{width:100%;margin:8px 0}
+.code-soon{border:1.5px dashed var(--card-brd);border-radius:var(--r-sm);padding:10px;font-size:12px;color:var(--ink-2);margin-top:8px}
+.consent-box{background:var(--card);border:1px solid var(--card-brd);border-radius:var(--r-sm);padding:10px;
+  font-size:12.5px;color:var(--ink-2);max-width:62ch}
+
+/* ==========================================================================
+   بستهٔ v10 — C5 · F1 · F3
+   فقط افزودن است؛ هیچ قاعدهٔ بالایی بازنویسی نمی‌شود.
+   ========================================================================== */
+
+/* ---------- ۶) C5 — «وضعیت در یک نگاه» ---------- */
+.client-card{position:relative;overflow:hidden;padding-top:16px}
+.cc-bar{position:absolute;inset-inline:0;top:0;height:4px;background:var(--cc,var(--card-brd));border-radius:var(--r) var(--r) 0 0}
+.cc-dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none;vertical-align:middle}
+.cc-headcount{display:inline-flex;align-items:center;gap:6px}
+.cc-filter a{display:inline-flex;align-items:center;gap:6px}
+.cc-chip{font-size:11px;font-weight:700;color:#fff;border-radius:var(--r-pill);padding:3px 10px;margin-inline-start:auto;flex:none;white-space:nowrap}
+.cc-chick{display:flex;align-items:center;gap:12px}
+.cc-chick .chick{flex:none;display:inline-flex}
+.cc-chick-floaty svg{animation:ccFloat 4.2s ease-in-out infinite}
+.cc-chick-still svg{animation:none}
+.cc-chick-fallen svg{transform:rotate(-9deg) translateY(3px);transform-origin:50% 70%}
+.cc-chick-egg svg{animation:none}
+@keyframes ccFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.cc-days{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:54px;line-height:1.05}
+.cc-days b{font-size:26px;font-weight:800}
+.cc-days small{font-size:10.5px;color:var(--ink-3);margin-top:2px;white-space:nowrap}
+.cc-last{font-size:11.5px;color:var(--ink-3)}
+@media (prefers-reduced-motion:reduce){
+  /* نوار رنگی وضعیت همیشه می‌ماند؛ فقط حرکت جوجه خاموش می‌شود */
+  .cc-chick-floaty svg{animation:none}
+}
+
+/* ---------- ۷) F1 — حلقهٔ پیشرفت .mring در کارت «قدم بعدی» ---------- */
+.pcard-row{display:flex;align-items:center;gap:14px}
+.pcard-row .pc-tx{flex:1;min-width:0}
+.mring{position:relative;width:60px;height:60px;flex:none}
+.mring svg{width:60px;height:60px;display:block}
+.mring .rt{fill:none;stroke:var(--ring-track);stroke-width:7}
+.mring .rp{fill:none;stroke:var(--brand2);stroke-width:7;stroke-linecap:round;
+  transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dasharray .7s ease}
+.mring .rp.g2{stroke:#4EA8DE}
+.mring .lbl{position:absolute;inset:0;display:grid;place-items:center;text-align:center;line-height:1.1}
+.mring .lbl b{font-size:13px;font-weight:800}
+.mring .lbl span{display:block;font-size:8.5px;color:var(--ink-3)}
+@media (max-width:560px){ .pcard-row{gap:10px} }
+
+/* ---------- ۸) F3 — نمونهٔ زندهٔ «چگالی نمایش» ---------- */
+.dens-pick{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.dens-opt{position:relative;flex:1;min-width:170px;border:1.5px solid var(--card-brd);border-radius:var(--r);padding:10px;
+  cursor:pointer;background:var(--card);display:block}
+.dens-opt.on{border-color:var(--brand2);background:var(--brand-softer)}
+.dens-opt input{position:absolute;opacity:0;pointer-events:none}
+.dens-opt>b{display:block;font-size:12.5px;margin-top:6px}
+.dens-opt>small{display:block;font-size:11px;color:var(--ink-3);margin-top:2px}
+.dens-prev{display:flex;gap:8px;margin-top:6px;min-height:46px}
+.dprev-card{flex:1;background:var(--card);border:1px solid var(--card-brd);border-radius:var(--r-sm);
+  padding:8px;font-size:10.5px;color:var(--ink-2)}
+.dprev-card b{display:block;font-size:11px;color:var(--ink)}
+.dprev-card small{display:block;margin-top:2px}
+.dens-opt.dens-compact .dprev-card{padding:4px 6px}
+.dens-opt.dens-compact .dprev-card small{display:none}
+.dens-opt.dens-compact>small{color:var(--brand-ink)}
+
+/* ---------- ۹) v10 — فهرست کدهای دعوت (داشبورد مشاور) ---------- */
+.code-list{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.code-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--card);
+  border:1px solid var(--card-brd);border-radius:var(--r-sm);padding:8px 10px}
+.code-val{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;font-weight:700;
+  letter-spacing:2px;color:var(--ink);background:var(--brand-softer);border-radius:var(--r-sm);padding:3px 10px}
+.code-st{font-size:11.5px;color:var(--ink-2)}
