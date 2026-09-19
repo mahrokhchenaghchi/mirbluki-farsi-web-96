@@ -103,17 +103,23 @@ LOCK-v8.sha256 قابل بررسی‌اند: درست = ۱۱۴ خط OK و ۱۲ �
 برای شاهدِ «اد اون لی»، این فهرست نشان می‌دهد در همین دور فقط این فایل‌ها باز شدند
 (بقیهٔ فایل‌های v9 بایت‌به‌بایت دست‌نخورده مانده‌اند):
 
-عوض‌شده (۱۳ فایل):
-  assets/css/joma-companion.css          (C5 · F1 · F3 — فقط افزودن)
-  assets/js/joma-companion.js            (F3 — نمونهٔ زندهٔ چگالی)
-  functions/companion_provider.php       (C5 — آستانه‌ها · رنگ‌ها · ترتیب · عدد روز · آخرین ثبت)
-  pages/dashboard.php                    (F1 — حلقهٔ پیشرفت در کارت «قدم بعدی»)
-  pages/hammasir.php                     (کد دعوت — سه اقدام POST + لود موتور)
-  pages/hammasir_client.php              (کد دعوت — کارت «کد دعوت دارم» با همان چک‌باکس‌های خالی)
-  pages/hammasir_provider.php            (C5 — کارت «یک نگاه» + بلوک کد دعوت مشاور)
-  pages/settings.php                     (F3 — فقط بلوک «نمایش»)
-  pages/register.php · pages/forgot.php  (F2 — فقط افزودن aria-label؛ بدون تغییر ساختار)
-  DIFF.txt · LOCK-LIST-v8.txt · 07..10   (مدارک: به‌روزرسانی متن‌ها، بی‌اثر بر کد)
+عوض‌شده (۱۷ فایل — ۱۰ کد محصول + ۱ آزمون + ۶ مدرک):
+  کد محصول:
+    assets/css/joma-companion.css        (C5 · F1 · F3 — فقط افزودن)
+    assets/js/joma-companion.js          (F3 — نمونهٔ زندهٔ چگالی نمایش)
+    functions/companion_provider.php     (C5 — آستانه‌ها · رنگ‌ها · ترتیب · عدد روز · آخرین ثبت)
+    pages/dashboard.php                  (F1 — حلقهٔ پیشرفت در کارت «قدم بعدی»)
+    pages/hammasir.php                   (کد دعوت — سه اقدام POST + لود موتور)
+    pages/hammasir_client.php            (کد دعوت — کارت «کد دعوت دارم» با همان چک‌باکس‌های خالی)
+    pages/hammasir_provider.php          (C5 — کارت «یک نگاه» + بلوک کد دعوت مشاور)
+    pages/settings.php                   (F3 — فقط بلوک «نمایش»)
+    pages/register.php                   (F2 — فقط افزودن aria-label، بدون تغییر ساختار)
+    pages/forgot.php                     (F2 — فقط افزودن aria-label)
+  آزمون:
+    tests/c-round-dom-test.mjs           (اصلاح خودِ آزمون: رزولوشن مسیر ریدایرکت + متن حالت خاموش طبق C5)
+  مدارک (بی‌اثر بر کد):
+    DIFF.txt · LOCK-LIST-v8.txt · 07-راهنما-به‌روزرسانی.txt · 08-چه-چیزی-در-این-بسته-هست.txt
+    · 09-گزارش-تست.txt · 10-گزارش-C1C2C3.txt
 
 تازه (۱۰ فایل):
   functions/companion_invitecode.php · includes/v2_rings.php
