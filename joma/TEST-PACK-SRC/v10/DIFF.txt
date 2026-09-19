@@ -96,3 +96,34 @@ d52cf7952760d22f7b60340d5a3b606eff5cf3392c18dc4641c2f313472fdb86  →  a09883a0d
 
 فایل‌هایی که در این فهرست نیستند، بایت‌به‌بایت همان v8 هستند و با
 LOCK-v8.sha256 قابل بررسی‌اند: درست = ۱۱۴ خط OK و ۱۲ خط FAILED (همین ۱۲ فایل بالا).
+
+──────────────────────────────────────────────────────────────────────────────
+۶) فقط این دور (v9 → v10): چه چیزی عوض شد
+──────────────────────────────────────────────────────────────────────────────
+برای شاهدِ «اد اون لی»، این فهرست نشان می‌دهد در همین دور فقط این فایل‌ها باز شدند
+(بقیهٔ فایل‌های v9 بایت‌به‌بایت دست‌نخورده مانده‌اند):
+
+عوض‌شده (۱۳ فایل):
+  assets/css/joma-companion.css          (C5 · F1 · F3 — فقط افزودن)
+  assets/js/joma-companion.js            (F3 — نمونهٔ زندهٔ چگالی)
+  functions/companion_provider.php       (C5 — آستانه‌ها · رنگ‌ها · ترتیب · عدد روز · آخرین ثبت)
+  pages/dashboard.php                    (F1 — حلقهٔ پیشرفت در کارت «قدم بعدی»)
+  pages/hammasir.php                     (کد دعوت — سه اقدام POST + لود موتور)
+  pages/hammasir_client.php              (کد دعوت — کارت «کد دعوت دارم» با همان چک‌باکس‌های خالی)
+  pages/hammasir_provider.php            (C5 — کارت «یک نگاه» + بلوک کد دعوت مشاور)
+  pages/settings.php                     (F3 — فقط بلوک «نمایش»)
+  pages/register.php · pages/forgot.php  (F2 — فقط افزودن aria-label؛ بدون تغییر ساختار)
+  DIFF.txt · LOCK-LIST-v8.txt · 07..10   (مدارک: به‌روزرسانی متن‌ها، بی‌اثر بر کد)
+
+تازه (۱۰ فایل):
+  functions/companion_invitecode.php · includes/v2_rings.php
+  اختیاری-2-hammasir_invite_codes.sql
+  11-گزارش-C5-و-F-v10.txt · 12-فهرست-و-راهنمای-v10.txt
+  tests/ (c5-glance · v10-aria-density · sweep-roles · seed-v10 · dbg-v10)
+
+حذف‌شده: هیچ.
+
+دست‌نخورده در همین دور (از v9): includes/bootstrap.php · includes/layout.php ·
+includes/v2_shell.php · index.php · pages/today.php · includes/v2_roles.php ·
+includes/v2_mood.php · includes/v2_glass.php · includes/v2_calendar.php · assets/js/joma-v2.js
+و بقیهٔ ۱۰۰+ فایل دیگر.
