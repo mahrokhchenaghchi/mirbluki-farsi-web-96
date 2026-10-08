@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>رفع فوری — پیامک مخاطب روی test.mirbolouki.com</title>
+<style>
+:root{--ink:#241f19;--muted:#6d6357;--line:#e3dbcd;--teal:#08a078;--teal-dark:#0b6a52;--teal-soft:#e6f7f1;
+  --gold:#f0cc3c;--plum:#a082aa;--navy:#061020;--cream:#f7f3ea;--warn:#fdf6df;--warnline:#efd98a;--bad:#fdf3f0;--badline:#eccfc4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);direction:rtl;line-height:2.05;font-family:Vazirmatn,Tahoma,system-ui,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:26px 18px 80px}
+.tri{display:flex;gap:5px;height:5px;border-radius:4px;overflow:hidden;margin-bottom:18px}
+.tri i{flex:1}.tri i:nth-child(1){background:var(--teal)}.tri i:nth-child(2){background:var(--gold)}.tri i:nth-child(3){background:var(--plum)}
+h1{font-size:23px;margin:0 0 6px}
+.sub{color:var(--muted);font-size:14.5px;margin:0 0 20px}
+h2{font-size:19px;margin:32px 0 10px;padding-right:12px;border-right:5px solid var(--teal);line-height:1.7}
+h3{font-size:16.5px;margin:18px 0 6px}
+p{margin:9px 0;font-size:15px}
+ol,ul{margin:8px 0;padding-right:20px;font-size:15px}li{margin-bottom:7px}
+.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:17px;margin-top:14px}
+.card.ok{background:#f3fbf7;border-color:#bfe6d4}
+.card.warn{background:var(--warn);border-color:var(--warnline)}
+.card.bad{background:var(--bad);border-color:var(--badline)}
+pre{direction:ltr;text-align:left;background:#12181f;color:#e8f3ee;border-radius:11px;padding:12px 14px;font-size:12.5px;overflow:auto;font-family:ui-monospace,Menlo,Consolas,monospace;line-height:1.7}
+code{direction:ltr;font-family:ui-monospace,Menlo,Consolas,monospace;background:#f4efe4;border-radius:6px;padding:2px 7px;font-size:13px;word-break:break-all;display:inline-block}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;font-size:14px;margin-top:10px}
+th,td{border-bottom:1px solid #f0eade;padding:10px 12px;text-align:right;vertical-align:top}
+th{background:#f2ece0}
+.note{background:#fbf6ec;border:1px solid #e9dcc2;border-radius:12px;padding:12px 15px;font-size:14px;color:#5a4630;margin-top:12px}
+.badge{display:inline-block;border-radius:7px;padding:2px 10px;font-size:12.5px;font-weight:700}
+.badge.ok{background:#e6f7f1;color:#0b5a45;border:1px solid #bfe6da}
+.badge.bad{background:#fdf3f0;color:#8d3b22;border:1px solid #eccfc4}
+.foot{margin-top:34px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between}
+</style>
+</head>
+<body><div class="wrap">
+  <div class="tri"><i></i><i></i><i></i></div>
+  <h1>رفع فوری: چرا پیامک برای مخاطب نمی‌رود</h1>
+  <p class="sub">دروازهٔ تراکت روی <code>test.mirbolouki.com</code> — نسخهٔ وصله: <b>patch-sms-fix</b></p>
+
+  <h2>۱) اثبات مشکل (نه حدس)</h2>
+  <p>خروجی زندهٔ همین صفحه روی سرور تو در لحظهٔ بررسی — <code>https://test.mirbolouki.com/check.php</code>:</p>
+  <pre>آخرین تلاش ارسال پیامک  2026-10-08 15:49  ·  ناموفق ✗
+smsir_pattern · HTTP 401 · {"data":null,"status":10,"message":"کلید وب سرویس نامعتبر است"}</pre>
+  <div class="card bad">
+    <h3>این خط دقیقاً یعنی چه</h3>
+    <ul style="margin-bottom:0">
+      <li>سامانه کد ۶ رقمی را <b>تولید می‌کند</b> و درخواست ارسال را <b>می‌فرستد</b>؛ ربطی به کد، شمارهٔ مخاطب یا فایل‌ها ندارد.</li>
+      <li>سرور <code>api.sms.ir</code> در همان لحظه جواب داده: <b>HTTP 401 + status 10 = کلید وب‌سرویس نامعتبر است</b>.</li>
+      <li>پس ارتباط سرور با بیرون سالم است، حالت روی «واقعی» است، پنل <code>smsir_pattern</code>، قالب <code>180905</code> و متغیر <code>CODE</code> هم درست ثبت شده‌اند.</li>
+      <li>تنها چیزِ غلط: <b>مقدار «کلید وب‌سرویس» ذخیره‌شده در سایت</b>.</li>
+      <li>چون «کد پشتیبان روی صفحه» روشن است، مخاطب به‌جای پیامک، کد را روی صفحه می‌بیند — همان چیزی که گزارش دادی.</li>
+    </ul>
+  </div>
+  <p>ریشهٔ این وضعیت در بسته‌ای است که آپلود کردی؛ <code>redeem/config.php</code> این خط را داشت:</p>
+  <pre>'sms_key' =&gt; getenv('SMSIR_KEY') ?: 'PUT-API-KEY-HERE',   // روی سرور ست نشده</pre>
+  <p>و تابع <code>apply_config_defaults()</code> همین مقدار را «خودکار» روی تنظیمات سایت می‌نشاند. تا وقتی این خط پر نشود،
+  رشتهٔ <code>PUT-API-KEY-HERE</code> به‌عنوان کلید به sms.ir می‌رود و همان ۴۰۱/status 10 برمی‌گردد.
+  بدتر: همان بسته تب «تنظیمات پیامک» را از پنل مدیر <b>حذف</b> کرده بود، در حالی که راهنمای داخل همان بسته
+  (<code>SMS-SETUP.html</code>) می‌گوید کلید را از همان تب ذخیره کن — یعنی در عمل هیچ راهی برای ست‌کردن کلید وجود نداشت.</p>
+
+  <h2>۲) رفع — دو راه، هر کدام ۲ دقیقه</h2>
+  <div class="card ok">
+    <h3>راه الف — همین الان، بدون آپلود چیزی</h3>
+    <ol style="margin-bottom:0">
+      <li>سی‌پنل → <b>File Manager</b> → ریشهٔ ساب‌دامین <code>test</code> → پوشهٔ <code>redeem</code> → روی <code>config.php</code> راست‌کلیک → <b>Edit</b>.</li>
+      <li>همان خط را پیدا کن و <code>PUT-API-KEY-HERE</code> را با کلید واقعی عوض کن (بدون فاصله، داخل کوتیشن):
+        <pre>'sms_key' =&gt; 'کلید-۶۴-کاراکتری-خودت-اینجا',</pre></li>
+      <li>ذخیره → یک صفحه از سایت را باز کن (تا تنظیمات خودکار اعمال شود) → <code>admin.php</code> → «ارسال آزمایشی» → بعد <code>/check.php</code>.</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h3>راه ب — با این وصله (پیشنهادی؛ هم کلید، هم باگ‌ها)</h3>
+    <ol>
+      <li>زیپ <code>patch-sms-fix.zip</code> را در ریشهٔ ساب‌دامین <code>test</code> آپلود → راست‌کلیک → <b>Extract</b> (جایگزین شود؟ بله).</li>
+      <li><code>https://test.mirbolouki.com/redeem/admin.php</code> → تب تازهٔ <b>«تنظیمات پیامک»</b> → کلید وب‌سرویس را پیست کن → <b>ذخیرهٔ تنظیمات</b>.</li>
+      <li>دکمهٔ <b>«آزمون کلید — دریافت اعتبار از sms.ir»</b>: اگر نوشت «کلید معتبر است ✓ · اعتبار پنل: …» یعنی کلید سالم است و گیر از الگو/خط است.</li>
+      <li>«ارسال آزمایشی» → بعد <code>/check.php</code> باید ردیف «آخرین تلاش» را <span class="badge ok">موفق ✓</span> ببینی و پیامک روی گوشی‌ات بیاید.</li>
+      <li>زیپ را Delete کن. برای <code>mirbolouki.com</code> (اگر دروازه آنجا هم نصب است) همان ۴ قدم را تکرار کن؛ کلید یکی است.</li>
+    </ol>
+    <div class="note">هیچ داده‌ای پاک نمی‌شود: سریال‌ها، کاربران، تست‌ها و درخواست‌ها در <code>redeem/data/gate.sqlite</code> می‌مانند و این بسته فقط کد را عوض می‌کند.</div>
+  </div>
+
+  <h2>۳) پنج چیزی که باعث می‌شود کلید «نامعتبر» برگردد (به ترتیب شیوع)</h2>
+  <table>
+    <tr><th style="width:30%">بررسی کن</th><th>معنی / کار درست</th></tr>
+    <tr><td><b>نوع کلید</b></td><td>در پنل sms.ir: «برنامه‌نویسان → لیست کلیدهای API → افزودن کلید جدید» و کلید باید از نوع <b>واقعی/Production</b> باشد.
+        کلید <b>Sandbox</b> پیامک واقعی <u>نمی‌فرستد</u> (و در Sandbox فقط قالب ۱۲۳۴۵۶ فعال است، پس قالب ۱۸۰۹۰۵ را نمی‌پذیرد).</td></tr>
+    <tr><td><b>کپی کامل</b></td><td>کلید ۶۴ کاراکتر است. یک کاراکتر کم یا یک فاصلهٔ اضافه = status 10. در این وصله فاصله/خط جدید/BOM خودکار پاک می‌شود و <b>طول کلید</b> در پنل نمایش داده می‌شود.</td></tr>
+    <tr><td><b>هم‌حساب بودن</b></td><td>الگوی <code>180905</code> و کلید باید مال <b>یک پنل</b> باشند. اگر الگو در پنل دیگری تأیید شده، status 113 یا 10 می‌گیری.</td></tr>
+    <tr><td><b>محدودیت IP</b></td><td>اگر روی کلید IP تعریف کرده باشی و آی‌پی سرور توی فهرست نباشد: <b>status 12</b>. آی‌پی سرور را اضافه کن یا محدودیت را بردار.</td></tr>
+    <tr><td><b>فعال بودن و اعتبار</b></td><td><b>status 11</b> = کلید غیرفعال/منقضی (کلید تازه بساز). پیام «اعتبار» = شارژ پنل تمام شده.</td></tr>
+  </table>
+
+  <h2>۴) باگ‌هایی که در این وصله اصلاح شد</h2>
+  <ol>
+    <li><b>پاک‌شدن کلید توسط config:</b> مقادیر خالی یا نمونهٔ <code>PUT-API-KEY-HERE</code> دیگر هیچ‌وقت روی تنظیماتِ ذخیره‌شده نوشته نمی‌شوند؛
+        هر مقدار فقط «یک‌بار برای هر مقدارِ تازه» اعمال می‌شود و بعد اختیار با پنل مدیر است. کلید از کلید تازهٔ <code>sms_key_config</code> می‌آید.</li>
+    <li><b>تب «تنظیمات پیامک» برگشت:</b> کلید، پنل، شناسهٔ الگو، نام متغیر، خط، حالت کد، کد پشتیبان + «آزمون کلید» (فراخوانی <code>/v1/credit</code>) + «ارسال آزمایشی». دیگر لازم نیست فایل ویرایش کنی.</li>
+    <li><b>دروغِ صفحهٔ سلامت:</b> <code>check.php</code> با <code>str_contains($last,'موفق')</code> بررسی می‌کرد — و «نا<b>موفق</b>» هم «موفق» دارد!
+        به‌همین دلیل روی سرور تو با وجود ارسال شکست‌خورده نوشته بود «همه‌چیز آماده است ✅». الان وضعیت ناموفق <b>قرمز</b> می‌شود و دو ردیف تازه دارد: «کلید وب‌سرویس» (ست‌نشده/کوتاه/ثبت‌شده + طول) و «آخرین آزمون کلید».</li>
+    <li><b>خطای SQL در گام اول دروازه:</b> در <code>redeem/index.php</code> یک علامت <code>?</code> اضافه نوشته شده بود
+        (<code>…NULLIF(serial,''),?)? WHERE phone=?</code>) که برای شماره‌ای که قبلاً ثبت شده بود خطای SQL و صفحهٔ سفید (۵۰۰) می‌داد؛ اصلاح شد و در <code>try/catch</code> پیچیده شد تا مسیر مخاطب هرگز بسته نشود.</li>
+    <li><b>نگاشت کدهای sms.ir</b> اصلاح شد (۱۲ = «محدودیت IP» است، نه «اعتبار کافی نیست») و متن خام پاسخ پنل همیشه نمایش داده می‌شود.</li>
+    <li><b>ردپای ماندگار:</b> هر تلاش ارسال در <code>redeem/data/sms-attempts.log</code> نوشته می‌شود (زمان · شماره · OK/FAIL · پاسخ پنل). اگر روز ایونت چیزی گیر کرد، همین فایل جواب است. <code>.htaccess</code> هم طوری کامل شد که این فایل از بیرون خوانده نشود.</li>
+  </ol>
+
+  <h2>۵) دو نکته برای روز ایونت</h2>
+  <div class="card warn">
+    <ul style="margin-bottom:0">
+      <li><b>«کد پشتیبان روی صفحه» را خاموش کن</b> (پنل مدیر → تنظیمات پیامک → «خاموش — فقط پیامک»)؛ وگرنه اگر پیامک نرود کد روی صفحه دیده می‌شود و هرکس پشت سر مخاطب بایستد آن را می‌بیند.</li>
+      <li><b>سقف درخواست کد:</b> هر شماره فقط ۳ درخواست در ساعت دارد (<code>otp.send_per_hr</code> در <code>config.php</code>).
+          اگر شماره‌ای چند بار کد اشتباه بگیرد، قفل می‌شود. برای روز شلوغ همین عدد را به ۶ یا ۸ برسان.</li>
+    </ul>
+  </div>
+
+  <h2>۶) اگر منظورت پیامکِ «سامانهٔ آزمون» است (ورود مراجعان)</h2>
+  <p>آن مسیر (<code>test.mirbolouki.com/user/login.php</code>) کدش را از <code>includes/sms.php</code> و تنظیمات <code>config/config.php</code> می‌گیرد،
+  نه از دروازه. دو بررسی سریع، بدون حدس:</p>
+  <ol>
+    <li><code>config/config.php</code> → اگر <code>SMS_PROVIDER</code> مقدارش <code>'dev'</code> باشد، پیامک واقعی نمی‌رود و کد روی صفحهٔ ورود چاپ می‌شود؛ آن را روی حالت <code>smsir</code> بگذار و همان کلید درست را همان‌جا هم ست کن.</li>
+    <li>پنل مدیر سامانهٔ آزمون → «پیامک» (<code>admin/sms.php</code>) → ستون <code>status</code> و <code>error_msg</code> ردیف‌های <code>failed</code>.
+        اگر همان ۴۰۱/status 10 بود، یعنی همان کلید غلط است و با قدم ۲ حل می‌شود.</li>
+  </ol>
+
+  <h2>۷) باز هم نرفت؟</h2>
+  <p>فقط یکی از این دو را برایم بفرست؛ هر دو دقیقاً می‌گویند کدام لایه گیر کرده (کلید / خط / الگو / اعتبار):</p>
+  <ul>
+    <li>خط «آخرین نتیجهٔ ارسال» از پنل مدیر → تب «تنظیمات پیامک»، یا</li>
+    <li>خروجی <code>https://test.mirbolouki.com/check.php</code> (چهار ردیف آخرش کافی است).</li>
+  </ul>
+
+  <div class="foot">
+    <span>پشتیبانی: <b dir="ltr">09967979471</b> — پیامک · بله · روبیکا</span>
+    <span>جوما | پلنر هوشمند روان‌شناسی · mirbolouki.com</span>
+  </div>
+</div></body></html>

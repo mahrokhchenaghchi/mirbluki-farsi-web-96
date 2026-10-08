@@ -1,0 +1,40 @@
+# دروازهٔ تراکت — کتابخانه نیمه‌شب
+# نصب: محتوای این پوشه را در test.mirbolouki.com/redeem/ بگذار.
+# آدرس ورودی روی تراکت: https://test.mirbolouki.com/redeem/?s=ML-1404-0001&src=tract
+
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /redeem/
+
+  # /redeem/ML-1404-0001  →  /redeem/?s=ML-1404-0001
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(ML-[0-9A-Za-z-]+)/?$ index.php?s=$1&src=tract [L,QSA]
+</IfModule>
+
+# پوشهٔ داده‌ها و فایل‌های حساس هرگز از وب خوانده نشوند
+<FilesMatch "\.(sqlite|sqlite3|log|csv)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+<FilesMatch "^(config\.php|lib\.php)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+</FilesMatch>
+
+# افزودهٔ این وصله: جلوگیری از خوانده‌شدن لاگ‌ها و تنظیمات از بیرون
+<IfModule mod_authz_core.c>
+  <FilesMatch "\.(sqlite3?|log|env|ini)$">
+    Require all denied
+  </FilesMatch>
+</IfModule>
