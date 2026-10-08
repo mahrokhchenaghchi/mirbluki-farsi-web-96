@@ -131,6 +131,29 @@ smsir_pattern · HTTP 401 · {"data":null,"status":10,"message":"کلید وب �
     <li>خروجی <code>https://test.mirbolouki.com/check.php</code> (چهار ردیف آخرش کافی است).</li>
   </ul>
 
+  <h2>۸) «کد پیامک شد ولی صفحهٔ بعد ۵۰۰ می‌دهد» — علت و رفع ۳۰ ثانیه‌ای</h2>
+  <p>این یک باگ جدا و <b>قطعی</b> است که در خط ۶۲ فایل <code>redeem/index.php</code> نهفته است (در همان بستهٔ <code>patch-sms.zip</code>):</p>
+  <pre>db()-&gt;prepare('UPDATE users SET serial=COALESCE(NULLIF(serial,\'\'),<b>?</b><b>?</b> WHERE phone=?')
+//                                                          ↑ یک ? اضافه — SQL غلط می‌شود</pre>
+  <p>ترتیب اجرا در «دریافت کد تأیید»: کد ساخته می‌شود ← <b>پیامک می‌رود</b> ← ثبت کاربر ← <span class="badge bad">این‌جا خطای SQL و ۵۰۰</span> ← پرش به صفحهٔ کد (که هرگز اجرا نمی‌شود).
+  برای همین «کد می‌آید ولی صفحهٔ بعد باز نمی‌شود». در SQLite و MySQL هر دو، این جمله خطای نحوی می‌دهد (تست شد: <code>near &quot;?&quot;: syntax error</code>).</p>
+  <div class="card ok">
+    <h3>رفع</h3>
+    <ol style="margin-bottom:0">
+      <li>سی‌پنل → <code>test/redeem/index.php</code> → Edit</li>
+      <li>همان خط را پیدا کن و <b>فقط یک علامت <code>?</code> اضافه</b> را پاک کن؛ شکل درست:
+        <pre>'UPDATE users SET serial=COALESCE(NULLIF(serial,\'\'),?) WHERE phone=?'</pre></li>
+      <li>ذخیره. یا ساده‌تر: فایل <code>redeem/index.php</code> همین بسته را جایگزین کن (همین اصلاح + <code>try/catch</code> اضافه).</li>
+    </ol>
+  </div>
+  <div class="card warn">
+    <b>چطور مطمئن شوی همین بوده:</b> با یک شماره که تا حالا در این دروازه ثبت <u>نشده</u> امتحان کن — آن مسیر از <code>INSERT</code> می‌رود و ۵۰۰ نمی‌دهی؛ با شمارهٔ خودت (که قبلاً ثبت شده) ۵۰۰ می‌گیری. اگر با شمارهٔ تازه هم ۵۰۰ گرفتی، اینطور پیدایش می‌کنیم: همین دو خط را موقتاً بعد از <code>&lt;?php</code> اولِ <code>index.php</code> بگذار و اسکرین‌شات بفرست:
+    <pre>ini_set('display_errors','1'); error_reporting(E_ALL);</pre>
+    (یا فایل <code>test/redeem/error_log</code> و در سی‌پنل: Metrics → Errors را نگاه کن.)
+  </div>
+  <div class="note"><b>کار موقت برای امشب:</b> بعد از این‌که کد پیامک شد، آدرس زیر را مستقیم باز کن و کد را وارد کن — <code>verify.php</code> سالم است و کار می‌کند (اعتبار کد ۱۲۰ ثانیه):
+  <div style="direction:ltr;text-align:left;margin-top:6px"><code>https://test.mirbolouki.com/redeem/verify.php?p=09XXXXXXXXX&amp;s=ML-1404-0001&amp;src=tract</code></div></div>
+
   <div class="foot">
     <span>پشتیبانی: <b dir="ltr">09967979471</b> — پیامک · بله · روبیکا</span>
     <span>جوما | پلنر هوشمند روان‌شناسی · mirbolouki.com</span>
